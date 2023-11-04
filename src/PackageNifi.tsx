@@ -1,14 +1,14 @@
 import { ChangeEvent, useState } from "react"
 import AttributesTable from "./AttributesTable"
-import { Button, ButtonGroup, Snackbar, } from "@mui/material";
+import { Button, ButtonGroup, Snackbar, TextField, } from "@mui/material";
 import { FlowfileAttributeRowSchema, } from "./schemas";
 import AttributeDialog from "./AttributeDialog";
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import packageFlowFile from "./packageFlowFile";
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import { downloadFile } from "./downloadFile";
+import Spacing from "./Spacing";
 
 function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
@@ -94,27 +94,20 @@ function PackageNifi() {
 
     return (
         <>
+            <h4>Flow File Packager</h4>
             <p>Javascript Port of the <a href="https://github.com/apache/nifi/blob/main/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFilePackagerV3.java">FlowFilePackagerV3</a> class.</p>
-            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} />
+            <h5>Flow File Attributes</h5>
+            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={true} />
             <AttributeDialog open={openAttribute} setOpen={setOpenAttribute} setRows={setRows} rows={rows} />
-            <div style={{ marginTop: "10px" }} />
+            <Spacing />
             <ButtonGroup>
                 <Button startIcon={<AddIcon />} onClick={() => setOpenAttribute(true)}>Add Attribute</Button>
-                <Button startIcon={<ClearIcon />} onClick={() => clear()}>Clear</Button>
-
-                <input
-                    style={{ display: 'none' }}
-                    id="raised-button-file"
-                    type="file"
-                    onChange={onUpload}
-                />
-                <label htmlFor="raised-button-file">
-                    <Button component="span" startIcon={<CloudUploadIcon />}>
-                        Upload
-                    </Button>
-                </label>
-                <Button startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download</Button>
+                <Button startIcon={<ClearIcon />} onClick={() => clear()}>Clear All</Button>
             </ButtonGroup>
+            <h5>Flow File Content</h5>
+            <TextField type="file" onChange={onUpload}/>
+            <h5>Flow File Download</h5>
+            <Button startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download</Button>
             <Snackbar
                 open={openAlert}
                 autoHideDuration={6000}

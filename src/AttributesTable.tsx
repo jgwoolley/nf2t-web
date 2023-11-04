@@ -14,6 +14,7 @@ export interface AttributesTableProps {
     rows: FlowfileAttributeRowSchema[],
     setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
     submitAlert: (message: string) => void,
+    canEdit: boolean,
 }
 
 export function AttributesTable(props: AttributesTableProps) {
@@ -31,7 +32,7 @@ export function AttributesTable(props: AttributesTableProps) {
                         <TableRow>
                             <TableCell>Attribute Key</TableCell>
                             <TableCell>Attribute Value</TableCell>
-                            <TableCell>Functions</TableCell>
+                            {props.canEdit && <TableCell>Functions</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -42,12 +43,14 @@ export function AttributesTable(props: AttributesTableProps) {
                             >
                                 <TableCell component="th" scope="row">{row.key}</TableCell>
                                 <TableCell>{row.value}</TableCell>
-                                <TableCell>
-                                    <ButtonGroup variant="contained" aria-label="outlined primary button group">
-                                        <Button onClick={() => deleteRow(index)} variant="outlined" startIcon={<DeleteIcon />}>Delete</Button>
-                                        <Button variant="outlined" startIcon={<EditIcon />}>Edit</Button>
-                                    </ButtonGroup>
-                                </TableCell>
+                                {props.canEdit &&
+                                    <TableCell>
+                                        <ButtonGroup variant="contained" aria-label="outlined primary button group">
+                                            <Button onClick={() => deleteRow(index)} variant="outlined" startIcon={<DeleteIcon />}>Delete</Button>
+                                            <Button variant="outlined" startIcon={<EditIcon />}>Edit</Button>
+                                        </ButtonGroup>
+                                    </TableCell>
+                                }
                             </TableRow>
                         ))}
                     </TableBody>
