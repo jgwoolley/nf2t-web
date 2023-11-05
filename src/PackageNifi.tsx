@@ -3,6 +3,7 @@ import AttributesTable from "./AttributesTable"
 import { Button, ButtonGroup, Snackbar, TextField, } from "@mui/material";
 import { FlowfileAttributeRowSchema, } from "./schemas";
 import AttributeDialog from "./AttributeDialog";
+import AttributeDownload from "./AttributeDownload";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import packageFlowFile from "./packageFlowFile";
 import ClearIcon from '@mui/icons-material/Clear';
@@ -103,11 +104,12 @@ function PackageNifi() {
             <ButtonGroup>
                 <Button startIcon={<AddIcon />} onClick={() => setOpenAttribute(true)}>Add Attribute</Button>
                 <Button startIcon={<ClearIcon />} onClick={() => clear()}>Clear All</Button>
+                <AttributeDownload rows={rows} />
             </ButtonGroup>
             <h5>Flow File Content</h5>
             <TextField type="file" onChange={onUpload}/>
             <h5>Flow File Download</h5>
-            <Button startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download</Button>
+            <Button variant="outlined" startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download Flow File</Button>
             <Snackbar
                 open={openAlert}
                 autoHideDuration={6000}

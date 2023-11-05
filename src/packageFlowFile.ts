@@ -3,7 +3,13 @@ import { FlowfileAttributeRowSchema, } from "./schemas";
 const MAGIC_HEADER = 'NiFiFF3';
 const MAX_VALUE_2_BYTES = 65535;
 
-// https://www.youtube.com/watch?v=y112ifgOsW0
+/**
+ * 
+ * @see https://www.youtube.com/watch?v=y112ifgOsW0
+ * 
+ * @param bytes 
+ * @param text 
+ */
 function pushUTF8(bytes: number[], text: string) {
     for(var i=0; i < text.length; i++) {
         var charcode = text.charCodeAt(i);

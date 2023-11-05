@@ -5,6 +5,7 @@ import AttributesTable from './AttributesTable';
 import { FlowfileAttributeRowSchema } from './schemas';
 import { downloadFile } from './downloadFile';
 import Spacing from './Spacing';
+import AttributeDownload from './AttributeDownload';
 
 function findFilename(rows: FlowfileAttributeRowSchema[]) {
     const filteredRows = rows.filter((x) => x.key === "filename");
@@ -99,6 +100,8 @@ export function UnPackageNifi() {
             <Spacing />
             <h5>Unpackaged Flow File Attributes</h5>
             <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={false} />
+            <Spacing />
+            <AttributeDownload rows={rows} />
             <Snackbar
                 open={openAlert}
                 autoHideDuration={6000}
