@@ -1,11 +1,20 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 export function Source() {
-    const buildinfo = useMemo(async () =>{
-        const response = await fetch("./buildinfo.json");
-        const data = await response.json();
-        console.log(data);
-        return data;
+    const [buildinfo, setBuildinfo] = useState<any>();
+
+    useEffect(() =>{
+        fetch("./buildinfo.json")
+            .then( x => {
+                if(x.ok) {
+                    return x;
+                }
+
+                throw new Error("Did not recieve OK response")
+            })
+            .then( x => x.json())
+            .then( x => setBuildinfo(x))
+            .catch( e => console.error(e));
     }, []);
 
     return (
