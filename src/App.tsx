@@ -3,6 +3,7 @@ import NifiAppBar from "./NifiAppBar";
 import PackageNifi from "./PackageNifi";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import UnPackageNifi from "./UnPackageNifi";
+import Source from "./Source";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Routes>
           <Route path="*" element={<UnPackageNifi />} />
           <Route path="/package" element={<PackageNifi />} />
+          <Route path="/source" element={<Source />}/>
         </Routes>
       </HashRouter>
     </Container>
