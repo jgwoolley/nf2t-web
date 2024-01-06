@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 export function Source() {
     const buildinfo = useMemo(async () =>{
-        const response = await fetch("/buildinfo.json");
+        const response = await fetch("./buildinfo.json");
         const data = await response.json();
         console.log(data);
         return data;
