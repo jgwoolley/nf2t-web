@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import child_process from 'child_process';
 import react from '@vitejs/plugin-react'
 
+// https://git-scm.com/docs/git-show
 const gitShowPlaceholders = [
   "H", "h",
   "T", "t",

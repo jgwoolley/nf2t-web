@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 interface BuildInfo {
     git: {
         at: string,
+        ae: string,
     },
 }
 
@@ -37,7 +38,8 @@ export function Source() {
         <>
             <h4>Source Information</h4>
             <p>The source code of this project is stored at <a href="https://github.com/jgwoolley/Nifi-Flow-File-Helper">https://github.com/jgwoolley/Nifi-Flow-File-Helper</a>.</p>
-            {authorDate}            
+            {buildinfo?.git.ae}            
+            {authorDate?.toISOString()}            
         </>
     )
 }
