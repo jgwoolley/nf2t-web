@@ -38,8 +38,8 @@ export function Source() {
         <>
             <h4>Source Information</h4>
             <p>The source code of this project is stored at <a href="https://github.com/jgwoolley/Nifi-Flow-File-Helper">https://github.com/jgwoolley/Nifi-Flow-File-Helper</a>.</p>
-            {buildinfo?.git.ae}            
-            {authorDate?.toISOString()}            
+            {buildinfo?.git.ae || "No build info yet"}            
+            {authorDate?.toISOString() || "No build info yet"}            
         </>
     )
 }
