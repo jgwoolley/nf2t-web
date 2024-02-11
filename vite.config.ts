@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
-import path from 'node:path';
-import fs from 'node:fs';
 import child_process from 'child_process';
 import react from '@vitejs/plugin-react'
+import generateFile from 'vite-plugin-generate-file'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // https://git-scm.com/docs/git-show
 const gitShowPlaceholders = [
@@ -31,7 +31,7 @@ const gitShowPlaceholders = [
   "f",
 ]
 
-function calculateGithub() {
+function generateBuildinfo() {
   const jobId = process.env.GITHUB_JOB;
   let base = undefined;
   const repository = process.env.GITHUB_REPOSITORY;
@@ -40,33 +40,30 @@ function calculateGithub() {
     base = repositorySplit.length <= 0 ? undefined: repositorySplit[1];
   }
 
-  return {
-    jobId, 
-    repository, 
+  const gitlog_text = child_process.execSync(`git log -1 --pretty=format:\'{${gitShowPlaceholders.map(x => `\"${x}\": \"%${x}\"`).join(", ")}}\'`)
+  const gitlog = JSON.parse(gitlog_text.toString());
+  return  {
     base,
-  };
+    git: gitlog,
+    github: {
+      jobId, 
+      repository, 
+    }
+  }
 }
 
-const { jobId, repository, base } = calculateGithub()
+const buildinfo = generateBuildinfo();
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: base,
+  base: buildinfo.base,
   plugins: [
+    VitePWA(),
     react(),
-    {
-      name: "buildinfo",
-      closeBundle: () => {
-        const gitlog_path = path.join(__dirname, "dist", "buildinfo.json");
-        const gitlog_text = child_process.execSync(`git log -1 --pretty=format:\'{${gitShowPlaceholders.map(x => `\"${x}\": \"%${x}\"`).join(", ")}}\'`)
-        const gitlog = JSON.parse(gitlog_text.toString());
-        const buildinfo = {
-          git: gitlog,
-          github: calculateGithub(),
-        }
-
-        fs.writeFileSync(gitlog_path, JSON.stringify(buildinfo));
-      },
-    }
+    generateFile([{
+      type: 'json',
+      output: './buildinfo.json',
+      data: buildinfo,
+    }]),
   ],
 })
