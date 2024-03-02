@@ -10,8 +10,57 @@ import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import { downloadFile } from "../utils/downloadFile";
 import Spacing from "../components/Spacing";
-import references from "../utils/references";
-import ExternalLink from "../components/ExternalLink";
+import NfftHeader, { routeDescriptions } from "../components/NfftHeader";
+
+type PackageNifiProps = {
+    openAttribute: boolean,
+    setOpenAttribute: React.Dispatch<React.SetStateAction<boolean>>,
+    file: File | null,
+    setFile: React.Dispatch<React.SetStateAction<File | null>>,
+    rows: FlowfileAttributeRowSchema[],
+    setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
+    submitAlert: (message: string) => void,
+    submit: () => void,
+    onUpload: (e: ChangeEvent<HTMLInputElement>) => void,
+    clear: () => void,
+}
+
+function SetFlowFileContent({onUpload}: PackageNifiProps) {
+    return (
+        <>
+            <h5>1. Flow File Content</h5>
+            <p>Upload a file to package into a Flow File.</p>
+            <TextField type="file" onChange={onUpload}/>
+        </>
+    )
+}
+
+function SetFlowFileAttributes({rows, setRows, submitAlert, openAttribute, setOpenAttribute, clear}: PackageNifiProps) {
+    return (
+        <>
+            <h5>2. Flow File Attributes</h5>
+            <p>Edit the Flow File attributes.</p>
+            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={true} />
+            <AttributeDialog open={openAttribute} setOpen={setOpenAttribute} setRows={setRows} rows={rows} />
+            <Spacing />
+            <ButtonGroup>
+                <Button startIcon={<AddIcon />} onClick={() => setOpenAttribute(true)}>Add Attribute</Button>
+                <Button startIcon={<ClearIcon />} onClick={() => clear()}>Clear All</Button>
+                <AttributeDownload rows={rows} />
+            </ButtonGroup>
+        </>
+    )
+}
+
+function GetFlowFile({submit}: PackageNifiProps) {
+    return (
+        <>
+            <h5>3. Flow File Download</h5>
+            <p>Download the Packaged Flow File.</p>
+            <Button variant="outlined" startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download Flow File</Button>
+        </>
+    )
+}
 
 function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
@@ -19,8 +68,6 @@ function PackageNifi() {
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("No Message");
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
-
-    document.title = "FlowFile Tools - Package"
 
     const submitAlert = (message: string) => {
         setMessage(message);
@@ -95,23 +142,26 @@ function PackageNifi() {
         submitAlert("Cleared");
     }
 
+    const props: PackageNifiProps = {
+        openAttribute: openAttribute,
+        setOpenAttribute: setOpenAttribute,
+        file: file,
+        setFile: setFile,
+        rows: rows,
+        setRows: setRows,
+        submitAlert: submitAlert,
+        submit: submit,
+        onUpload: onUpload,
+        clear: clear,
+    }
+
     return (
         <>
-            <h4>Flow File Packager</h4>
-            <p>Javascript Port of the <ExternalLink href={references.FlowFilePackagerV3}>FlowFilePackagerV3</ExternalLink> class.</p>
-            <h5>Flow File Attributes</h5>
-            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={true} />
-            <AttributeDialog open={openAttribute} setOpen={setOpenAttribute} setRows={setRows} rows={rows} />
-            <Spacing />
-            <ButtonGroup>
-                <Button startIcon={<AddIcon />} onClick={() => setOpenAttribute(true)}>Add Attribute</Button>
-                <Button startIcon={<ClearIcon />} onClick={() => clear()}>Clear All</Button>
-                <AttributeDownload rows={rows} />
-            </ButtonGroup>
-            <h5>Flow File Content</h5>
-            <TextField type="file" onChange={onUpload}/>
-            <h5>Flow File Download</h5>
-            <Button variant="outlined" startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download Flow File</Button>
+            <NfftHeader {...routeDescriptions.package} />
+            <SetFlowFileContent {...props}/>
+            <SetFlowFileAttributes {...props}/>
+            <GetFlowFile {...props} />
+
             <Snackbar
                 open={openAlert}
                 autoHideDuration={6000}

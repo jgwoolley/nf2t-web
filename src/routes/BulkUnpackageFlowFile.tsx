@@ -3,8 +3,7 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../utils/unpackageFlowFile';
 import Spacing from '../components/Spacing';
 import { downloadFile } from '../utils/downloadFile';
-import references from '../utils/references';
-import ExternalLink from '../components/ExternalLink';
+import NfftHeader, { routeDescriptions } from '../components/NfftHeader';
 
 // From: https://mui.com/material-ui/react-progress/
 function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {
@@ -35,9 +34,7 @@ export function UnPackageNifi() {
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("No Message");
     const [_attributes, setAttributes] = useState<string[]>();
-
-    document.title = "FlowFile Tools - UnPackage"
-
+    
     const submitAlert = (message: string) => {
         setMessage(message);
         setOpenAlert(true);
@@ -146,13 +143,16 @@ export function UnPackageNifi() {
         resetProgress();
     }
 
+
     return (
         <>
-            <h4>Flow File Unpackager</h4>
-            <p>Javascript Port of the <ExternalLink href={references.FlowFileUnpackagerV3}>FlowFileUnpackagerV3</ExternalLink> class.</p>
-            <h5>Packaged Flow Files</h5>
+            <NfftHeader {...routeDescriptions.bulkUnpackage} />
+            <h5>1. Packaged Flow Files</h5>
+            <p>Provide multiple Flow Files.</p>
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
             <Spacing />
+            <h5>2. Download Flow File Attributes CSV</h5>
+            <p>A CSV will automatically be downloaded with all of the Flow File attributes for each Flow File provided. This may take some time.</p>
             <LinearProgressWithLabel current={current} total={total} />
             <Spacing />
             {/* {attributes && (

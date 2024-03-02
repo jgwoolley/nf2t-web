@@ -6,8 +6,7 @@ import { FlowfileAttributeRowSchema } from '../utils/schemas';
 import { downloadFile } from '../utils/downloadFile';
 import Spacing from '../components/Spacing';
 import AttributeDownload from '../components/AttributeDownload';
-import references from '../utils/references';
-import ExternalLink from '../components/ExternalLink';
+import NfftHeader, { routeDescriptions } from '../components/NfftHeader';
 
 function findFilename(rows: FlowfileAttributeRowSchema[]) {
     const filteredRows = rows.filter((x) => x.key === "filename");
@@ -27,12 +26,40 @@ function findMimetype(rows: FlowfileAttributeRowSchema[]) {
     }
 }
 
-export function UnPackageNifi() {
+export type UnpackageFlowFileProps = {
+    rows: FlowfileAttributeRowSchema[],
+    setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
+    submitAlert: (message: string) => void,
+    handleClose: (_event: React.SyntheticEvent | Event, reason?: string) => void,
+    onUpload: (e: ChangeEvent<HTMLInputElement>) => void,
+}
+
+function SetPackagedFlowFile({onUpload}: UnpackageFlowFileProps) {
+    return (
+        <>
+            <h5>1. Packaged Flow File</h5>
+            <p>Provide a Packaged Flow File. The unpackaged Flow file content will be immediately downloaded.</p>
+            <TextField type="file" onChange={onUpload}/>
+        </>
+    )
+}
+
+function GetFlowFileAttributes({rows, setRows, submitAlert}: UnpackageFlowFileProps) {
+    return (
+        <>
+            <h5>2. Unpackaged Flow File Attributes</h5>
+            <p>Download Flow File Attributes.</p>
+            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={false} />
+            <Spacing />
+            <AttributeDownload rows={rows} />
+        </>
+    )
+}
+
+export default function UnpackageFlowFile() {
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("No Message");
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
-
-    document.title = "FlowFile Tools - UnPackage"
 
     const submitAlert = (message: string) => {
         setMessage(message);
@@ -93,17 +120,21 @@ export function UnPackageNifi() {
         reader.readAsArrayBuffer(file);
     }
 
+    const props: UnpackageFlowFileProps = {
+        rows: rows,
+        setRows: setRows,
+        submitAlert: submitAlert,
+        handleClose: handleClose,
+        onUpload: onUpload,
+    }
+
     return (
         <>
-            <h4>Flow File Unpackager</h4>
-            <p>Javascript Port of the <ExternalLink href={references.FlowFileUnpackagerV3}>FlowFileUnpackagerV3</ExternalLink> class.</p>
-            <h5>Packaged Flow File</h5>
-            <TextField type="file" onChange={onUpload}/>
+            <NfftHeader {...routeDescriptions.unpackage}/>
+            <SetPackagedFlowFile {...props} />            
             <Spacing />
-            <h5>Unpackaged Flow File Attributes</h5>
-            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={false} />
+            <GetFlowFileAttributes {...props} />
             <Spacing />
-            <AttributeDownload rows={rows} />
             <Snackbar
                 open={openAlert}
                 autoHideDuration={6000}
@@ -113,5 +144,3 @@ export function UnPackageNifi() {
         </>
     )
 }
-
-export default UnPackageNifi;

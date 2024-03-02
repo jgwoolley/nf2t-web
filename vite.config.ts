@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react'
 import generateFile from 'vite-plugin-generate-file'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// TODO: Add B (raw body), b (body)
+
 // https://git-scm.com/docs/git-show
 const gitShowPlaceholders = [
   "H", "h",
