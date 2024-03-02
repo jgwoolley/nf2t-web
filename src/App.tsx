@@ -1,21 +1,21 @@
 import { Container, } from "@mui/material";
-import NifiAppBar from "./NifiAppBar";
-import PackageNifi from "./PackageNifi";
+import AppBar from "./components/AppBar";
+import PackageFlowFile from "./routes/PackageFlowFile";
 import { HashRouter, Route, Routes } from "react-router-dom";
-import UnPackageNifi from "./UnPackageNifi";
-import Source from "./Source";
-import BulkUnPackageNifi from "./BulkUnpackageNifi";
+import UnpackageFlowFile from "./routes/UnpackageFlowFile";
+import Source from "./routes/Source";
+import BulkUnpackageFlowFile from "./routes/BulkUnpackageFlowFile";
 
 function App() {
   return (
     <Container >
       <HashRouter>
-        <NifiAppBar />
+        <AppBar />
         <div style={{ marginTop: "10px" }} />
         <Routes>
-          <Route path="*" element={<UnPackageNifi />} />
-          <Route path="/bulkUnpackage" element={<BulkUnPackageNifi />} />
-          <Route path="/package" element={<PackageNifi />} />
+          <Route path="*" element={<UnpackageFlowFile />} />
+          <Route path="/bulkUnpackage" element={<BulkUnpackageFlowFile />} />
+          <Route path="/package" element={<PackageFlowFile />} />
           <Route path="/source" element={<Source />}/>
         </Routes>
       </HashRouter>

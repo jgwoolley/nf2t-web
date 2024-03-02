@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material";
-import { FlowfileAttributeRowSchema, flowfileAttributeRow, } from "./schemas";
+import { FlowfileAttributeRowSchema, flowfileAttributeRow, } from "../utils/schemas";
 import { Dispatch, } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

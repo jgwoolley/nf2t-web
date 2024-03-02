@@ -1,17 +1,17 @@
 import { ChangeEvent, useState } from "react"
-import AttributesTable from "./AttributesTable"
+import AttributesTable from "../components/AttributesTable"
 import { Button, ButtonGroup, Snackbar, TextField, } from "@mui/material";
-import { FlowfileAttributeRowSchema, } from "./schemas";
-import AttributeDialog from "./AttributeDialog";
-import AttributeDownload from "./AttributeDownload";
+import { FlowfileAttributeRowSchema, } from "../utils/schemas";
+import AttributeDialog from "../components/AttributeDialog";
+import AttributeDownload from "../components/AttributeDownload";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import packageFlowFile from "./packageFlowFile";
+import packageFlowFile from "../utils/packageFlowFile";
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
-import { downloadFile } from "./downloadFile";
-import Spacing from "./Spacing";
-import references from "./references";
-import ExternalLink from "./ExternalLink";
+import { downloadFile } from "../utils/downloadFile";
+import Spacing from "../components/Spacing";
+import references from "../utils/references";
+import ExternalLink from "../components/ExternalLink";
 
 function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);

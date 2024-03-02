@@ -1,13 +1,13 @@
 import { Snackbar, TextField } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
-import unpackageFlowFile from './unpackageFlowFile';
-import AttributesTable from './AttributesTable';
-import { FlowfileAttributeRowSchema } from './schemas';
-import { downloadFile } from './downloadFile';
-import Spacing from './Spacing';
-import AttributeDownload from './AttributeDownload';
-import references from './references';
-import ExternalLink from './ExternalLink';
+import unpackageFlowFile from '../utils/unpackageFlowFile';
+import AttributesTable from '../components/AttributesTable';
+import { FlowfileAttributeRowSchema } from '../utils/schemas';
+import { downloadFile } from '../utils/downloadFile';
+import Spacing from '../components/Spacing';
+import AttributeDownload from '../components/AttributeDownload';
+import references from '../utils/references';
+import ExternalLink from '../components/ExternalLink';
 
 function findFilename(rows: FlowfileAttributeRowSchema[]) {
     const filteredRows = rows.filter((x) => x.key === "filename");

@@ -1,10 +1,10 @@
 import { Box, LinearProgress, Snackbar, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
-import unpackageFlowFile from './unpackageFlowFile';
-import Spacing from './Spacing';
-import { downloadFile } from './downloadFile';
-import references from './references';
-import ExternalLink from './ExternalLink';
+import unpackageFlowFile from '../utils/unpackageFlowFile';
+import Spacing from '../components/Spacing';
+import { downloadFile } from '../utils/downloadFile';
+import references from '../utils/references';
+import ExternalLink from '../components/ExternalLink';
 
 // From: https://mui.com/material-ui/react-progress/
 function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {

@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
-import { FlowfileAttributeRowSchema } from "./schemas";
-import { downloadFile } from "./downloadFile";
+import { FlowfileAttributeRowSchema } from "../utils/schemas";
+import { downloadFile } from "../utils/downloadFile";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 
 interface AttributeDownloadProps {
