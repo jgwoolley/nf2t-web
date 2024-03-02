@@ -1,8 +1,8 @@
-import { Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
 import NfftHeader, { routeDescriptions } from "../components/NfftHeader";
 import Spacing from "../components/Spacing";
 import ExternalLink from "../components/ExternalLink";
-import { Link } from "@tanstack/react-router";
+import PrevNext from "../components/PrevNext";
 
 type Techonology = {
     href : string,
@@ -132,18 +132,10 @@ export default function TechnologyTable() {
                     ))}
                 </TableBody>
             </Table>
-            <p>
-                {"Prev: "}
-                <Tooltip title={routeDescriptions.home.shortDescription}>
-                    <Link to="/">{routeDescriptions.home.name}</Link>
-                </Tooltip>
-            </p> 
-            <p>
-                {"Next: "}
-                <Tooltip title={routeDescriptions.buildProcess.shortDescription}>
-                    <Link to="/buildProcess">{routeDescriptions.buildProcess.name}</Link>
-                </Tooltip>
-            </p> 
+
+            <Spacing />
+
+            <PrevNext prev={routeDescriptions.home} next={routeDescriptions.buildProcess}/>
         </>
     )
 }

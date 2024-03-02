@@ -59,7 +59,7 @@ const packageFlowFileRoute = createRoute({
 
 const sourceRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/source",
+  path: "/source", 
   component: NfftSource,
 });
 
@@ -85,7 +85,16 @@ const routeTree = rootRoute.addChildren([
   buildProcessRoute,
 ]);
 
-const router = createRouter({ routeTree });
+const router = createRouter({ 
+  routeTree,
+  basepath: import.meta.env.BASE_URL,
+});
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
 
 const rootElement = document.getElementById('root')!
 if (!rootElement.innerHTML) {

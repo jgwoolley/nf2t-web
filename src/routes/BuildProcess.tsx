@@ -1,9 +1,28 @@
-import { Tooltip } from "@mui/material";
+import { Snackbar } from "@mui/material";
+import CodeSnippet from "../components/CodeSnippet";
 import ExternalLink from "../components/ExternalLink";
 import NfftHeader, { routeDescriptions, sourceReferences } from "../components/NfftHeader";
-import { Link } from "@tanstack/react-router";
+import PrevNext from "../components/PrevNext";
+import Spacing from "../components/Spacing";
+import { useState } from "react";
 
 export default function BuildProcess() {
+    const [openAlert, setOpenAlert] = useState(false);
+    const [message, setMessage] = useState("No Message");
+
+    const submitAlert = (message: string) => {
+        setMessage(message);
+        setOpenAlert(true);
+    }
+
+    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenAlert(false);
+    };
+
     return (
         <>
             <NfftHeader {...routeDescriptions.buildProcess}/>
@@ -21,21 +40,21 @@ export default function BuildProcess() {
                 </ol>
                 <li>Change directories into the newly created repository folder.</li>
                 <ol>
-                    <li><code>cd Nifi-Flow-File-Helper</code></li>
+                    <li><CodeSnippet submitAlert={submitAlert} code="cd Nifi-Flow-File-Helper" /></li>
                 </ol>
                 <li>Install the NPM dependencies.</li>
                 <ol>
-                    <li><code>npm install</code></li>
+                    <li><CodeSnippet submitAlert={submitAlert} code="npm install" /></li>
                 </ol>
                 <li>Run the ViteJS development server.</li>
                 <ol>
-                    <li><code>npm run dev</code></li>
+                    <li><CodeSnippet submitAlert={submitAlert}  code="npm run dev" /></li>
                     <li>This command does the following:</li>
                     <ol>
                         <li>Looks in "scripts" for "dev" <ExternalLink href="https://github.com/jgwoolley/Nifi-Flow-File-Helper/blob/main/package.json">package.json</ExternalLink> and runs the <code>vite</code> command as a child process.</li>
                         <li>The <code>vite</code> plugin looks for <ExternalLink href="https://github.com/jgwoolley/Nifi-Flow-File-Helper/blob/main/vite.config.ts">vite.config.ts</ExternalLink>, and runs that script.</li>
                         <ol>
-                            <li>Runs <code>git log</code> to get some build information, which will be writen to <code>buildinfo.json</code>, and read by the Web Site.</li>
+                            <li>Runs <CodeSnippet submitAlert={submitAlert} code="git log" /> to get some build information, which will be writen to <code>buildinfo.json</code>, and read by the Web Site.</li>
                             <li>Runs the <ExternalLink href="https://vite-pwa-org.netlify.app/">VitePWA Plugin</ExternalLink> which creates files needed for the Web Site to be run as a PWA.</li>
                             <li>Runs the <code>react</code> ViteJS plugin to create a ReactJS website.</li>
                             <ol>
@@ -47,22 +66,19 @@ export default function BuildProcess() {
                 </ol>
                 <li>Build the ViteJS SPA.</li>
                 <ol>
-                    <li><code>npm run build</code></li>
+                    <li><CodeSnippet submitAlert={submitAlert} code="npm run build" /></li>
                     <li>Does everything in the "development server step", except it builds a SPA. This will not create a developer server, just the files needed to deploy the site.</li>
                 </ol>
             </ol>
-            <p>
-                {"Prev: "}
-                <Tooltip title={routeDescriptions.buildProcess.shortDescription}>
-                    <Link to="/buildProcess">{routeDescriptions.buildProcess.name}</Link>
-                </Tooltip>
-            </p> 
-            <p>
-                {"Next: "}
-                <Tooltip title={routeDescriptions.home.shortDescription}>
-                    <Link to="/">{routeDescriptions.home.name}</Link>
-                </Tooltip>
-            </p> 
+            <Spacing />
+
+            <PrevNext prev={routeDescriptions.technologyTable} next={routeDescriptions.home}/>
+            <Snackbar
+                open={openAlert}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message={message}
+            />
         </>
     );
 }

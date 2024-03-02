@@ -33,6 +33,7 @@ export const sourceReferences = {
 }
 
 export type RouteDescription = {
+    to: "/" | "/source" | "/technologyTable" | "/buildProcess" | "/package" | "/bulkUnpackage" | "/unpackage",
     source?: SourceReference,
     name: string,
     shortName?: string,
@@ -41,24 +42,28 @@ export type RouteDescription = {
 }
 
 const unpackageDescription: RouteDescription = {
+    to: "/unpackage",
     source: sourceReferences.FlowFileUnpackagerV3,
     name: "Bulk Unpackager",
     shortDescription: "Unpackage a Flow File's content, and attributes.",
 }
 
-const nulkUnpackageDescription: RouteDescription = {
+const bulkUnpackageDescription: RouteDescription = {
+    to: "/bulkUnpackage",
     source: sourceReferences.FlowFileUnpackagerV3,
     name: "Unpackager",
     shortDescription: "Unpackage multiple Flow Files' attributes into a CSV file.",
 }
 
 const packageDescription: RouteDescription = {
+    to: "/package",
     source: sourceReferences.FlowFilePackagerV3,
     name: "Packager",
     shortDescription: "Package a file, and its attributes into a Flow File.",
 }
 
 const sourceDescription: RouteDescription = {
+    to: "/source",
     source: sourceReferences.GithubRepository,
     name: "Source Information",
     shortName: "Source",
@@ -66,6 +71,7 @@ const sourceDescription: RouteDescription = {
 }
 
 const homeDescription: RouteDescription = {
+    to: "/",
     name: "Nifi Flow File Tools",
     shortName: "Home",
     shortDescription: "Project Home",
@@ -73,18 +79,20 @@ const homeDescription: RouteDescription = {
 }
 
 const technologyTableDescription: RouteDescription = {
+    to: "/technologyTable",
     name: "Technology Table",
     shortDescription: "Lists the technologies utilized in this project.",
 }
 
 const buildProcessDescription: RouteDescription = {
+    to: "/buildProcess",
     name: "Build Process",
     shortDescription: "Describes how the project is build.",
 }
 
 export const routeDescriptions = {
     unpackage: unpackageDescription,
-    bulkUnpackage: nulkUnpackageDescription,
+    bulkUnpackage: bulkUnpackageDescription,
     package: packageDescription,
     source: sourceDescription,
     home: homeDescription,
