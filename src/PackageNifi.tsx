@@ -10,6 +10,8 @@ import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import { downloadFile } from "./downloadFile";
 import Spacing from "./Spacing";
+import references from "./references";
+import ExternalLink from "./ExternalLink";
 
 function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
@@ -96,7 +98,7 @@ function PackageNifi() {
     return (
         <>
             <h4>Flow File Packager</h4>
-            <p>Javascript Port of the <a href="https://github.com/apache/nifi/blob/main/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFilePackagerV3.java">FlowFilePackagerV3</a> class.</p>
+            <p>Javascript Port of the <ExternalLink href={references.FlowFilePackagerV3}>FlowFilePackagerV3</ExternalLink> class.</p>
             <h5>Flow File Attributes</h5>
             <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={true} />
             <AttributeDialog open={openAttribute} setOpen={setOpenAttribute} setRows={setRows} rows={rows} />

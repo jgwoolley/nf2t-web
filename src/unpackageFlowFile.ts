@@ -79,7 +79,7 @@ function readAttributes(view: InputStream) {
     if (numAttributes == 0) {
         throw new Error("Not in FlowFile-v3 format: flow files cannot have zero attributes");
     }
-    console.log(`Found ${numAttributes} attribute(s).`);
+    // console.log(`Found ${numAttributes} attribute(s).`);
     for (let i = 0; i < numAttributes; i++) { //read each attribute key/value pair
         const key = readString(view);
         const value = readString(view);
@@ -114,11 +114,11 @@ export function unpackageFlowFile(buffer: ArrayBuffer) {
     if(attributes == undefined) {
         return null;
     }
-    console.log(Object.fromEntries(attributes.entries()));
+    // console.log(Object.fromEntries(attributes.entries()));
     const expectedNumBytes = readLong(view);
-    console.log({expectedNumBytes: expectedNumBytes});
+    // console.log({expectedNumBytes: expectedNumBytes});
     const content = view.getEnd();
-    console.log({byteLength: content.byteLength});
+    // console.log({byteLength: content.byteLength});
     if(content.byteLength !== expectedNumBytes) {
         throw new Error(`Not in FlowFile-v3 format: Expected bytes (${expectedNumBytes}) != (${content.byteLength})`);
     }

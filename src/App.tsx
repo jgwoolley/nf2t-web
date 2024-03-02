@@ -4,6 +4,7 @@ import PackageNifi from "./PackageNifi";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import UnPackageNifi from "./UnPackageNifi";
 import Source from "./Source";
+import BulkUnPackageNifi from "./BulkUnpackageNifi";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <div style={{ marginTop: "10px" }} />
         <Routes>
           <Route path="*" element={<UnPackageNifi />} />
+          <Route path="/bulkUnpackage" element={<BulkUnPackageNifi />} />
           <Route path="/package" element={<PackageNifi />} />
           <Route path="/source" element={<Source />}/>
         </Routes>

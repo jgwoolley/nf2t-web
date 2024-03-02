@@ -6,6 +6,8 @@ import { FlowfileAttributeRowSchema } from './schemas';
 import { downloadFile } from './downloadFile';
 import Spacing from './Spacing';
 import AttributeDownload from './AttributeDownload';
+import references from './references';
+import ExternalLink from './ExternalLink';
 
 function findFilename(rows: FlowfileAttributeRowSchema[]) {
     const filteredRows = rows.filter((x) => x.key === "filename");
@@ -94,7 +96,7 @@ export function UnPackageNifi() {
     return (
         <>
             <h4>Flow File Unpackager</h4>
-            <p>Javascript Port of the <a href="https://github.com/apache/nifi/blob/main/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFileUnpackagerV3.java">FlowFileUnpackagerV3</a> class.</p>
+            <p>Javascript Port of the <ExternalLink href={references.FlowFileUnpackagerV3}>FlowFileUnpackagerV3</ExternalLink> class.</p>
             <h5>Packaged Flow File</h5>
             <TextField type="file" onChange={onUpload}/>
             <Spacing />
