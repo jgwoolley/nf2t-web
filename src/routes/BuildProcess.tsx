@@ -1,7 +1,6 @@
 import { Tooltip } from "@mui/material";
 import ExternalLink from "../components/ExternalLink";
 import NfftHeader, { routeDescriptions, sourceReferences } from "../components/NfftHeader";
-import Spacing from "../components/Spacing";
 import { Link } from "@tanstack/react-router";
 
 export default function BuildProcess() {
