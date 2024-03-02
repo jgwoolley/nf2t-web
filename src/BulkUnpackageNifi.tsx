@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Snackbar, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, LinearProgress, Snackbar, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from './unpackageFlowFile';
 import Spacing from './Spacing';
@@ -34,7 +34,7 @@ export function UnPackageNifi() {
     const [current, setCurrent] = useState(defaultCurrent);
     const [openAlert, setOpenAlert] = useState(false);
     const [message, setMessage] = useState("No Message");
-    const [attributes, setAttributes] = useState<string[]>();
+    const [_attributes, setAttributes] = useState<string[]>();
 
     document.title = "FlowFile Tools - UnPackage"
 
