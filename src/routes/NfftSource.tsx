@@ -73,7 +73,7 @@ export default function NfftSource() {
                     )}                    
                     <TableRow>
                         <TableCell>Commit Date</TableCell>
-                        <TableCell>{authorDate?.toISOString() || "No build info yet"}</TableCell>
+                        <TableCell>{authorDate?.toLocaleString() || "No build info yet"}</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
