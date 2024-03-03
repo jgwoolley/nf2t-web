@@ -1,9 +1,13 @@
-import { Box, LinearProgress, Snackbar, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../utils/unpackageFlowFile';
 import Spacing from '../components/Spacing';
 import { downloadFile } from '../utils/downloadFile';
 import NfftHeader, { routeDescriptions } from '../components/NfftHeader';
+import NfftSnackbar, { useNfftSnackbar } from "../components/NfftSnackbar";
+
+const defaultTotal = -1;
+const defaultCurrent = 0;
 
 // From: https://mui.com/material-ui/react-progress/
 function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {
@@ -25,28 +29,12 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
     );
 }
 
-const defaultTotal = -1;
-const defaultCurrent = 0;
-
 export function UnPackageNifi() {
+    const snackbarResults = useNfftSnackbar();
+    const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
-    const [openAlert, setOpenAlert] = useState(false);
-    const [message, setMessage] = useState("No Message");
     const [_attributes, setAttributes] = useState<string[]>();
-    
-    const submitAlert = (message: string) => {
-        setMessage(message);
-        setOpenAlert(true);
-    }
-
-    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenAlert(false);
-    };
 
     const resetProgress = () => {
         setTotal(defaultTotal);
@@ -58,7 +46,7 @@ export function UnPackageNifi() {
             resetProgress();
             const files = e.target.files;
             if (files === null || files.length < 1) {
-                submitAlert(`At least one flow file should be provided: ${files?.length}`)
+                submitSnackbarError(`At least one FlowFile should be provided: ${files?.length}`)
                 return;
             }
             setCurrent(0);
@@ -66,31 +54,32 @@ export function UnPackageNifi() {
 
             const uniqueAttributes = new Set<string>();
             const rows: Map<string, string>[] = [];
+            console.log(`Starting to process ${files.length} file(s).`)
 
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
                 setCurrent(fileIndex);
-                console.log({ fileIndex: fileIndex, length: files.length });
                 const file = files[fileIndex];
                 await new Promise((resolve) => {
                     const reader = new FileReader();
                     reader.onload = function () {
                         const buffer = reader.result;
                         if (!(buffer instanceof ArrayBuffer)) {
+                            console.error("Buffer not ArrayBuffer");
                             resolve(1);
                             return;
                         }
                         try {
                             const result = unpackageFlowFile(buffer);
                             if (result == undefined) {
+                                console.error("Recieved no result from unpackageFlowFile.");
                                 resolve(2);
                                 return;
                             }
                             result.attributes.forEach((_value, key) => uniqueAttributes.add(key));
                             rows.push(result.attributes);
                         } catch (e) {
-                            resolve(3);
                             console.error(e);
-                            submitAlert("error unpacking the file");
+                            resolve(3);
                             return;
                         }
                         resolve(0);
@@ -100,23 +89,24 @@ export function UnPackageNifi() {
             }
 
             if (uniqueAttributes.size <= 0) {
-                submitAlert("Did not find any attributes in the given files.");
-                console.error({
+                submitSnackbarError("Did not find any attributes in the given files.",
+                {
                     uniqueAttributes: uniqueAttributes.size,
                     files: files.length,
-                })
+                });
+                return;
             }
 
             const attributes = Array.from(uniqueAttributes);
             setAttributes(attributes);
 
             if (attributes.length <= 0) {
-                submitAlert("Did not find any attributes in the given files.");
-                console.error({
+                submitSnackbarError("Did not find any attributes in the given files.", {
                     uniqueAttributes: uniqueAttributes.size,
                     attributes: attributes.length,
                     files: files.length,
-                })
+                });
+                return;
             }
 
             let content = attributes.map(x => JSON.stringify(x)).join(",");
@@ -135,10 +125,9 @@ export function UnPackageNifi() {
             })
 
             downloadFile(blob, "bulk.csv");
-            submitAlert("Downloaded bulk report");
+            submitSnackbarMessage("Downloaded bulk report");
         } catch (error) {
-            console.error(error);
-            submitAlert("Error");
+            submitSnackbarError("Error", error);
         }
         resetProgress();
     }
@@ -147,12 +136,12 @@ export function UnPackageNifi() {
     return (
         <>
             <NfftHeader {...routeDescriptions.bulkUnpackage} />
-            <h5>1. Packaged Flow Files</h5>
-            <p>Provide multiple Flow Files.</p>
+            <h5>1. Packaged FlowFiles</h5>
+            <p>Provide multiple FlowFiles.</p>
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
             <Spacing />
-            <h5>2. Download Flow File Attributes CSV</h5>
-            <p>A CSV will automatically be downloaded with all of the Flow File attributes for each Flow File provided. This may take some time.</p>
+            <h5>2. Download FlowFile Attributes CSV</h5>
+            <p>A CSV will automatically be downloaded with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
             <LinearProgressWithLabel current={current} total={total} />
             <Spacing />
             {/* {attributes && (
@@ -160,7 +149,7 @@ export function UnPackageNifi() {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>Flow File Attribute</TableCell>
+                                <TableCell>FlowFile Attribute</TableCell>
                                 <TableCell>Enabled</TableCell>
                             </TableRow>
                         </TableHead>
@@ -177,12 +166,7 @@ export function UnPackageNifi() {
                 </>
             )} */}
 
-            <Snackbar
-                open={openAlert}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                message={message}
-            />
+            <NfftSnackbar {...snackbarResults} />
         </>
     )
 }

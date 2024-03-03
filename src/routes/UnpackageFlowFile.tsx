@@ -1,4 +1,4 @@
-import { Snackbar, TextField } from '@mui/material';
+import { TextField } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
 import unpackageFlowFile from '../utils/unpackageFlowFile';
 import AttributesTable from '../components/AttributesTable';
@@ -7,6 +7,7 @@ import { downloadFile } from '../utils/downloadFile';
 import Spacing from '../components/Spacing';
 import AttributeDownload from '../components/AttributeDownload';
 import NfftHeader, { routeDescriptions } from '../components/NfftHeader';
+import NfftSnackbar, { NfftSnackbarProps, useNfftSnackbar } from "../components/NfftSnackbar";
 
 function findFilename(rows: FlowfileAttributeRowSchema[]) {
     const filteredRows = rows.filter((x) => x.key === "filename");
@@ -26,61 +27,57 @@ function findMimetype(rows: FlowfileAttributeRowSchema[]) {
     }
 }
 
-export type UnpackageFlowFileProps = {
+export interface UnpackageFlowFileProps extends NfftSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
     setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
-    submitAlert: (message: string) => void,
-    handleClose: (_event: React.SyntheticEvent | Event, reason?: string) => void,
     onUpload: (e: ChangeEvent<HTMLInputElement>) => void,
 }
 
 function SetPackagedFlowFile({onUpload}: UnpackageFlowFileProps) {
     return (
         <>
-            <h5>1. Packaged Flow File</h5>
-            <p>Provide a Packaged Flow File. The unpackaged Flow file content will be immediately downloaded.</p>
+            <h5>1. Packaged FlowFile</h5>
+            <p>Provide a Packaged FlowFile. The unpackaged FlowFile content will be immediately downloaded.</p>
             <TextField type="file" onChange={onUpload}/>
         </>
     )
 }
 
-function GetFlowFileAttributes({rows, setRows, submitAlert}: UnpackageFlowFileProps) {
+function GetFlowFileAttributes({rows, setRows, submitSnackbarMessage, submitSnackbarError}: UnpackageFlowFileProps) {
     return (
         <>
-            <h5>2. Unpackaged Flow File Attributes</h5>
-            <p>Download Flow File Attributes.</p>
-            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={false} />
+            <h5>2. Unpackaged FlowFile Attributes</h5>
+            <p>Download FlowFile Attributes.</p>
+            <AttributesTable 
+                rows={rows} 
+                setRows={setRows} 
+                submitSnackbarMessage={submitSnackbarMessage} 
+                submitSnackbarError={submitSnackbarError}
+                canEdit={false} 
+            />
             <Spacing />
-            <AttributeDownload rows={rows} />
+            <AttributeDownload 
+                submitSnackbarMessage={submitSnackbarMessage}
+                submitSnackbarError={submitSnackbarError}
+                rows={rows} 
+            />
         </>
     )
 }
 
 export default function UnpackageFlowFile() {
-    const [openAlert, setOpenAlert] = useState(false);
-    const [message, setMessage] = useState("No Message");
+    const snackbarResults = useNfftSnackbar();
+    const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
+
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
-
-    const submitAlert = (message: string) => {
-        setMessage(message);
-        setOpenAlert(true);
-    }
-
-    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenAlert(false);
-    };
 
     const onUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files == undefined) {
-            submitAlert("No File Provided")
+            submitSnackbarError("No File Provided")
             return;
         } else if (files.length != 1) {
-            submitAlert(`Only one file should be provided: ${files.length}`)
+            submitSnackbarError(`Only one file should be provided: ${files.length}`)
             return;
         }
 
@@ -110,10 +107,10 @@ export default function UnpackageFlowFile() {
                     type: mimetype,
                 });
                 downloadFile(blob, filename);
-                submitAlert("downloaded flowfile content");
+                submitSnackbarMessage("downloaded flowfile content");
             } catch (e) {
                 console.error(e);
-                submitAlert("error unpacking the file");
+                submitSnackbarError("error unpacking the file");
             }
         }
 
@@ -123,8 +120,8 @@ export default function UnpackageFlowFile() {
     const props: UnpackageFlowFileProps = {
         rows: rows,
         setRows: setRows,
-        submitAlert: submitAlert,
-        handleClose: handleClose,
+        submitSnackbarMessage: submitSnackbarMessage,
+        submitSnackbarError: submitSnackbarError,
         onUpload: onUpload,
     }
 
@@ -135,12 +132,7 @@ export default function UnpackageFlowFile() {
             <Spacing />
             <GetFlowFileAttributes {...props} />
             <Spacing />
-            <Snackbar
-                open={openAlert}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                message={message}
-            />
+            <NfftSnackbar {...snackbarResults} />
         </>
     )
 }

@@ -46,7 +46,7 @@ const techologies: Techonology[] = [
         href: "https://en.wikipedia.org/wiki/Static_web_page",
         key: "Static Web Page",
         group: "Web Technology",
-        description: "A web page that is delivered to the web browser exactly as it is stored, as opposed to dynamic web pages.",
+        description: "A web page that is delivered to the web browser exactly as it is stored, as opposed to dynamic web pages which require a server to create the page upon request.",
     },
     {
         href: "https://en.wikipedia.org/wiki/CI/CD",
@@ -94,7 +94,7 @@ const techologies: Techonology[] = [
         href: "https://en.wikipedia.org/wiki/Vite_(software)",
         key: "ViteJS",
         group: "Web Technology",
-        description: "A Javascript build tool / bundler which builds the \"Nifi Flow File Tools\" Static Web Page.",
+        description: "A Javascript build tool / bundler which builds the \"Nifi FlowFile Tools\" Static Web Page.",
     },
     {
         href: "https://tanstack.com/router/latest",

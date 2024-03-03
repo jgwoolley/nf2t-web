@@ -77,7 +77,7 @@ function readAttributes(view: InputStream) {
         return null;
     }
     if (numAttributes == 0) {
-        throw new Error("Not in FlowFile-v3 format: flow files cannot have zero attributes");
+        throw new Error("Not in FlowFile-v3 format: FlowFiles cannot have zero attributes");
     }
     // console.log(`Found ${numAttributes} attribute(s).`);
     for (let i = 0; i < numAttributes; i++) { //read each attribute key/value pair

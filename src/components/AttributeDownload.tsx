@@ -1,17 +1,19 @@
 import { Button } from "@mui/material";
 import { FlowfileAttributeRowSchema } from "../utils/schemas";
 import { downloadFile } from "../utils/downloadFile";
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DownloadIcon from '@mui/icons-material/Download';
+import SyncProblemIcon from '@mui/icons-material/SyncProblem';
+import { NfftSnackbarProps } from "./NfftSnackbar";
 
-interface AttributeDownloadProps {
+interface AttributeDownloadProps extends NfftSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
 }
 
-export function AttributeDownload(props: AttributeDownloadProps) {
+export function AttributeDownload({rows, submitSnackbarError}: AttributeDownloadProps) {
     const onClick = () => {
         const result = new Map<string,string>();
-        for(let i = 0; i < props.rows.length; i++) {
-            let row = props.rows[i];
+        for(let i = 0; i < rows.length; i++) {
+            let row = rows[i];
             result.set(row.key, row.value);
         }
         const blob = new Blob(
@@ -22,8 +24,14 @@ export function AttributeDownload(props: AttributeDownloadProps) {
         downloadFile(blob, "attributes.json");
     }
 
+    if(rows.length >= 0) {
+        return (
+            <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarError("No attributes to download")} >Download Attributes</Button>
+        )
+    }
+
     return (
-        <Button startIcon={<CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download Attributes</Button>
+        <Button startIcon={<DownloadIcon />} variant="outlined" onClick={onClick}>Download Attributes</Button>
     )
 }
 

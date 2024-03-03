@@ -44,22 +44,22 @@ export type RouteDescription = {
 const unpackageDescription: RouteDescription = {
     to: "/unpackage",
     source: sourceReferences.FlowFileUnpackagerV3,
-    name: "Bulk Unpackager",
-    shortDescription: "Unpackage a Flow File's content, and attributes.",
+    name: "Unpackager",
+    shortDescription: "Unpackage a FlowFile's content, and attributes.",
 }
 
 const bulkUnpackageDescription: RouteDescription = {
     to: "/bulkUnpackage",
     source: sourceReferences.FlowFileUnpackagerV3,
-    name: "Unpackager",
-    shortDescription: "Unpackage multiple Flow Files' attributes into a CSV file.",
+    name: "Bulk Unpackager",
+    shortDescription: "Unpackage multiple FlowFiles' attributes into a CSV file.",
 }
 
 const packageDescription: RouteDescription = {
     to: "/package",
     source: sourceReferences.FlowFilePackagerV3,
     name: "Packager",
-    shortDescription: "Package a file, and its attributes into a Flow File.",
+    shortDescription: "Package a file, and its attributes into a FlowFile.",
 }
 
 const sourceDescription: RouteDescription = {
@@ -72,10 +72,10 @@ const sourceDescription: RouteDescription = {
 
 const homeDescription: RouteDescription = {
     to: "/",
-    name: "Nifi Flow File Tools",
+    name: "Nifi FlowFile Tools",
     shortName: "Home",
     shortDescription: "Project Home",
-    description: "This is a ReactJS web app that will allow you to package and unpackage Apache Nifi Flow Files. All the processing occurs in the browser locally."
+    description: "This is a ReactJS web app that will allow you to package and unpackage Apache Nifi FlowFiles. All the processing occurs in the browser locally."
 }
 
 const technologyTableDescription: RouteDescription = {

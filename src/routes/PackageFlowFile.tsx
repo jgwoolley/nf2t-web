@@ -1,6 +1,6 @@
 import { ChangeEvent, useState } from "react"
 import AttributesTable from "../components/AttributesTable"
-import { Button, ButtonGroup, Snackbar, TextField, } from "@mui/material";
+import { Button, ButtonGroup, TextField, } from "@mui/material";
 import { FlowfileAttributeRowSchema, } from "../utils/schemas";
 import AttributeDialog from "../components/AttributeDialog";
 import AttributeDownload from "../components/AttributeDownload";
@@ -11,15 +11,18 @@ import AddIcon from '@mui/icons-material/Add';
 import { downloadFile } from "../utils/downloadFile";
 import Spacing from "../components/Spacing";
 import NfftHeader, { routeDescriptions } from "../components/NfftHeader";
+import generateHash from "../utils/generateHash";
+import AttributeUpload from "../components/AttributeUpload";
+import NfftSnackbar, { NfftSnackbarProps, useNfftSnackbar } from "../components/NfftSnackbar";
+import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 
-type PackageNifiProps = {
+interface PackageNifiProps extends NfftSnackbarProps {
     openAttribute: boolean,
     setOpenAttribute: React.Dispatch<React.SetStateAction<boolean>>,
     file: File | null,
     setFile: React.Dispatch<React.SetStateAction<File | null>>,
     rows: FlowfileAttributeRowSchema[],
     setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
-    submitAlert: (message: string) => void,
     submit: () => void,
     onUpload: (e: ChangeEvent<HTMLInputElement>) => void,
     clear: () => void,
@@ -28,36 +31,50 @@ type PackageNifiProps = {
 function SetFlowFileContent({onUpload}: PackageNifiProps) {
     return (
         <>
-            <h5>1. Flow File Content</h5>
-            <p>Upload a file to package into a Flow File.</p>
+            <h5>1. FlowFile Content</h5>
+            <p>Upload a file to package into a FlowFile.</p>
             <TextField type="file" onChange={onUpload}/>
         </>
     )
 }
 
-function SetFlowFileAttributes({rows, setRows, submitAlert, openAttribute, setOpenAttribute, clear}: PackageNifiProps) {
+function SetFlowFileAttributes({rows, setRows, submitSnackbarMessage, submitSnackbarError, openAttribute, setOpenAttribute, clear}: PackageNifiProps) {
+    const snackbarProps: NfftSnackbarProps = {
+        submitSnackbarMessage: submitSnackbarMessage,
+        submitSnackbarError: submitSnackbarError,
+    }
+    
     return (
         <>
-            <h5>2. Flow File Attributes</h5>
-            <p>Edit the Flow File attributes.</p>
-            <AttributesTable rows={rows} setRows={setRows} submitAlert={submitAlert} canEdit={true} />
+            <h5>2. FlowFile Attributes</h5>
+            <p>Edit the FlowFile attributes.</p>
+            <AttributesTable rows={rows} setRows={setRows} {...snackbarProps} canEdit={true} />
             <AttributeDialog open={openAttribute} setOpen={setOpenAttribute} setRows={setRows} rows={rows} />
             <Spacing />
             <ButtonGroup>
+                <AttributeUpload {...snackbarProps} setRows={setRows} />
                 <Button startIcon={<AddIcon />} onClick={() => setOpenAttribute(true)}>Add Attribute</Button>
                 <Button startIcon={<ClearIcon />} onClick={() => clear()}>Clear All</Button>
-                <AttributeDownload rows={rows} />
+                <AttributeDownload 
+                    submitSnackbarMessage={submitSnackbarMessage}
+                    submitSnackbarError={submitSnackbarError}
+                    rows={rows} 
+                />
             </ButtonGroup>
         </>
     )
 }
 
-function GetFlowFile({submit}: PackageNifiProps) {
+function GetFlowFile({submit, file, submitSnackbarError}: PackageNifiProps) {
     return (
         <>
-            <h5>3. Flow File Download</h5>
-            <p>Download the Packaged Flow File.</p>
-            <Button variant="outlined" startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download Flow File</Button>
+            <h5>3. FlowFile Download</h5>
+            <p>Download the Packaged FlowFile.</p>
+            {file === null ? (
+                <Button variant="outlined" startIcon={<SyncProblemIcon />} onClick={() => submitSnackbarError("FlowFile Content was not provided.")}>Download FlowFile</Button>
+            ): (
+                <Button variant="outlined" startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download FlowFile</Button>
+            )}
         </>
     )
 }
@@ -65,18 +82,13 @@ function GetFlowFile({submit}: PackageNifiProps) {
 function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
     const [file, setFile] = useState<File | null>(null);
-    const [openAlert, setOpenAlert] = useState(false);
-    const [message, setMessage] = useState("No Message");
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
-
-    const submitAlert = (message: string) => {
-        setMessage(message);
-        setOpenAlert(true);
-    }
+    const snackbarResults = useNfftSnackbar();
+    const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
 
     const submit = () => {
         if (file == undefined) {
-            submitAlert("No File Provided")
+            submitSnackbarError("No File Provided")
             return;
         }
 
@@ -84,62 +96,70 @@ function PackageNifi() {
         downloadFile(blob, filename);
     }
 
-    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenAlert(false);
-    };
-
-    const onUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files == undefined) {
-            submitAlert("No File Provided")
+            submitSnackbarError("No File Provided")
             return;
         } else if (files.length != 1) {
-            submitAlert(`Only one file should be provided: ${files.length}`)
+            submitSnackbarError(`Only one file should be provided: ${files.length}`)
             return;
         }
 
         const newFile = files[0];
-
         setFile(newFile);
 
-        if (rows.filter((x) => x.key === "filename").length == 0) {
-            rows.push({
+        const newRows: FlowfileAttributeRowSchema[] = [];
+        rows.forEach(x => newRows.push(x));
+        setRows([]);
+
+        if (newRows.filter((x) => x.key === "filename").length == 0) {
+            newRows.push({
                 key: "filename",
                 value: newFile.name,
-            })
+            });
         }
 
 
-        if (rows.filter((x) => x.key === "mime.type").length == 0) {
-            rows.push({
+        if (newRows.filter((x) => x.key === "mime.type").length == 0) {
+            newRows.push({
                 key: "mime.type",
                 value: newFile.type,
             })
         }
 
-        if (rows.filter((x) => x.key === "lastModified").length == 0) {
-            rows.push({
+        if (newRows.filter((x) => x.key === "lastModified").length == 0) {
+            newRows.push({
                 key: "lastModified",
                 value: newFile.lastModified.toString(),
             })
         }
 
-        if (rows.filter((x) => x.key === "size").length == 0) {
-            rows.push({
+        if (newRows.filter((x) => x.key === "size").length == 0) {
+            newRows.push({
                 key: "size",
                 value: newFile["size"].toString(),
             })
         }
+
+        if (newRows.filter((x) => x.key === "SHA-256").length == 0) {
+            try {
+                const value = await generateHash(newFile, "SHA-256");
+                newRows.push({
+                    key: "SHA-256",
+                    value: value,
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        }  
+        setRows(newRows);
     }
 
     const clear = () => {
         setFile(null);
         setRows([]);
-        submitAlert("Cleared");
+        submitSnackbarMessage("Cleared");
     }
 
     const props: PackageNifiProps = {
@@ -149,10 +169,11 @@ function PackageNifi() {
         setFile: setFile,
         rows: rows,
         setRows: setRows,
-        submitAlert: submitAlert,
         submit: submit,
         onUpload: onUpload,
         clear: clear,
+        submitSnackbarMessage: submitSnackbarMessage,
+        submitSnackbarError: submitSnackbarError,
     }
 
     return (
@@ -161,13 +182,7 @@ function PackageNifi() {
             <SetFlowFileContent {...props}/>
             <SetFlowFileAttributes {...props}/>
             <GetFlowFile {...props} />
-
-            <Snackbar
-                open={openAlert}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                message={message}
-            />
+            <NfftSnackbar {...snackbarResults} />
         </>
     )
 }

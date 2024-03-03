@@ -63,9 +63,9 @@ export default defineConfig({
     VitePWA({
       includeAssets: ['favicon.svg', '180.png', '512.svg'],
       manifest: {
-        name: 'My Awesome App',
-        short_name: 'MyApp',
-        description: 'My Awesome App description',
+        name: 'Nifi FlowFile Tools',
+        short_name: 'FlowFile Tools',
+        description: 'This is a ReactJS web app that will allow you to package and unpackage Apache Nifi FlowFiles. All the processing occurs in the browser locally.',
         theme_color: '#ffffff',
         icons: [
           {

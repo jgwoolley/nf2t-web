@@ -27,7 +27,7 @@ export default function NfftHome() {
         <>
             <NfftHeader {...routeDescriptions.home} />
             <Typography>
-                While Apache Nifi has its <ExternalLink href="https://github.com/apache/nifi/tree/main/nifi-commons/nifi-flowfile-packager">own Java libraries for packaging / unpackaging FlowFiles</ExternalLink>, running a Java application requires installing Java on a user's system. Previously I had build a command line based tool using the Java libraries. However, web applications are far more convienant than having to run an application in command line, so I decided to create a Web Application.
+                While Apache Nifi has its <ExternalLink href="https://github.com/apache/nifi/tree/main/nifi-commons/nifi-flowfile-packager">own Java libraries for packaging / unpackaging FlowFiles</ExternalLink>, running a Java application requires installing Java on a user's system. Previously I had built a command line based tool using the Java libraries. However, web applications are far more convienant than having to run an application in command line, so I decided to create a Web Application.
             </Typography>
             <Spacing height="5pt" />
             <Typography>
@@ -49,6 +49,7 @@ export default function NfftHome() {
                     <ToolRow route={routeDescriptions.unpackage} />
                     <ToolRow route={routeDescriptions.bulkUnpackage} />
                     <ToolRow route={routeDescriptions.package} />
+                    <ToolRow route={routeDescriptions.source} />
                 </TableBody>
             </Table>
 
