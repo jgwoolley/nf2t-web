@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import NfftHeader, { routeDescriptions } from "../components/NfftHeader";
 import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import { z } from "zod";
+import Spacing from "../components/Spacing";
+import CodeSnippet from "../components/CodeSnippet";
+import NfftSnackbar, { useNfftSnackbar } from "../components/NfftSnackbar";
 
 export const GitInfoSchema = z.object({
     H: z.string(),
     an: z.string(),
     at: z.string(),
     ae: z.string(),
+    B: z.string(),
 })
 
 export type GitInfo = z.infer<typeof GitInfoSchema>;
@@ -21,6 +25,8 @@ export type BuildInfo = z.infer<typeof BuildInfoSchema>;
 export default function NfftSource() {
     const [buildinfo, setBuildinfo] = useState<BuildInfo>();
     const [authorDate, setAuthorDate] = useState<Date>();
+
+    const snackbarProps = useNfftSnackbar();
 
     useEffect(() =>{
         fetch("./buildinfo.json")
@@ -53,31 +59,36 @@ export default function NfftSource() {
     return (
         <>
             <NfftHeader {...routeDescriptions.source}/>
+            <Spacing />
             <Table>
                 <TableBody>
-                    {buildinfo?.git && (
+                    {buildinfo?.git ? (
                         <>
                         <TableRow>
                             <TableCell>Commit</TableCell>
-                            <TableCell>{buildinfo.git.H || "No build info yet"}</TableCell>
+                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.H}/></TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>{buildinfo.git.an || "No build info yet"}</TableCell>
+                            <TableCell>Commit Message</TableCell>
+                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.B}/></TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Commit Author</TableCell>
-                            <TableCell>{buildinfo.git.ae || "No build info yet"}</TableCell>
+                            <TableCell>Commit Author Name</TableCell>
+                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.an}/></TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Commit Author Email</TableCell>
+                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.ae}/></TableCell>
                         </TableRow>
                         </>
-                    )}                    
+                    ) : "No buildinfo yet"}                    
                     <TableRow>
                         <TableCell>Commit Date</TableCell>
-                        <TableCell>{authorDate?.toLocaleString() || "No build info yet"}</TableCell>
+                        <TableCell>{authorDate?.toLocaleString()}</TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
-          
+            <NfftSnackbar {...snackbarProps} />
         </>
     )
 }

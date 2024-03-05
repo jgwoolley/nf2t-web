@@ -1,4 +1,4 @@
-import { AppBar, Container, MenuItem, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Container, MenuItem, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import { Link } from "@tanstack/react-router";
 import ExternalLink from "./ExternalLink";
 import { RouteDescription, routeDescriptions } from "./NfftHeader";
@@ -27,13 +27,16 @@ export function NifiAppBar() {
                             <Typography variant="h6" color="inherit" component="div"><Link style={{ color: "inherit", textDecoration: "inherit" }} to="/">Nifi FlowFile Tools</Link></Typography>
                         </>
                     </Tooltip>
-                    <NfftMenuItem route={routeDescriptions.unpackage} />
-                    <NfftMenuItem route={routeDescriptions.bulkUnpackage} />
-                    <NfftMenuItem route={routeDescriptions.package} />
-                    <NfftMenuItem route={routeDescriptions.source} />
-                    <Tooltip title="External Apache Nifi Documentation.">
-                        <MenuItem><ExternalLink style={{ ...linkStyles }} href="https://nifi.apache.org/docs.html">Nifi Docs</ExternalLink></MenuItem>
-                    </Tooltip>
+                    <div style={{flex: 1}} />
+                    <Stack direction="row">
+                        <NfftMenuItem route={routeDescriptions.unpackage} />
+                        <NfftMenuItem route={routeDescriptions.bulkUnpackage} />
+                        <NfftMenuItem route={routeDescriptions.package} />
+                        <NfftMenuItem route={routeDescriptions.source} />
+                        <Tooltip title="External Apache Nifi Documentation.">
+                            <MenuItem><ExternalLink style={{ ...linkStyles }} href="https://nifi.apache.org/docs.html">Nifi Docs</ExternalLink></MenuItem>
+                        </Tooltip>
+                    </Stack>
                 </Toolbar>
             </Container>
         </AppBar>

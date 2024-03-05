@@ -9,3 +9,7 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 - Make sure PWA works on Chrome.
 - See if I can hand each route something: https://tanstack.com/router/latest.
 - Possibly use dynamic import(), will have to figure out how to do that in tanstack router...
+- Move project info to asciidocs.
+- Change Nfft to Nf2t.
+- Update Source to Nf2tSource, any anything else that looks generic.
+- Create Nf2t logo.

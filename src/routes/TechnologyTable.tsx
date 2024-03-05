@@ -88,7 +88,7 @@ const techologies: Techonology[] = [
         href: "https://en.wikipedia.org/wiki/Npm",
         key: "Npm",
         group: "Web Technology",
-        description: "Node Package Manager is a package manager for JavaScript",
+        description: "Node Package Manager is a package manager for JavaScript.",
     },
     {
         href: "https://en.wikipedia.org/wiki/Vite_(software)",

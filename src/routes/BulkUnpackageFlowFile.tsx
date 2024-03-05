@@ -1,4 +1,4 @@
-import { Box, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../utils/unpackageFlowFile';
 import Spacing from '../components/Spacing';
@@ -34,7 +34,8 @@ export function UnPackageNifi() {
     const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
-    const [_attributes, setAttributes] = useState<string[]>();
+    const [attributes, setAttributes] = useState<string[]>();
+    const [rows, setRows] = useState<Map<string, string>[]>([]);
 
     const resetProgress = () => {
         setTotal(defaultTotal);
@@ -108,6 +109,7 @@ export function UnPackageNifi() {
                 });
                 return;
             }
+            setRows(rows);
 
             let content = attributes.map(x => JSON.stringify(x)).join(",");
             content += "\n";
@@ -129,7 +131,6 @@ export function UnPackageNifi() {
         } catch (error) {
             submitSnackbarError("Error", error);
         }
-        resetProgress();
     }
 
 
@@ -144,27 +145,31 @@ export function UnPackageNifi() {
             <p>A CSV will automatically be downloaded with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
             <LinearProgressWithLabel current={current} total={total} />
             <Spacing />
-            {/* {attributes && (
+            {attributes && (
                 <>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>FlowFile Attribute</TableCell>
-                                <TableCell>Enabled</TableCell>
+                                {attributes.map((attribute, attributeIndex) => (
+                                    <TableCell key={attributeIndex}>{attribute}</TableCell>
+                                ))}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {attributes.map((value, attributeIndex) => (
-                                <TableRow key={attributeIndex}>
-                                    <TableCell>{value}</TableCell>
-                                    <TableCell>True</TableCell>
+                            {rows.map((row, rowIndex) => (
+                                <TableRow key={rowIndex}>
+                                {attributes.map((attribute, attributeIndex) => (
+                                    <TableCell key={attributeIndex}>
+                                        {row.get(attribute) || ""}
+                                    </TableCell>
+                                ))}
                                 </TableRow>
-                            ))}
+                            ))}                           
                         </TableBody>
                     </Table>
                     <Spacing />
                 </>
-            )} */}
+            )}
 
             <NfftSnackbar {...snackbarResults} />
         </>

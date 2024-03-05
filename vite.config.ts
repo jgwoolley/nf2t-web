@@ -44,6 +44,13 @@ function generateBuildinfo() {
 
   const gitlog_text = child_process.execSync(`git log -1 --pretty=format:\'{${gitShowPlaceholders.map(x => `\"${x}\": \"%${x}\"`).join(", ")}}\'`)
   const gitlog = JSON.parse(gitlog_text.toString());
+  
+  for(const key of ["B", "b"]) {
+    const value = child_process.execSync(`git log -1 --pretty=format:\'%${key}\'`);
+    gitlog[key] = value.toString();
+  }
+  
+  
   return  {
     base,
     git: gitlog,
