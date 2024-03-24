@@ -1,10 +1,12 @@
-import { Box, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../utils/unpackageFlowFile';
 import Spacing from '../components/Spacing';
 import { downloadFile } from '../utils/downloadFile';
 import Nf2tHeader, { routeDescriptions } from '../components/Nf2tHeader';
-import Nf2tSnackbar, { useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 
 const defaultTotal = -1;
 const defaultCurrent = 0;
@@ -29,9 +31,53 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
     );
 }
 
+export interface BulkUnpackageDownloadButtonProps extends Nf2tSnackbarProps {
+    rows: Map<string, string>[],
+    attributes: string[] | undefined,
+} 
+
+
+
+export function BulkUnpackageDownloadButton({submitSnackbarMessage, submitSnackbarError, rows, attributes}: BulkUnpackageDownloadButtonProps) {
+    const onClick = () => {
+        if(attributes == undefined) {
+            submitSnackbarError("No attributes provided");
+            return;
+        }
+
+        let content = attributes.map(x => JSON.stringify(x)).join(",");
+            content += "\n";
+
+            for (const row of rows) {
+                for (const key of attributes) {
+                    content += JSON.stringify(row.get(key) || "")
+                    content += ","
+                }
+                content += "\n"
+            }
+
+            const blob = new Blob([content], {
+                type: "text/csv",
+            })
+
+            downloadFile(blob, "bulk.csv");
+            submitSnackbarMessage("Downloaded bulk report");
+    }
+    
+    if(rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
+        return (
+            <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarError("No attributes to download")} >Download Report</Button>
+        )
+    }
+
+    return (
+        <Button startIcon={<CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download Report</Button>
+    )
+}
+
 export function UnPackageNifi() {
     const snackbarResults = useNf2tSnackbar();
-    const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
+    const { submitSnackbarError } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
     const [attributes, setAttributes] = useState<string[]>();
@@ -109,25 +155,7 @@ export function UnPackageNifi() {
                 });
                 return;
             }
-            setRows(rows);
-
-            let content = attributes.map(x => JSON.stringify(x)).join(",");
-            content += "\n";
-
-            for (const row of rows) {
-                for (const key of attributes) {
-                    content += JSON.stringify(row.get(key) || "")
-                    content += ","
-                }
-                content += "\n"
-            }
-
-            const blob = new Blob([content], {
-                type: "text/csv",
-            })
-
-            downloadFile(blob, "bulk.csv");
-            submitSnackbarMessage("Downloaded bulk report");
+            setRows([...rows]);
         } catch (error) {
             submitSnackbarError("Error", error);
         }
@@ -142,7 +170,7 @@ export function UnPackageNifi() {
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
             <Spacing />
             <h5>2. Download FlowFile Attributes CSV</h5>
-            <p>A CSV will automatically be downloaded with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
+            <p>A CSV will be downloadable with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
             <LinearProgressWithLabel current={current} total={total} />
             <Spacing />
             {attributes && (
@@ -170,7 +198,8 @@ export function UnPackageNifi() {
                     <Spacing />
                 </>
             )}
-
+            <BulkUnpackageDownloadButton {...snackbarResults} rows={rows} attributes={attributes}/>
+            <Spacing />
             <Nf2tSnackbar {...snackbarResults} />
         </>
     )

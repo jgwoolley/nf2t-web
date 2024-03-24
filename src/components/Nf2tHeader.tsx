@@ -33,7 +33,7 @@ export const sourceReferences = {
 }
 
 export type RouteDescription = {
-    to: "/" | "/source" | "/technologyTable" | "/buildProcess" | "/package" | "/bulkUnpackage" | "/unpackage" | "/narReader",
+    to: "/" | "/source" | "/technologyTable" | "/buildProcess" | "/package" | "/bulkUnpackage" | "/unpackage" | "/narReader" | "/lookupAttribute",
     source?: SourceReference,
     name: string,
     shortName?: string,
@@ -92,8 +92,14 @@ const buildProcessDescription: RouteDescription = {
 
 const narReaderDescription: RouteDescription = {
     to: "/narReader",
-    name: "Nar Reader",
-    shortDescription: "Parse Nars for their data. This is work in progress.",
+    name: "Attributes Reader",
+    shortDescription: "Parse Nars for their data.",
+}
+
+const attributeReaderDescription: RouteDescription = {
+    to: "/lookupAttribute",
+    name: "Attribute Reader",
+    shortDescription: "Review Nifi Processors that either write to or read the attribute.",
 }
 
 export const routeDescriptions = {
@@ -105,6 +111,7 @@ export const routeDescriptions = {
     technologyTable: technologyTableDescription,
     buildProcess: buildProcessDescription,
     narReader: narReaderDescription,
+    attributeReader: attributeReaderDescription,
 }
 
 export function useNf2tHeader({name, shortName}: RouteDescription) {

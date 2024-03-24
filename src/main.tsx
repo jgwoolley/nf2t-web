@@ -19,81 +19,102 @@ import Spacing from './components/Spacing';
 import TechnologyTable from './routes/TechnologyTable';
 import BuildProcess from './routes/BuildProcess';
 import NarReader from './routes/NarReader';
+import Nf2tContextProvider from './components/Nf2tContextProvider';
+import LookupAttribute from './routes/LookupAttribute';
+import { z } from 'zod';
 
 const debug = false;
 
-const rootRoute = createRootRoute({
-  component: () => (
-    <Container >
-      <Nf2tAppBar />
-      <div style={{ marginTop: "10px" }} />
-      <Outlet />
-      <Spacing height="100px" />
-      {debug && <TanStackRouterDevtools />}
-    </Container>
-  )
+export const rootRoute = createRootRoute({
+  component: () => {
+    return (
+      <Nf2tContextProvider>
+        <Container >
+          <Nf2tAppBar />
+          <div style={{ marginTop: "10px" }} />
+          <Outlet />
+          <Spacing height="100px" />
+          {debug && <TanStackRouterDevtools />}
+        </Container>
+        </Nf2tContextProvider>
+    )
+  }
 });
 
-const indexRoute = createRoute({
+export const IndexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: Nf2tHome,
 });
 
-const unpackageFlowFileRoute = createRoute({
+export const UnpackageFlowFileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/unpackage",
   component: UnpackageFlowFile,
 });
 
-const bulkUnpackageFlowFileRoute = createRoute({
+export const BulkUnpackageFlowFileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/bulkUnpackage",
   component: BulkUnpackageFlowFile,
 });
 
-const packageFlowFileRoute = createRoute({
+export const PackageFlowFileRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/package",
   component: PackageFlowFile,
 });
 
-const sourceRoute = createRoute({
+export const SourceRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/source", 
+  path: "/source",
   component: Nf2tSource,
 });
 
-const technologyTableRoute = createRoute({
+export const TechnologyTableRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/technologyTable",
   component: TechnologyTable,
 });
 
-const buildProcessRoute = createRoute({
+export const BuildProcessRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/buildProcess",
   component: BuildProcess,
 });
 
-const narReader = createRoute({
-  getParentRoute : () => rootRoute,
+export const NarReaderRoute = createRoute({
+  getParentRoute: () => rootRoute,
   path: "/narReader",
   component: NarReader,
 })
 
+export const LookupAttributeSearchParamsSchema = z.object({
+  name: z.string(),
+})
+
+export const LookupAttributeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/lookupAttribute",
+  validateSearch: (search: Record<string, unknown>) => {
+    return LookupAttributeSearchParamsSchema.parse(search);
+  },
+  component: LookupAttribute,
+})
+
 const routeTree = rootRoute.addChildren([
-  indexRoute, 
-  unpackageFlowFileRoute,
-  bulkUnpackageFlowFileRoute,
-  packageFlowFileRoute, 
-  sourceRoute,
-  technologyTableRoute,
-  buildProcessRoute,
-  narReader,
+  IndexRoute,
+  UnpackageFlowFileRoute,
+  BulkUnpackageFlowFileRoute,
+  PackageFlowFileRoute,
+  SourceRoute,
+  TechnologyTableRoute,
+  BuildProcessRoute,
+  NarReaderRoute,
+  LookupAttributeRoute,
 ]);
 
-const router = createRouter({ 
+const router = createRouter({
   routeTree,
   basepath: import.meta.env.BASE_URL,
 });

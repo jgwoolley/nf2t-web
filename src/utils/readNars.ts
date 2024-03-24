@@ -44,7 +44,12 @@ export function lookupNarAttribute(nars: Nar[], value: NarAttributeLuv) {
     const attributes = extension[value.type];
     const attribute = attributes[value.attribute_index];
 
-    return attribute;
+    return {
+        nar: nar, 
+        extension: extension, 
+        type: value.type,
+        attribute: attribute,
+    };
 }
 
 export async function readManifest(file: File, manifest: Document) {
@@ -145,4 +150,25 @@ export default async function readNars(files: FileList, setCurrentProgress: (cur
     }
 
     return results;
+}
+
+export function createAttributeLut(attributes: Map<string, NarAttributeLuv[]>, extension: NarExtension, type: NarAttributeType, nar_index: number, extension_index: number) {
+    extension[type].forEach((attribute, attribute_index) => {
+        if (attribute.name == undefined) {
+            return;
+        }
+
+        let values = attributes.get(attribute.name);
+        if (values == undefined) {
+            values = [];
+            attributes.set(attribute.name, values);
+        }
+
+        values.push({
+            nar_index: nar_index,
+            extension_index: extension_index,
+            attribute_index: attribute_index,
+            type: type,
+        })
+    });
 }

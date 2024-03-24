@@ -12,6 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
 import { Nf2tSnackbarProps } from './Nf2tSnackbar';
+import { Link } from '@tanstack/react-router';
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
@@ -27,7 +28,7 @@ interface AttributeRowProps extends AttributesTableProps {
     deleteRow: (index: number) => void,
 }
 
-function AttributeRow({index, rows, row, canEdit, deleteRow, editIndex, setEditIndex, setRows}: AttributeRowProps) {
+function AttributeRow({ index, rows, row, canEdit, deleteRow, editIndex, setEditIndex, setRows }: AttributeRowProps) {
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newRow: FlowfileAttributeRowSchema = {
             key: row.key,
@@ -43,11 +44,15 @@ function AttributeRow({index, rows, row, canEdit, deleteRow, editIndex, setEditI
         <TableRow
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
         >
-            <TableCell component="th" scope="row">{row.key}</TableCell>
+            <TableCell component="th" scope="row">
+                <Link to="/lookupAttribute" search={{ name: row.key }}>
+                    {row.key}
+                </Link>
+            </TableCell>
             <TableCell>
                 {(isEditing) ? (
                     <TextField onChange={onChange} defaultValue={row.value} />
-                ): (
+                ) : (
                     <>{row.value}</>
                 )}
             </TableCell>
@@ -55,7 +60,7 @@ function AttributeRow({index, rows, row, canEdit, deleteRow, editIndex, setEditI
                 <TableCell>
                     <ButtonGroup variant="contained" aria-label="outlined primary button group">
                         <Button onClick={() => deleteRow(index)} variant="outlined" startIcon={<DeleteIcon />}>Delete</Button>
-                        <Button onClick={() => setEditIndex(isEditing ? -1 : index)} variant="outlined" startIcon={isEditing? <SaveIcon /> : <EditIcon />}>{isEditing? "Save" : "Edit"}</Button>
+                        <Button onClick={() => setEditIndex(isEditing ? -1 : index)} variant="outlined" startIcon={isEditing ? <SaveIcon /> : <EditIcon />}>{isEditing ? "Save" : "Edit"}</Button>
                     </ButtonGroup>
                 </TableCell>
             }
@@ -65,7 +70,7 @@ function AttributeRow({index, rows, row, canEdit, deleteRow, editIndex, setEditI
 
 export function AttributesTable(props: AttributesTableProps) {
     const [editIndex, setEditIndex] = useState(-1);
- 
+
     const deleteRow = (index: number) => {
         const deletedRows = props.rows.splice(index, 1);
         props.setRows(props.rows);
@@ -84,15 +89,15 @@ export function AttributesTable(props: AttributesTableProps) {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {props.rows.map((row, index) =>               
-                            <AttributeRow 
-                                key={index} 
-                                index={index} 
-                                row={row} 
-                                deleteRow={deleteRow} 
-                                editIndex={editIndex} 
+                        {props.rows.map((row, index) =>
+                            <AttributeRow
+                                key={index}
+                                index={index}
+                                row={row}
+                                deleteRow={deleteRow}
+                                editIndex={editIndex}
                                 setEditIndex={setEditIndex}
-                                {...props} 
+                                {...props}
                             />
                         )}
                     </TableBody>

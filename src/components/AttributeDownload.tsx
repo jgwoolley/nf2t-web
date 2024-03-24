@@ -24,7 +24,7 @@ export function AttributeDownload({rows, submitSnackbarError}: AttributeDownload
         downloadFile(blob, "attributes.json");
     }
 
-    if(rows.length >= 0) {
+    if(rows.length <= 0) {
         return (
             <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarError("No attributes to download")} >Download Attributes</Button>
         )

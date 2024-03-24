@@ -1,9 +1,13 @@
 import { Alert, AlertColor, Snackbar } from "@mui/material";
 import { useState } from "react";
 
+export type SubmitSnackbarMessageType = (message: string, data?: unknown) => void;
+export type SubmitSnackbarErrorType = (message: string, error?: unknown) => void;
+export type SnackbarHandleClose = (event: React.SyntheticEvent | Event, reason?: string) => void;
+
 export interface Nf2tSnackbarProps {
-    submitSnackbarMessage: (message: string, data?: unknown) => void,
-    submitSnackbarError: (message: string, error?: unknown) => void,
+    submitSnackbarMessage: SubmitSnackbarMessageType,
+    submitSnackbarError: SubmitSnackbarErrorType,
 }
 //submitSnackbarMessage, submitSnackbarError
 
@@ -15,7 +19,7 @@ export interface Nf2tSnackbarResult extends Nf2tSnackbarProps {
     setSnackbarMessage: React.Dispatch<React.SetStateAction<string>>,
     alertColor: AlertColor,
     setAlertColor: React.Dispatch<React.SetStateAction<AlertColor>>,
-    handleClose: (_event: React.SyntheticEvent | Event, reason?: string) => void,
+    handleClose: SnackbarHandleClose,
 }
 
 export function useNf2tSnackbar(): Nf2tSnackbarResult {
@@ -23,21 +27,21 @@ export function useNf2tSnackbar(): Nf2tSnackbarResult {
     const [snackbarMessage, setSnackbarMessage] = useState("No Message");
     const [alertColor, setAlertColor] = useState<AlertColor>("info");
 
-    const submitSnackbarMessage = (message: string, data?: unknown) => {
+    const submitSnackbarMessage: SubmitSnackbarMessageType = (message, data) => {
         console.log(data || message);
         setAlertColor("info");
         setSnackbarMessage(message);
         setSnackbarOpen(true);
     }
 
-    const submitSnackbarError = (message: string, error?: unknown) => {
+    const submitSnackbarError: SubmitSnackbarErrorType = (message, error) => {
         console.error(error || message);
         setSnackbarMessage(message);
         setAlertColor("error");
         setSnackbarOpen(true);
     }
 
-    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
+    const handleClose: SnackbarHandleClose = (_event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
