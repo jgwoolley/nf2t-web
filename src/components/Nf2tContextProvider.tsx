@@ -1,10 +1,10 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import { Nar, NarAttributeLuv, createAttributeLut } from "../utils/readNars";
+import { NarAttributeLut, Nars, createAttributeLut } from "../utils/readNars";
 
 export type Nf2tContextType = {
-    nars: Nar[],
-    setNars: React.Dispatch<React.SetStateAction<Nar[]>>,
-    attributes: Map<string, NarAttributeLuv[]>,
+    nars: Nars,
+    setNars: React.Dispatch<React.SetStateAction<Nars>>,
+    attributes: NarAttributeLut,
 }
 
 export const Nf2tContext = createContext<Nf2tContextType | null>(null);
@@ -19,9 +19,9 @@ export function useNf2tContext(): Nf2tContextType{
 }
 
 export default function Nf2tContextProvider({children}: React.PropsWithChildren) {
-    const [nars, setNars] = useState<Nar[]>([]);
-    const attributes: Map<string, NarAttributeLuv[]> = useMemo(() => {
-        const results = new Map<string, NarAttributeLuv[]>();
+    const [nars, setNars] = useState<Nars>([]);
+    const attributes: NarAttributeLut = useMemo(() => {
+        const results: NarAttributeLut = new Map();
         nars.forEach((nar, nar_index) => {
             nar.extensions.forEach((extension, extension_index) => {
                 createAttributeLut(results, extension, "readsAttributes", nar_index, extension_index);

@@ -67,11 +67,11 @@ export default function NarReader() {
             <Table>
                 <TableBody>
                     <TableRow>
-                        <TableCell>nars.length</TableCell>
-                        <TableCell>{context.nars.length}</TableCell>
+                        <TableCell>Nars length</TableCell>
+                        <TableCell>{Object.keys(context.nars).length}</TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell>attributes.length</TableCell>
+                        <TableCell>Attributes length</TableCell>
                         <TableCell>{sortedAttributes.length}</TableCell>
                     </TableRow>
                 </TableBody>

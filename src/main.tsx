@@ -22,6 +22,8 @@ import NarReader from './routes/NarReader';
 import Nf2tContextProvider from './components/Nf2tContextProvider';
 import LookupAttribute from './routes/LookupAttribute';
 import { z } from 'zod';
+import LookupNar from './routes/LookupNar';
+import LookupExtension from './routes/LookupExtension';
 
 const debug = false;
 
@@ -102,6 +104,33 @@ export const LookupAttributeRoute = createRoute({
   component: LookupAttribute,
 })
 
+export const LookupNarSearchParamsSchema = z.object({
+  nar_index: z.number(),
+});
+
+export const LookupNarRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/lookupNar",
+  validateSearch: (search: Record<string, unknown>) => {
+    return LookupNarSearchParamsSchema.parse(search);
+  },
+  component: LookupNar,
+})
+
+export const LookupExtensionSearchParamsSchema = z.object({
+  nar_index: z.number(),
+  extension_index: z.number(),
+});
+
+export const LookupExtensionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/lookupExtension",
+  validateSearch: (search: Record<string, unknown>) => {
+    return LookupExtensionSearchParamsSchema.parse(search);
+  },
+  component: LookupExtension,
+})
+
 const routeTree = rootRoute.addChildren([
   IndexRoute,
   UnpackageFlowFileRoute,
@@ -112,6 +141,8 @@ const routeTree = rootRoute.addChildren([
   BuildProcessRoute,
   NarReaderRoute,
   LookupAttributeRoute,
+  LookupNarRoute,
+  LookupExtensionRoute,
 ]);
 
 const router = createRouter({

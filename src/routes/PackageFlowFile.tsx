@@ -79,7 +79,7 @@ function GetFlowFile({submit, file, submitSnackbarError}: PackageNifiProps) {
     )
 }
 
-function PackageNifi() {
+export default function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
@@ -186,5 +186,3 @@ function PackageNifi() {
         </>
     )
 }
-
-export default PackageNifi;
