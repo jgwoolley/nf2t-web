@@ -1,14 +1,14 @@
 import { Alert, AlertColor, Snackbar } from "@mui/material";
 import { useState } from "react";
 
-export interface NfftSnackbarProps {
+export interface Nf2tSnackbarProps {
     submitSnackbarMessage: (message: string, data?: unknown) => void,
     submitSnackbarError: (message: string, error?: unknown) => void,
 }
 //submitSnackbarMessage, submitSnackbarError
 
 
-export interface NfftSnackbarResult extends NfftSnackbarProps {
+export interface Nf2tSnackbarResult extends Nf2tSnackbarProps {
     snackbarOpen: boolean,
     setSnackbarOpen: React.Dispatch<React.SetStateAction<boolean>>,
     snackbarMessage: string,
@@ -18,7 +18,7 @@ export interface NfftSnackbarResult extends NfftSnackbarProps {
     handleClose: (_event: React.SyntheticEvent | Event, reason?: string) => void,
 }
 
-export function useNfftSnackbar(): NfftSnackbarResult {
+export function useNf2tSnackbar(): Nf2tSnackbarResult {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState("No Message");
     const [alertColor, setAlertColor] = useState<AlertColor>("info");
@@ -58,7 +58,7 @@ export function useNfftSnackbar(): NfftSnackbarResult {
     }
 }
 
-export default function NfftSnackbar({snackbarOpen, handleClose, snackbarMessage, alertColor}: NfftSnackbarResult) {
+export default function Nf2tSnackbar({snackbarOpen, handleClose, snackbarMessage, alertColor}: Nf2tSnackbarResult) {
     return (
         <Snackbar
             open={snackbarOpen}

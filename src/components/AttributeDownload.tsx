@@ -3,9 +3,9 @@ import { FlowfileAttributeRowSchema } from "../utils/schemas";
 import { downloadFile } from "../utils/downloadFile";
 import DownloadIcon from '@mui/icons-material/Download';
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
-import { NfftSnackbarProps } from "./NfftSnackbar";
+import { Nf2tSnackbarProps } from "./Nf2tSnackbar";
 
-interface AttributeDownloadProps extends NfftSnackbarProps {
+interface AttributeDownloadProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
 }
 

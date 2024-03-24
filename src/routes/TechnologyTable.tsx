@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import NfftHeader, { routeDescriptions } from "../components/NfftHeader";
+import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
 import Spacing from "../components/Spacing";
 import ExternalLink from "../components/ExternalLink";
 import PrevNext from "../components/PrevNext";
@@ -107,7 +107,7 @@ const techologies: Techonology[] = [
 export default function TechnologyTable() {
     return (
         <>
-            <NfftHeader {...routeDescriptions.technologyTable}/>
+            <Nf2tHeader {...routeDescriptions.technologyTable}/>
 
             <Typography>
                 The following techologies / concepts are important for understanding the motivation / implementation of this project.

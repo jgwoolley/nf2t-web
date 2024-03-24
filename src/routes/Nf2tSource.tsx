@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import NfftHeader, { routeDescriptions } from "../components/NfftHeader";
+import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
 import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import { z } from "zod";
 import Spacing from "../components/Spacing";
 import CodeSnippet from "../components/CodeSnippet";
-import NfftSnackbar, { useNfftSnackbar } from "../components/NfftSnackbar";
+import Nf2tSnackbar, { useNf2tSnackbar } from "../components/Nf2tSnackbar";
 
 export const GitInfoSchema = z.object({
     H: z.string(),
@@ -22,11 +22,11 @@ export const BuildInfoSchema = z.object({
 
 export type BuildInfo = z.infer<typeof BuildInfoSchema>;
 
-export default function NfftSource() {
+export default function Nf2tSource() {
     const [buildinfo, setBuildinfo] = useState<BuildInfo>();
     const [authorDate, setAuthorDate] = useState<Date>();
 
-    const snackbarProps = useNfftSnackbar();
+    const snackbarProps = useNf2tSnackbar();
 
     useEffect(() =>{
         fetch("./buildinfo.json")
@@ -58,7 +58,7 @@ export default function NfftSource() {
 
     return (
         <>
-            <NfftHeader {...routeDescriptions.source}/>
+            <Nf2tHeader {...routeDescriptions.source}/>
             <Spacing />
             <Table>
                 <TableBody>
@@ -88,7 +88,7 @@ export default function NfftSource() {
                     </TableRow>
                 </TableBody>
             </Table>
-            <NfftSnackbar {...snackbarProps} />
+            <Nf2tSnackbar {...snackbarProps} />
         </>
     )
 }

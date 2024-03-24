@@ -1,5 +1,5 @@
 import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import NfftHeader, { RouteDescription, routeDescriptions } from "../components/NfftHeader";
+import Nf2tHeader, { RouteDescription, routeDescriptions } from "../components/Nf2tHeader";
 import Spacing from "../components/Spacing";
 import ExternalLink from "../components/ExternalLink";
 import PrevNext from "../components/PrevNext";
@@ -22,10 +22,10 @@ function ToolRow({ route }: { route: RouteDescription }) {
     )
 }
 
-export default function NfftHome() {
+export default function Nf2tHome() {
     return (
         <>
-            <NfftHeader {...routeDescriptions.home} />
+            <Nf2tHeader {...routeDescriptions.home} />
             <Typography>
                 While Apache Nifi has its <ExternalLink href="https://github.com/apache/nifi/tree/main/nifi-commons/nifi-flowfile-packager">own Java libraries for packaging / unpackaging FlowFiles</ExternalLink>, running a Java application requires installing Java on a user's system. Previously I had built a command line based tool using the Java libraries. However, web applications are far more convienant than having to run an application in command line, so I decided to create a Web Application.
             </Typography>

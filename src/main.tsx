@@ -9,22 +9,23 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { Container } from '@mui/material';
-import NfftAppBar from './components/NfftAppBar';
+import Nf2tAppBar from './components/Nf2tAppBar';
 import UnpackageFlowFile from './routes/UnpackageFlowFile';
 import BulkUnpackageFlowFile from './routes/BulkUnpackageFlowFile';
 import PackageFlowFile from './routes/PackageFlowFile';
-import NfftSource from './routes/NfftSource';
-import NfftHome from './routes/NfftHome';
+import Nf2tSource from './routes/Nf2tSource';
+import Nf2tHome from './routes/Nf2tHome';
 import Spacing from './components/Spacing';
 import TechnologyTable from './routes/TechnologyTable';
 import BuildProcess from './routes/BuildProcess';
+import NarReader from './routes/NarReader';
 
 const debug = false;
 
 const rootRoute = createRootRoute({
   component: () => (
     <Container >
-      <NfftAppBar />
+      <Nf2tAppBar />
       <div style={{ marginTop: "10px" }} />
       <Outlet />
       <Spacing height="100px" />
@@ -36,7 +37,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: NfftHome,
+  component: Nf2tHome,
 });
 
 const unpackageFlowFileRoute = createRoute({
@@ -60,7 +61,7 @@ const packageFlowFileRoute = createRoute({
 const sourceRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/source", 
-  component: NfftSource,
+  component: Nf2tSource,
 });
 
 const technologyTableRoute = createRoute({
@@ -75,6 +76,12 @@ const buildProcessRoute = createRoute({
   component: BuildProcess,
 });
 
+const narReader = createRoute({
+  getParentRoute : () => rootRoute,
+  path: "/narReader",
+  component: NarReader,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute, 
   unpackageFlowFileRoute,
@@ -83,6 +90,7 @@ const routeTree = rootRoute.addChildren([
   sourceRoute,
   technologyTableRoute,
   buildProcessRoute,
+  narReader,
 ]);
 
 const router = createRouter({ 

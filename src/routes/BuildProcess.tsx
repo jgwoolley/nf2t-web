@@ -1,7 +1,7 @@
 import { Snackbar } from "@mui/material";
 import CodeSnippet from "../components/CodeSnippet";
 import ExternalLink from "../components/ExternalLink";
-import NfftHeader, { routeDescriptions, sourceReferences } from "../components/NfftHeader";
+import Nf2tHeader, { routeDescriptions, sourceReferences } from "../components/Nf2tHeader";
 import PrevNext from "../components/PrevNext";
 import Spacing from "../components/Spacing";
 import { useMemo, useState } from "react";
@@ -115,7 +115,7 @@ export default function BuildProcess() {
 
     return (
         <>
-            <NfftHeader {...routeDescriptions.buildProcess} />
+            <Nf2tHeader {...routeDescriptions.buildProcess} />
             <Slides slides={slides} />
             <Spacing />
 

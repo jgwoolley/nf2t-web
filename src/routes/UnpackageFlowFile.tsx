@@ -6,8 +6,8 @@ import { FlowfileAttributeRowSchema } from '../utils/schemas';
 import { downloadFile } from '../utils/downloadFile';
 import Spacing from '../components/Spacing';
 import AttributeDownload from '../components/AttributeDownload';
-import NfftHeader, { routeDescriptions } from '../components/NfftHeader';
-import NfftSnackbar, { NfftSnackbarProps, useNfftSnackbar } from "../components/NfftSnackbar";
+import Nf2tHeader, { routeDescriptions } from '../components/Nf2tHeader';
+import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../components/Nf2tSnackbar";
 
 function findFilename(rows: FlowfileAttributeRowSchema[]) {
     const filteredRows = rows.filter((x) => x.key === "filename");
@@ -27,7 +27,7 @@ function findMimetype(rows: FlowfileAttributeRowSchema[]) {
     }
 }
 
-export interface UnpackageFlowFileProps extends NfftSnackbarProps {
+export interface UnpackageFlowFileProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
     setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
     onUpload: (e: ChangeEvent<HTMLInputElement>) => void,
@@ -66,7 +66,7 @@ function GetFlowFileAttributes({rows, setRows, submitSnackbarMessage, submitSnac
 }
 
 export default function UnpackageFlowFile() {
-    const snackbarResults = useNfftSnackbar();
+    const snackbarResults = useNf2tSnackbar();
     const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
 
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
@@ -127,12 +127,12 @@ export default function UnpackageFlowFile() {
 
     return (
         <>
-            <NfftHeader {...routeDescriptions.unpackage}/>
+            <Nf2tHeader {...routeDescriptions.unpackage}/>
             <SetPackagedFlowFile {...props} />            
             <Spacing />
             <GetFlowFileAttributes {...props} />
             <Spacing />
-            <NfftSnackbar {...snackbarResults} />
+            <Nf2tSnackbar {...snackbarResults} />
         </>
     )
 }

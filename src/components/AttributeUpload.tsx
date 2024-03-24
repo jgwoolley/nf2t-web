@@ -3,9 +3,9 @@ import { FlowfileAttributeRowSchema } from "../utils/schemas";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { z } from "zod";
 import { useState } from "react";
-import { NfftSnackbarProps } from "./NfftSnackbar";
+import { Nf2tSnackbarProps } from "./Nf2tSnackbar";
 
-interface AttributeDownloadProps extends NfftSnackbarProps {
+interface AttributeDownloadProps extends Nf2tSnackbarProps {
     setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
 }
 

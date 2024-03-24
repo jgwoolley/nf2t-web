@@ -33,7 +33,7 @@ export const sourceReferences = {
 }
 
 export type RouteDescription = {
-    to: "/" | "/source" | "/technologyTable" | "/buildProcess" | "/package" | "/bulkUnpackage" | "/unpackage",
+    to: "/" | "/source" | "/technologyTable" | "/buildProcess" | "/package" | "/bulkUnpackage" | "/unpackage" | "/narReader",
     source?: SourceReference,
     name: string,
     shortName?: string,
@@ -90,6 +90,12 @@ const buildProcessDescription: RouteDescription = {
     shortDescription: "Describes how the project is build.",
 }
 
+const narReaderDescription: RouteDescription = {
+    to: "/narReader",
+    name: "Nar Reader",
+    shortDescription: "Parse Nars for their data. This is work in progress.",
+}
+
 export const routeDescriptions = {
     unpackage: unpackageDescription,
     bulkUnpackage: bulkUnpackageDescription,
@@ -98,9 +104,10 @@ export const routeDescriptions = {
     home: homeDescription,
     technologyTable: technologyTableDescription,
     buildProcess: buildProcessDescription,
+    narReader: narReaderDescription,
 }
 
-export function useNfftHeader({name, shortName}: RouteDescription) {
+export function useNf2tHeader({name, shortName}: RouteDescription) {
     useEffect(() => {
         document.title = `FlowFile Tools - ${shortName || name}`;
     }, [shortName, name])
@@ -110,8 +117,8 @@ export function useNfftHeader({name, shortName}: RouteDescription) {
     return headerTitle;
 }
 
-export default function NfftHeader(props: RouteDescription) {
-    const title = useNfftHeader(props);
+export default function Nf2tHeader(props: RouteDescription) {
+    const title = useNf2tHeader(props);
 
     return (
         <>

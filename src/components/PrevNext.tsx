@@ -1,6 +1,6 @@
 import { MenuItem, Tooltip, Typography } from "@mui/material"
 import { Link } from "@tanstack/react-router";
-import { RouteDescription } from "./NfftHeader";
+import { RouteDescription } from "./Nf2tHeader";
 import Spacing from "./Spacing";
 
 

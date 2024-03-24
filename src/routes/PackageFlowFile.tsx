@@ -10,13 +10,13 @@ import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import { downloadFile } from "../utils/downloadFile";
 import Spacing from "../components/Spacing";
-import NfftHeader, { routeDescriptions } from "../components/NfftHeader";
+import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
 import generateHash from "../utils/generateHash";
 import AttributeUpload from "../components/AttributeUpload";
-import NfftSnackbar, { NfftSnackbarProps, useNfftSnackbar } from "../components/NfftSnackbar";
+import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../components/Nf2tSnackbar";
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 
-interface PackageNifiProps extends NfftSnackbarProps {
+interface PackageNifiProps extends Nf2tSnackbarProps {
     openAttribute: boolean,
     setOpenAttribute: React.Dispatch<React.SetStateAction<boolean>>,
     file: File | null,
@@ -39,7 +39,7 @@ function SetFlowFileContent({onUpload}: PackageNifiProps) {
 }
 
 function SetFlowFileAttributes({rows, setRows, submitSnackbarMessage, submitSnackbarError, openAttribute, setOpenAttribute, clear}: PackageNifiProps) {
-    const snackbarProps: NfftSnackbarProps = {
+    const snackbarProps: Nf2tSnackbarProps = {
         submitSnackbarMessage: submitSnackbarMessage,
         submitSnackbarError: submitSnackbarError,
     }
@@ -83,7 +83,7 @@ function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
     const [file, setFile] = useState<File | null>(null);
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
-    const snackbarResults = useNfftSnackbar();
+    const snackbarResults = useNf2tSnackbar();
     const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
 
     const submit = () => {
@@ -178,11 +178,11 @@ function PackageNifi() {
 
     return (
         <>
-            <NfftHeader {...routeDescriptions.package} />
+            <Nf2tHeader {...routeDescriptions.package} />
             <SetFlowFileContent {...props}/>
             <SetFlowFileAttributes {...props}/>
             <GetFlowFile {...props} />
-            <NfftSnackbar {...snackbarResults} />
+            <Nf2tSnackbar {...snackbarResults} />
         </>
     )
 }

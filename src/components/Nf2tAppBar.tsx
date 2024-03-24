@@ -1,14 +1,14 @@
 import { AppBar, Container, MenuItem, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import { Link } from "@tanstack/react-router";
 import ExternalLink from "./ExternalLink";
-import { RouteDescription, routeDescriptions } from "./NfftHeader";
+import { RouteDescription, routeDescriptions } from "./Nf2tHeader";
 
 const linkStyles: React.CSSProperties = {
     color: "inherit",
     textDecoration: "inherit",
 }
 
-function NfftMenuItem({route}: {route: RouteDescription}) {
+function Nf2tMenuItem({route}: {route: RouteDescription}) {
     return (
         <Tooltip title={route.shortDescription}>
             <MenuItem><Link style={{ ...linkStyles }} to={route.to}>{route.shortName || route.name}</Link></MenuItem>
@@ -29,10 +29,11 @@ export function NifiAppBar() {
                     </Tooltip>
                     <div style={{flex: 1}} />
                     <Stack direction="row">
-                        <NfftMenuItem route={routeDescriptions.unpackage} />
-                        <NfftMenuItem route={routeDescriptions.bulkUnpackage} />
-                        <NfftMenuItem route={routeDescriptions.package} />
-                        <NfftMenuItem route={routeDescriptions.source} />
+                        <Nf2tMenuItem route={routeDescriptions.unpackage} />
+                        <Nf2tMenuItem route={routeDescriptions.bulkUnpackage} />
+                        <Nf2tMenuItem route={routeDescriptions.package} />
+                        <Nf2tMenuItem route={routeDescriptions.source} />
+                        <Nf2tMenuItem route={routeDescriptions.narReader} />
                         <Tooltip title="External Apache Nifi Documentation.">
                             <MenuItem><ExternalLink style={{ ...linkStyles }} href="https://nifi.apache.org/docs.html">Nifi Docs</ExternalLink></MenuItem>
                         </Tooltip>

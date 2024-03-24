@@ -11,9 +11,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
-import { NfftSnackbarProps } from './NfftSnackbar';
+import { Nf2tSnackbarProps } from './Nf2tSnackbar';
 
-export interface AttributesTableProps extends NfftSnackbarProps {
+export interface AttributesTableProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
     setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
     canEdit: boolean,

@@ -3,8 +3,8 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../utils/unpackageFlowFile';
 import Spacing from '../components/Spacing';
 import { downloadFile } from '../utils/downloadFile';
-import NfftHeader, { routeDescriptions } from '../components/NfftHeader';
-import NfftSnackbar, { useNfftSnackbar } from "../components/NfftSnackbar";
+import Nf2tHeader, { routeDescriptions } from '../components/Nf2tHeader';
+import Nf2tSnackbar, { useNf2tSnackbar } from "../components/Nf2tSnackbar";
 
 const defaultTotal = -1;
 const defaultCurrent = 0;
@@ -30,7 +30,7 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
 }
 
 export function UnPackageNifi() {
-    const snackbarResults = useNfftSnackbar();
+    const snackbarResults = useNf2tSnackbar();
     const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
@@ -136,7 +136,7 @@ export function UnPackageNifi() {
 
     return (
         <>
-            <NfftHeader {...routeDescriptions.bulkUnpackage} />
+            <Nf2tHeader {...routeDescriptions.bulkUnpackage} />
             <h5>1. Packaged FlowFiles</h5>
             <p>Provide multiple FlowFiles.</p>
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
@@ -171,7 +171,7 @@ export function UnPackageNifi() {
                 </>
             )}
 
-            <NfftSnackbar {...snackbarResults} />
+            <Nf2tSnackbar {...snackbarResults} />
         </>
     )
 }
