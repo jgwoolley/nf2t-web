@@ -4,15 +4,7 @@ import Spacing from "../components/Spacing";
 import ExternalLink from "../components/ExternalLink";
 import PrevNext from "../components/PrevNext";
 import { Link, createLazyRoute } from "@tanstack/react-router";
-import { RouteDescription } from "./createRouteDescription";
-import { description as homeDescription } from "./home";
-import { description as sourceDescription } from "./source";
-import { description as technologiesInfoDescription } from "./info/technologiesInfo";
-import { description as unpackageDescription } from "./unpackage/unpackage";
-import { description as bulkUnpackageDescription } from "./unpackage/bulkUnpackage";
-import { description as packageDescription } from "./package/package";
-
-sourceDescription
+import { routeDescriptions, RoutePathType } from "./routeDescriptions";
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -23,14 +15,16 @@ const linkStyles: React.CSSProperties = {
     textDecoration: "inherit",
 }
 
-function ToolRow({ route }: { route: RouteDescription }) {
+function ToolRow({ to }: { to: RoutePathType }) {
+    const routeDescription = routeDescriptions[to];
+
     return (
 
         <TableRow>
-            <TableCell><Link style={linkStyles} to={route.route.path}>
-                {route.name}
+            <TableCell><Link style={linkStyles} to={routeDescription.to}>
+                {routeDescription.name}
             </Link></TableCell>
-            <TableCell>{route.shortDescription}</TableCell>
+            <TableCell>{routeDescription.shortDescription}</TableCell>
         </TableRow>
     )
 }
@@ -38,7 +32,7 @@ function ToolRow({ route }: { route: RouteDescription }) {
 export default function Nf2tHome() {
     return (
         <>
-            <Nf2tHeader {...homeDescription} />
+            <Nf2tHeader to="/" />
             <Typography>
                 While Apache Nifi has its <ExternalLink href="https://github.com/apache/nifi/tree/main/nifi-commons/nifi-flowfile-packager">own Java libraries for packaging / unpackaging FlowFiles</ExternalLink>, running a Java application requires installing Java on a user's system. Previously I had built a command line based tool using the Java libraries. However, web applications are far more convienant than having to run an application in command line, so I decided to create a Web Application.
             </Typography>
@@ -59,15 +53,16 @@ export default function Nf2tHome() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <ToolRow route={unpackageDescription} />
-                    <ToolRow route={bulkUnpackageDescription} />
-                    <ToolRow route={packageDescription} />
-                    <ToolRow route={sourceDescription} />
+                    <ToolRow to="/unpackage" />
+                    <ToolRow to="/unpackageBulk" />
+                    <ToolRow to="/unpackage" />
+                    <ToolRow to="/narReader" />
+                    <ToolRow to="/source" />
                 </TableBody>
             </Table>
 
             <Spacing />
-            <PrevNext next={technologiesInfoDescription} />
+            <PrevNext next="/technologiesInfo" />
         </>
     )
 }

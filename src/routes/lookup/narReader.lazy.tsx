@@ -7,7 +7,6 @@ import Nf2tHeader from "../../components/Nf2tHeader";
 import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import Spacing from "../../components/Spacing";
-import {description as narReaderDescription} from "./narReader";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -46,7 +45,7 @@ export default function NarReader() {
 
     return (
         <>
-            <Nf2tHeader {...narReaderDescription} />
+            <Nf2tHeader to="/narReader" />
 
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
             <Spacing />

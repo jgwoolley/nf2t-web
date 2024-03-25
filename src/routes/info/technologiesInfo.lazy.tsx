@@ -4,9 +4,6 @@ import Spacing from "../../components/Spacing";
 import ExternalLink from "../../components/ExternalLink";
 import PrevNext from "../../components/PrevNext";
 import { createLazyRoute } from "@tanstack/react-router";
-import { description as buildInfoDescription} from "../info/buildInfo"
-import { description as technologiesInfoDescription} from "../info/technologiesInfo"
-import { description as homeDescription} from "../home"
 
 export const Route = createLazyRoute("/technologiesInfo")({
     component: TechnologyTable,
@@ -115,7 +112,7 @@ const techologies: Techonology[] = [
 export default function TechnologyTable() {
     return (
         <>
-            <Nf2tHeader {...technologiesInfoDescription }/>
+            <Nf2tHeader to="/technologiesInfo" />
 
             <Typography>
                 The following techologies / concepts are important for understanding the motivation / implementation of this project.
@@ -143,7 +140,7 @@ export default function TechnologyTable() {
 
             <Spacing />
 
-            <PrevNext prev={homeDescription} next={buildInfoDescription}/>
+            <PrevNext prev="/" next="/buildInfo"/>
         </>
     )
 }

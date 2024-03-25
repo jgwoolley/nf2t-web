@@ -4,7 +4,6 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material"
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Nar } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
-import {description as narLookupDescription } from "./narLookup";
 
 const route = getRouteApi("/narLookup");
 
@@ -21,7 +20,7 @@ export default function LookupNar() {
 
     return (
         <>
-            <Nf2tHeader {...narLookupDescription} />
+            <Nf2tHeader to="/narLookup" />
             <p>The {nar?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
 
             <h4>Nar Information</h4>

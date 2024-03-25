@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import { useEffect, useMemo } from "react";
 import ExternalLink from "./ExternalLink";
-import { RouteDescription } from "../routes/createRouteDescription";
+import { RouteDescription, RoutePathType, routeDescriptions } from "../routes/routeDescriptions";
 
 export function useNf2tHeader({name, shortName}: RouteDescription) {
     useEffect(() => {
@@ -13,7 +13,12 @@ export function useNf2tHeader({name, shortName}: RouteDescription) {
     return headerTitle;
 }
 
-export default function Nf2tHeader(props: RouteDescription) {
+export interface Nf2tHeaderProps {
+    to: RoutePathType,
+}
+
+export default function Nf2tHeader({to}: Nf2tHeaderProps) {
+    const props = routeDescriptions[to]
     const title = useNf2tHeader(props);
 
     return (

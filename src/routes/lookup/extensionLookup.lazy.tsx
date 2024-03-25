@@ -4,7 +4,6 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material"
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Nar, NarAttributeType, NarExtension } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
-import { description as extensionLookupDescription } from "./extensionLookup";
 
 const route = getRouteApi("/extensionLookup");
 
@@ -75,7 +74,7 @@ export default function LookupExtension() {
 
     return (
         <>
-            <Nf2tHeader {...extensionLookupDescription } />
+            <Nf2tHeader to="/extensionLookup" />
             <p>The {extension?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
 
             <h4>Nar Extension Information</h4>

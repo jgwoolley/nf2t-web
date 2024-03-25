@@ -8,7 +8,6 @@ import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../componen
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 import { createLazyRoute } from '@tanstack/react-router';
-import { description as unpackageDescription } from "./unpackage";
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: UnPackageNifi,
@@ -170,7 +169,7 @@ export function UnPackageNifi() {
 
     return (
         <>
-            <Nf2tHeader {...unpackageDescription} />
+            <Nf2tHeader to="/unpackageBulk" />
             <h5>1. Packaged FlowFiles</h5>
             <p>Provide multiple FlowFiles.</p>
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />

@@ -11,7 +11,6 @@ export interface Nf2tSnackbarProps {
 }
 //submitSnackbarMessage, submitSnackbarError
 
-
 export interface Nf2tSnackbarResult extends Nf2tSnackbarProps {
     snackbarOpen: boolean,
     setSnackbarOpen: React.Dispatch<React.SetStateAction<boolean>>,

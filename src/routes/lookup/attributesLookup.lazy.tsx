@@ -5,7 +5,6 @@ import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { lookupNarAttribute } from "../../utils/readNars";
 import ExternalLink from "../../components/ExternalLink";
-import {description as attributesLookupDescription } from "./attributesLookup";
 
 const route = getRouteApi("/attributesLookup");
 
@@ -42,7 +41,7 @@ export default function LookupAttribute() {
 
     return (
         <>
-            <Nf2tHeader {...attributesLookupDescription } />
+            <Nf2tHeader to="/attributesLookup" />
 
             {nf2tAttributes.get(name) && (
                 <>

@@ -16,7 +16,6 @@ import AttributeUpload from "../../components/AttributeUpload";
 import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 import { createLazyRoute } from "@tanstack/react-router";
-import { description as packageDescription } from "../package/package"
 
 export const Route = createLazyRoute("/package")({
     component: PackageNifi,
@@ -127,7 +126,7 @@ export default function PackageNifi() {
         }
 
 
-        if (newRows.filter((x) => x.key === "mime.type").length == 0) {
+        if (newFile.type.length > 0 && newRows.filter((x) => x.key === "mime.type").length == 0) {
             newRows.push({
                 key: "mime.type",
                 value: newFile.type,
@@ -184,7 +183,7 @@ export default function PackageNifi() {
 
     return (
         <>
-            <Nf2tHeader {...packageDescription} />
+            <Nf2tHeader to="/package" />
             <SetFlowFileContent {...props}/>
             <SetFlowFileAttributes {...props}/>
             <GetFlowFile {...props} />

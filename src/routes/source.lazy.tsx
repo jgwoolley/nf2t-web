@@ -6,7 +6,6 @@ import Spacing from "../components/Spacing";
 import CodeSnippet from "../components/CodeSnippet";
 import Nf2tSnackbar, { useNf2tSnackbar } from "../components/Nf2tSnackbar";
 import { createLazyRoute } from "@tanstack/react-router";
-import {description as sourceDescription} from "./source";
 
 export const Route = createLazyRoute("/source")({
     component: Nf2tSource,
@@ -64,7 +63,7 @@ export default function Nf2tSource() {
 
     return (
         <>
-            <Nf2tHeader {...sourceDescription}/>
+            <Nf2tHeader to="/source" />
             <Spacing />
             <Table>
                 <TableBody>

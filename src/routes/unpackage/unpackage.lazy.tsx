@@ -10,7 +10,6 @@ import Nf2tHeader from '../../components/Nf2tHeader';
 import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import { Download, SyncProblem } from '@mui/icons-material';
 import { createLazyRoute } from '@tanstack/react-router';
-import {description as unpackageDescription} from "./unpackage";
 
 export const Route = createLazyRoute("/unpackage")({
     component: UnpackageFlowFile,
@@ -111,7 +110,7 @@ export default function UnpackageFlowFile() {
 
     return (
         <>
-            <Nf2tHeader {...unpackageDescription}/>
+            <Nf2tHeader to="/unpackage" />
             <h5>1. Packaged FlowFile</h5>
             <p>Provide a Packaged FlowFile. The unpackaged FlowFile content will be immediately downloaded.</p>
             <TextField type="file" onChange={onUpload}/>          

@@ -7,10 +7,7 @@ import Spacing from "../../components/Spacing";
 import { useMemo, useState } from "react";
 import Slides, { Slide } from "../../components/Nf2tSlides";
 import { createLazyRoute } from "@tanstack/react-router";
-import { description as buildInfoDescription} from "../info/buildInfo"
-import { description as technologiesInfoDescription} from "../info/technologiesInfo"
-import { description as homeDescription} from "../home"
-import { sourceReferences } from "../createRouteDescription";
+import { sourceReferences } from "../routeDescriptions";
 
 export const Route = createLazyRoute("/buildInfo")({
     component: BuildProcess,
@@ -124,11 +121,11 @@ export default function BuildProcess() {
 
     return (
         <>
-            <Nf2tHeader {...buildInfoDescription} />
+            <Nf2tHeader to="/buildInfo" />
             <Slides slides={slides} />
             <Spacing />
 
-            <PrevNext prev={technologiesInfoDescription} next={homeDescription} />
+            <PrevNext prev="/technologiesInfo" next="/" />
             <Snackbar
                 open={openAlert}
                 autoHideDuration={6000}
