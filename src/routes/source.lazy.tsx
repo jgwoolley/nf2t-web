@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
-import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
+import Nf2tHeader from "../components/Nf2tHeader";
 import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import { z } from "zod";
 import Spacing from "../components/Spacing";
 import CodeSnippet from "../components/CodeSnippet";
 import Nf2tSnackbar, { useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import { createLazyRoute } from "@tanstack/react-router";
+import {description as sourceDescription} from "./source";
+
+export const Route = createLazyRoute("/source")({
+    component: Nf2tSource,
+})
 
 export const GitInfoSchema = z.object({
     H: z.string(),
@@ -58,7 +64,7 @@ export default function Nf2tSource() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.source}/>
+            <Nf2tHeader {...sourceDescription}/>
             <Spacing />
             <Table>
                 <TableBody>
@@ -81,7 +87,7 @@ export default function Nf2tSource() {
                             <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.ae}/></TableCell>
                         </TableRow>
                         </>
-                    ) : "No buildinfo yet"}                    
+                    ) : null }                    
                     <TableRow>
                         <TableCell>Commit Date</TableCell>
                         <TableCell>{authorDate?.toLocaleString()}</TableCell>

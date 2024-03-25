@@ -1,8 +1,16 @@
 import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
-import Spacing from "../components/Spacing";
-import ExternalLink from "../components/ExternalLink";
-import PrevNext from "../components/PrevNext";
+import Nf2tHeader from "../../components/Nf2tHeader";
+import Spacing from "../../components/Spacing";
+import ExternalLink from "../../components/ExternalLink";
+import PrevNext from "../../components/PrevNext";
+import { createLazyRoute } from "@tanstack/react-router";
+import { description as buildInfoDescription} from "../info/buildInfo"
+import { description as technologiesInfoDescription} from "../info/technologiesInfo"
+import { description as homeDescription} from "../home"
+
+export const Route = createLazyRoute("/technologiesInfo")({
+    component: TechnologyTable,
+})
 
 type Techonology = {
     href : string,
@@ -107,7 +115,7 @@ const techologies: Techonology[] = [
 export default function TechnologyTable() {
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.technologyTable}/>
+            <Nf2tHeader {...technologiesInfoDescription }/>
 
             <Typography>
                 The following techologies / concepts are important for understanding the motivation / implementation of this project.
@@ -135,7 +143,7 @@ export default function TechnologyTable() {
 
             <Spacing />
 
-            <PrevNext prev={routeDescriptions.home} next={routeDescriptions.buildProcess}/>
+            <PrevNext prev={homeDescription} next={buildInfoDescription}/>
         </>
     )
 }

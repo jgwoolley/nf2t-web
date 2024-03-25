@@ -1,8 +1,7 @@
 import { MenuItem, Tooltip, Typography } from "@mui/material"
 import { Link } from "@tanstack/react-router";
-import { RouteDescription } from "./Nf2tHeader";
 import Spacing from "./Spacing";
-
+import { RouteDescription } from "../routes/createRouteDescription";
 
 const linkStyles: React.CSSProperties = {
     color: "inherit",
@@ -27,7 +26,7 @@ export default function PrevNext({ prev, next }: PrevNextProps) {
                         {prev && (
                             <Tooltip title={prev.shortDescription}>
                                 <td>
-                                    <Link style={linkStyles} to={prev.to}>
+                                    <Link style={linkStyles} to={prev.route.path}>
                                     <MenuItem>
                                         ← {prev.name} 
                                     </MenuItem>
@@ -38,10 +37,9 @@ export default function PrevNext({ prev, next }: PrevNextProps) {
                         {next && (
                             <Tooltip title={next.shortDescription}>
                                 <td >
-                                    <Link style={linkStyles} to={next.to}>
+                                    <Link style={linkStyles} to={next.route.path}>
                                         <MenuItem>
-                                                <>{next.name} →</>
-                                            
+                                                <>{next.name} →</>                                           
                                         </MenuItem>
                                     </Link>
                                 </td>

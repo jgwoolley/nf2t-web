@@ -45,7 +45,7 @@ function AttributeRow({ index, rows, row, canEdit, deleteRow, editIndex, setEdit
             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
         >
             <TableCell component="th" scope="row">
-                <Link to="/lookupAttribute" search={{ name: row.key }}>
+                <Link to="/attributesLookup" search={{ name: row.key }}>
                     {row.key}
                 </Link>
             </TableCell>

@@ -1,11 +1,17 @@
-import { LookupAttributeRoute } from "../main";
-import { useNf2tContext } from "../components/Nf2tContextProvider";
+import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
-import { Link } from "@tanstack/react-router";
-import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
-import { lookupNarAttribute } from "../utils/readNars";
-import ExternalLink from "../components/ExternalLink";
+import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
+import Nf2tHeader from "../../components/Nf2tHeader";
+import { lookupNarAttribute } from "../../utils/readNars";
+import ExternalLink from "../../components/ExternalLink";
+import {description as attributesLookupDescription } from "./attributesLookup";
+
+const route = getRouteApi("/attributesLookup");
+
+export const Route = createLazyRoute("/attributesLookup")({
+    component: LookupAttribute,
+})
 
 export const coreAttributes = new Map<string, string>([
     ["path", "The FlowFile's path indicates the relative directory to which a FlowFile belongs and does not contain the filename."],
@@ -27,7 +33,7 @@ export const nf2tAttributes = new Map<string, string>([
 ]);
 
 export default function LookupAttribute() {
-    const { name } = LookupAttributeRoute.useSearch();
+    const { name } = route.useSearch();
     const { nars, attributes } = useNf2tContext();
     const attributeResults = useMemo(() => {
         //TODO: Lookup coreAttributes and Nf2t values
@@ -36,7 +42,7 @@ export default function LookupAttribute() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.lookupAttribute} />
+            <Nf2tHeader {...attributesLookupDescription } />
 
             {nf2tAttributes.get(name) && (
                 <>
@@ -82,10 +88,10 @@ export default function LookupAttribute() {
                                 return (
                                     <TableRow key={narAttributeLuvIndex}>
                                         <TableCell>
-                                            <Link to="/lookupNar" search={{nar_index: narAttributeLuv.nar_index}}>{nar.name}</Link>
+                                            <Link to="/narLookup" search={{nar_index: narAttributeLuv.nar_index}}>{nar.name}</Link>
                                         </TableCell>
                                         <TableCell>
-                                            <Link to="/lookupExtension" search={{nar_index: narAttributeLuv.nar_index, extension_index: narAttributeLuv.extension_index}}>{extension.name}</Link>
+                                            <Link to="/extensionLookup" search={{nar_index: narAttributeLuv.nar_index, extension_index: narAttributeLuv.extension_index}}>{extension.name}</Link>
                                         </TableCell>
                                         <TableCell>{type}</TableCell>
                                         <TableCell>{attribute.description}</TableCell>

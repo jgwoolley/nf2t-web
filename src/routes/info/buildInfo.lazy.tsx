@@ -1,11 +1,20 @@
 import { Snackbar } from "@mui/material";
-import CodeSnippet from "../components/CodeSnippet";
-import ExternalLink from "../components/ExternalLink";
-import Nf2tHeader, { routeDescriptions, sourceReferences } from "../components/Nf2tHeader";
-import PrevNext from "../components/PrevNext";
-import Spacing from "../components/Spacing";
+import CodeSnippet from "../../components/CodeSnippet";
+import ExternalLink from "../../components/ExternalLink";
+import Nf2tHeader from "../../components/Nf2tHeader";
+import PrevNext from "../../components/PrevNext";
+import Spacing from "../../components/Spacing";
 import { useMemo, useState } from "react";
-import Slides, { Slide } from "../components/Nf2tSlides";
+import Slides, { Slide } from "../../components/Nf2tSlides";
+import { createLazyRoute } from "@tanstack/react-router";
+import { description as buildInfoDescription} from "../info/buildInfo"
+import { description as technologiesInfoDescription} from "../info/technologiesInfo"
+import { description as homeDescription} from "../home"
+import { sourceReferences } from "../createRouteDescription";
+
+export const Route = createLazyRoute("/buildInfo")({
+    component: BuildProcess,
+})
 
 export default function BuildProcess() {
     const [openAlert, setOpenAlert] = useState(false);
@@ -115,11 +124,11 @@ export default function BuildProcess() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.buildProcess} />
+            <Nf2tHeader {...buildInfoDescription} />
             <Slides slides={slides} />
             <Spacing />
 
-            <PrevNext prev={routeDescriptions.technologyTable} next={routeDescriptions.home} />
+            <PrevNext prev={technologiesInfoDescription} next={homeDescription} />
             <Snackbar
                 open={openAlert}
                 autoHideDuration={6000}

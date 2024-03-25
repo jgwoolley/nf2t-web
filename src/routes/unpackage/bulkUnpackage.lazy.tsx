@@ -1,12 +1,18 @@
 import { Box, Button, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
-import unpackageFlowFile from '../utils/unpackageFlowFile';
-import Spacing from '../components/Spacing';
-import { downloadFile } from '../utils/downloadFile';
-import Nf2tHeader, { routeDescriptions } from '../components/Nf2tHeader';
-import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import unpackageFlowFile from '../../utils/unpackageFlowFile';
+import Spacing from '../../components/Spacing';
+import { downloadFile } from '../../utils/downloadFile';
+import Nf2tHeader from '../../components/Nf2tHeader';
+import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
+import { createLazyRoute } from '@tanstack/react-router';
+import { description as unpackageDescription } from "./unpackage";
+
+export const Route = createLazyRoute("/unpackageBulk")({
+    component: UnPackageNifi,
+})
 
 const defaultTotal = -1;
 const defaultCurrent = 0;
@@ -164,7 +170,7 @@ export function UnPackageNifi() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.bulkUnpackage} />
+            <Nf2tHeader {...unpackageDescription} />
             <h5>1. Packaged FlowFiles</h5>
             <p>Provide multiple FlowFiles.</p>
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />

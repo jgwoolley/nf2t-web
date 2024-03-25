@@ -1,10 +1,16 @@
-import { LookupExtensionRoute } from "../main";
-import { useNf2tContext } from "../components/Nf2tContextProvider";
+import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
-import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
-import { Nar, NarAttributeType, NarExtension } from "../utils/readNars";
-import { Link } from "@tanstack/react-router";
+import Nf2tHeader from "../../components/Nf2tHeader";
+import { Nar, NarAttributeType, NarExtension } from "../../utils/readNars";
+import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
+import { description as extensionLookupDescription } from "./extensionLookup";
+
+const route = getRouteApi("/extensionLookup");
+
+export const Route = createLazyRoute("/extensionLookup")({
+    component: LookupExtension,
+})
 
 interface ExtensionAttributeTableProps {
     extension?: NarExtension,
@@ -37,7 +43,7 @@ function ExtensionAttributeTable({ extension, type, title, }: ExtensionAttribute
                     {values.map((attribute, attribute_index) => (
                         <TableRow key={attribute_index}>
                             <TableCell>
-                                <Link search={{ name: attribute.name }} to="/lookupAttribute">{attribute.name}</Link>
+                                <Link search={{ name: attribute.name }} to="/attributesLookup">{attribute.name}</Link>
                             </TableCell>
                             <TableCell>{attribute.description}</TableCell>
                         </TableRow>
@@ -54,7 +60,7 @@ interface LookupExtensionMemo {
 }
 
 export default function LookupExtension() {
-    const { nar_index, extension_index } = LookupExtensionRoute.useSearch();
+    const { nar_index, extension_index } = route.useSearch();
     const { nars } = useNf2tContext();
     
     const {nar, extension} = useMemo<LookupExtensionMemo>(() => {
@@ -69,7 +75,7 @@ export default function LookupExtension() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.lookupNar} />
+            <Nf2tHeader {...extensionLookupDescription } />
             <p>The {extension?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
 
             <h4>Nar Extension Information</h4>
@@ -90,7 +96,7 @@ export default function LookupExtension() {
                     </TableRow>
                     <TableRow>
                         <TableCell>Nar</TableCell>
-                        <TableCell><Link search={{nar_index: nar_index}} to="/lookupNar">{nar?.name}</Link></TableCell>
+                        <TableCell><Link search={{nar_index: nar_index}} to="/narLookup">{nar?.name}</Link></TableCell>
                     </TableRow>
                 </TableBody>
             </Table>

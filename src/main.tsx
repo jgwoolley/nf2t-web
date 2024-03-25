@@ -1,148 +1,34 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {
-  Outlet,
   RouterProvider,
   createRouter,
-  createRoute,
-  createRootRoute,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
-import { Container } from '@mui/material';
-import Nf2tAppBar from './components/Nf2tAppBar';
-import UnpackageFlowFile from './routes/UnpackageFlowFile';
-import BulkUnpackageFlowFile from './routes/BulkUnpackageFlowFile';
-import PackageFlowFile from './routes/PackageFlowFile';
-import Nf2tSource from './routes/Nf2tSource';
-import Nf2tHome from './routes/Nf2tHome';
-import Spacing from './components/Spacing';
-import TechnologyTable from './routes/TechnologyTable';
-import BuildProcess from './routes/BuildProcess';
-import NarReader from './routes/NarReader';
-import Nf2tContextProvider from './components/Nf2tContextProvider';
-import LookupAttribute from './routes/LookupAttribute';
-import { z } from 'zod';
-import LookupNar from './routes/LookupNar';
-import LookupExtension from './routes/LookupExtension';
-
-const debug = false;
-
-export const rootRoute = createRootRoute({
-  component: () => {
-    return (
-      <Nf2tContextProvider>
-        <Container >
-          <Nf2tAppBar />
-          <div style={{ marginTop: "10px" }} />
-          <Outlet />
-          <Spacing height="100px" />
-          {debug && <TanStackRouterDevtools />}
-        </Container>
-        </Nf2tContextProvider>
-    )
-  }
-});
-
-export const IndexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: Nf2tHome,
-});
-
-export const UnpackageFlowFileRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/unpackage",
-  component: UnpackageFlowFile,
-});
-
-export const BulkUnpackageFlowFileRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/bulkUnpackage",
-  component: BulkUnpackageFlowFile,
-});
-
-export const PackageFlowFileRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/package",
-  component: PackageFlowFile,
-});
-
-export const SourceRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/source",
-  component: Nf2tSource,
-});
-
-export const TechnologyTableRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/technologyTable",
-  component: TechnologyTable,
-});
-
-export const BuildProcessRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/buildProcess",
-  component: BuildProcess,
-});
-
-export const NarReaderRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/narReader",
-  component: NarReader,
-})
-
-export const LookupAttributeSearchParamsSchema = z.object({
-  name: z.string(),
-})
-
-export const LookupAttributeRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/lookupAttribute",
-  validateSearch: (search: Record<string, unknown>) => {
-    return LookupAttributeSearchParamsSchema.parse(search);
-  },
-  component: LookupAttribute,
-})
-
-export const LookupNarSearchParamsSchema = z.object({
-  nar_index: z.number(),
-});
-
-export const LookupNarRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/lookupNar",
-  validateSearch: (search: Record<string, unknown>) => {
-    return LookupNarSearchParamsSchema.parse(search);
-  },
-  component: LookupNar,
-})
-
-export const LookupExtensionSearchParamsSchema = z.object({
-  nar_index: z.number(),
-  extension_index: z.number(),
-});
-
-export const LookupExtensionRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/lookupExtension",
-  validateSearch: (search: Record<string, unknown>) => {
-    return LookupExtensionSearchParamsSchema.parse(search);
-  },
-  component: LookupExtension,
-})
+import rootRoute from './routes/rootRoute';
+import {route as buildInfo } from "./routes/info/buildInfo";
+import {route as technologiesInfo } from "./routes/info/technologiesInfo";
+import {route as attributesLookup } from "./routes/lookup/attributesLookup";
+import {route as extensionLookup } from "./routes/lookup/extensionLookup";
+import {route as narLookup } from "./routes/lookup/narLookup";
+import {route as narReader } from "./routes/lookup/narReader";
+import {route as packageFlowFile } from "./routes/package/package";
+import {route as unpackageFlowFile } from "./routes/unpackage/unpackage";
+import {route as bulkUnpackageFlowFile } from "./routes/unpackage/bulkUnpackage";
+import {route as source } from "./routes/source";
+import {route as home } from "./routes/home";
 
 const routeTree = rootRoute.addChildren([
-  IndexRoute,
-  UnpackageFlowFileRoute,
-  BulkUnpackageFlowFileRoute,
-  PackageFlowFileRoute,
-  SourceRoute,
-  TechnologyTableRoute,
-  BuildProcessRoute,
-  NarReaderRoute,
-  LookupAttributeRoute,
-  LookupNarRoute,
-  LookupExtensionRoute,
+  buildInfo,
+  technologiesInfo,
+  attributesLookup,
+  extensionLookup,
+  narLookup,
+  narReader,
+  packageFlowFile,
+  unpackageFlowFile,
+  bulkUnpackageFlowFile,
+  source,
+  home,
 ]);
 
 const router = createRouter({

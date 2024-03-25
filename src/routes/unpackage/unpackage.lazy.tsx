@@ -1,14 +1,20 @@
 import { Button, ButtonGroup, TextField } from '@mui/material';
 import { ChangeEvent, useState } from 'react';
-import unpackageFlowFile from '../utils/unpackageFlowFile';
-import AttributesTable from '../components/AttributesTable';
-import { FlowfileAttributeRowSchema } from '../utils/schemas';
-import { downloadFile } from '../utils/downloadFile';
-import Spacing from '../components/Spacing';
-import AttributeDownload from '../components/AttributeDownload';
-import Nf2tHeader, { routeDescriptions } from '../components/Nf2tHeader';
-import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import unpackageFlowFile from '../../utils/unpackageFlowFile';
+import AttributesTable from '../../components/AttributesTable';
+import { FlowfileAttributeRowSchema } from '../../utils/schemas';
+import { downloadFile } from '../../utils/downloadFile';
+import Spacing from '../../components/Spacing';
+import AttributeDownload from '../../components/AttributeDownload';
+import Nf2tHeader from '../../components/Nf2tHeader';
+import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import { Download, SyncProblem } from '@mui/icons-material';
+import { createLazyRoute } from '@tanstack/react-router';
+import {description as unpackageDescription} from "./unpackage";
+
+export const Route = createLazyRoute("/unpackage")({
+    component: UnpackageFlowFile,
+})
 
 function findFilename(rows: FlowfileAttributeRowSchema[]) {
     const filteredRows = rows.filter((x) => x.key === "filename");
@@ -105,7 +111,7 @@ export default function UnpackageFlowFile() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.unpackage}/>
+            <Nf2tHeader {...unpackageDescription}/>
             <h5>1. Packaged FlowFile</h5>
             <p>Provide a Packaged FlowFile. The unpackaged FlowFile content will be immediately downloaded.</p>
             <TextField type="file" onChange={onUpload}/>          

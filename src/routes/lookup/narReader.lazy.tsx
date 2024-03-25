@@ -1,12 +1,17 @@
 import { ChangeEvent, useMemo } from "react"
-import { useNf2tSnackbar } from "../components/Nf2tSnackbar";
-import readNars from "../utils/readNars";
+import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import readNars from "../../utils/readNars";
 import { Table, TableBody, TableCell, TableRow, TextField } from "@mui/material";
-import Nf2tLinearProgress, { useNf2tLinearProgress } from "../components/Nf2tLinearProgress";
-import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
-import { useNf2tContext } from "../components/Nf2tContextProvider";
-import { Link } from "@tanstack/react-router";
-import Spacing from "../components/Spacing";
+import Nf2tLinearProgress, { useNf2tLinearProgress } from "../../components/Nf2tLinearProgress";
+import Nf2tHeader from "../../components/Nf2tHeader";
+import { useNf2tContext } from "../../components/Nf2tContextProvider";
+import { Link, createLazyRoute } from "@tanstack/react-router";
+import Spacing from "../../components/Spacing";
+import {description as narReaderDescription} from "./narReader";
+
+export const Route = createLazyRoute("/narReader")({
+    component: NarReader,
+})
 
 export default function NarReader() {
     const snackbarProps = useNf2tSnackbar();
@@ -41,7 +46,7 @@ export default function NarReader() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.narReader} />
+            <Nf2tHeader {...narReaderDescription} />
 
             <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
             <Spacing />
@@ -53,7 +58,7 @@ export default function NarReader() {
                     {sortedAttributes.map(([attributeName, attributeValues], index) => (
                         <TableRow key={index}>
                             <TableCell>
-                                <Link to="/lookupAttribute" search={{ name: attributeName }}>
+                                <Link to="/attributesLookup" search={{ name: attributeName }}>
                                     {attributeName}
                                 </Link>
                             </TableCell>

@@ -1,13 +1,19 @@
-import { LookupNarRoute } from "../main";
-import { useNf2tContext } from "../components/Nf2tContextProvider";
+import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { useMemo } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
-import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
-import { Nar } from "../utils/readNars";
-import { Link } from "@tanstack/react-router";
+import Nf2tHeader from "../../components/Nf2tHeader";
+import { Nar } from "../../utils/readNars";
+import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
+import {description as narLookupDescription } from "./narLookup";
+
+const route = getRouteApi("/narLookup");
+
+export const Route = createLazyRoute("/narLookup")({
+    component: LookupNar,
+})
 
 export default function LookupNar() {
-    const { nar_index } = LookupNarRoute.useSearch();
+    const { nar_index } = route.useSearch();
     const { nars } = useNf2tContext();
     const nar = useMemo<Nar | undefined>(() => {
         return nars[nar_index];
@@ -15,7 +21,7 @@ export default function LookupNar() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.lookupNar} />
+            <Nf2tHeader {...narLookupDescription} />
             <p>The {nar?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
 
             <h4>Nar Information</h4>
@@ -70,7 +76,7 @@ export default function LookupNar() {
                         return (
                             <TableRow key={extension_index}>
                                 <TableCell>
-                                    <Link search={{extension_index: extension_index, nar_index: nar_index}} to="/lookupExtension">{extension.name}</Link>
+                                    <Link search={{extension_index: extension_index, nar_index: nar_index}} to="/extensionLookup">{extension.name}</Link>
                                 </TableCell>
                                 <TableCell>{extension.description}</TableCell>
                             </TableRow>

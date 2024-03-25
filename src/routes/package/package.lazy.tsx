@@ -1,20 +1,26 @@
 import { ChangeEvent, useState } from "react"
-import AttributesTable from "../components/AttributesTable"
+import AttributesTable from "../../components/AttributesTable"
 import { Button, ButtonGroup, TextField, } from "@mui/material";
-import { FlowfileAttributeRowSchema, } from "../utils/schemas";
-import AttributeDialog from "../components/AttributeDialog";
-import AttributeDownload from "../components/AttributeDownload";
+import { FlowfileAttributeRowSchema, } from "../../utils/schemas";
+import AttributeDialog from "../../components/AttributeDialog";
+import AttributeDownload from "../../components/AttributeDownload";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import packageFlowFile from "../utils/packageFlowFile";
+import packageFlowFile from "../../utils/packageFlowFile";
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
-import { downloadFile } from "../utils/downloadFile";
-import Spacing from "../components/Spacing";
-import Nf2tHeader, { routeDescriptions } from "../components/Nf2tHeader";
-import generateHash from "../utils/generateHash";
-import AttributeUpload from "../components/AttributeUpload";
-import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import { downloadFile } from "../../utils/downloadFile";
+import Spacing from "../../components/Spacing";
+import Nf2tHeader from "../../components/Nf2tHeader";
+import generateHash from "../../utils/generateHash";
+import AttributeUpload from "../../components/AttributeUpload";
+import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
+import { createLazyRoute } from "@tanstack/react-router";
+import { description as packageDescription } from "../package/package"
+
+export const Route = createLazyRoute("/package")({
+    component: PackageNifi,
+})
 
 interface PackageNifiProps extends Nf2tSnackbarProps {
     openAttribute: boolean,
@@ -178,7 +184,7 @@ export default function PackageNifi() {
 
     return (
         <>
-            <Nf2tHeader {...routeDescriptions.package} />
+            <Nf2tHeader {...packageDescription} />
             <SetFlowFileContent {...props}/>
             <SetFlowFileAttributes {...props}/>
             <GetFlowFile {...props} />
