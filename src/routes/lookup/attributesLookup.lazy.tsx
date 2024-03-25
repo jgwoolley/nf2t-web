@@ -74,6 +74,7 @@ export default function LookupAttribute() {
                     <Table>
                         <TableHead>
                             <TableRow>
+                                <TableCell>Name</TableCell>
                                 <TableCell>Nar</TableCell>
                                 <TableCell>Extension</TableCell>
                                 <TableCell>Type</TableCell>
@@ -86,6 +87,9 @@ export default function LookupAttribute() {
 
                                 return (
                                     <TableRow key={narAttributeLuvIndex}>
+                                        <TableCell>
+                                            <Link to="/attributeLookup" search={{...narAttributeLuv}}>{nar.name}</Link>
+                                        </TableCell>
                                         <TableCell>
                                             <Link to="/narLookup" search={{nar_index: narAttributeLuv.nar_index}}>{nar.name}</Link>
                                         </TableCell>

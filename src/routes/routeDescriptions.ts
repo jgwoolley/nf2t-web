@@ -1,6 +1,7 @@
 import { route as buildInfo } from "./info/buildInfo";
 import { route as technologiesInfo } from "./info/technologiesInfo";
 import { route as attributesLookup } from "./lookup/attributesLookup";
+import { route as attributeLookup } from "./lookup/attributeLookup";
 import { route as extensionLookup } from "./lookup/extensionLookup";
 import { route as narLookup } from "./lookup/narLookup";
 import { route as narReader } from "./lookup/narReader";
@@ -14,6 +15,7 @@ export const routeChildren = [
   buildInfo,
   technologiesInfo,
   attributesLookup,
+  attributeLookup,
   extensionLookup,
   narLookup,
   narReader,
@@ -86,18 +88,23 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
   },
   "/attributesLookup": {
     to: "/attributesLookup",
+    name: "Attributes Lookup",
+    shortDescription: "Review Nifi Processors that either write to or read the attributes.",
+  },
+  "/attributeLookup": {
+    to: "/attributeLookup",
     name: "Attribute Lookup",
-    shortDescription: "Review Nifi Processors that either write to or read the attribute.",
+    shortDescription: "Looks up attribute information based on location in Nars.",
   },
   "/extensionLookup": {
     to: "/extensionLookup",
     name: "Extension Lookup",
-    shortDescription: "",
+    shortDescription: "Looks up extension information based on location in Nars.",
   },
   "/narLookup": {
     to: "/narLookup",
     name: "Nar Lookup",
-    shortDescription: "",
+    shortDescription: "Looks up Nar information.",
   },
   "/narReader": {
     to: "/narReader",

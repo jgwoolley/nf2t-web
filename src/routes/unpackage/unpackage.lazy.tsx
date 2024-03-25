@@ -39,8 +39,8 @@ interface ContentDownloadButtonProps extends Nf2tSnackbarProps {
     downloadContent?: DownloadContentType,
 }
 
-function ContentDownloadButton({downloadContent, submitSnackbarError}: ContentDownloadButtonProps) {
-    if(downloadContent == undefined) {
+function ContentDownloadButton({ downloadContent, submitSnackbarError }: ContentDownloadButtonProps) {
+    if (downloadContent == undefined) {
         return (
             <Button startIcon={<SyncProblem />} variant="outlined" onClick={() => submitSnackbarError("No content to download")} >Download Content</Button>
         )
@@ -92,7 +92,7 @@ export default function UnpackageFlowFile() {
                 setDownloadContent(() => () => {
                     const filename = findFilename(newRows);
                     const mimetype = findMimetype(newRows);
-    
+
                     const blob = new Blob([content], {
                         type: mimetype,
                     });
@@ -112,24 +112,39 @@ export default function UnpackageFlowFile() {
         <>
             <Nf2tHeader to="/unpackage" />
             <h5>1. Packaged FlowFile</h5>
-            <p>Provide a Packaged FlowFile. The unpackaged FlowFile content will be immediately downloaded.</p>
-            <TextField type="file" onChange={onUpload}/>          
+            {rows.length <= 0 ? (
+                <>
+                    <p>Provide a Packaged FlowFile. The unpackaged FlowFile content will be available for download.</p>
+                    <TextField type="file" onChange={onUpload} />
+                </>
+            ) : 
+            (<>
+                <p>Clear the Packaged FlowFile.</p>
+                <Button onClick={() => {
+                    //TODO: Not working...
+                    setDownloadContent(undefined);
+                    setRows([])
+                }}>Clear</Button>
+            </>)
+            }
+
+
             <Spacing />
             <h5>2. Unpackaged FlowFile Attributes</h5>
             <p>Download FlowFile Attributes.</p>
-            <AttributesTable 
+            <AttributesTable
                 {...snackbarResults}
-                rows={rows} 
-                setRows={setRows} 
-                canEdit={false} 
+                rows={rows}
+                setRows={setRows}
+                canEdit={false}
             />
             <Spacing />
             <ButtonGroup>
-                <AttributeDownload 
+                <AttributeDownload
                     {...snackbarResults}
-                    rows={rows} 
+                    rows={rows}
                 />
-                <ContentDownloadButton {...snackbarResults} downloadContent={downloadContent}/>
+                <ContentDownloadButton {...snackbarResults} downloadContent={downloadContent} />
             </ButtonGroup>
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />

@@ -39,37 +39,37 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
 export interface BulkUnpackageDownloadButtonProps extends Nf2tSnackbarProps {
     rows: Map<string, string>[],
     attributes: string[] | undefined,
-} 
+}
 
 
 
-export function BulkUnpackageDownloadButton({submitSnackbarMessage, submitSnackbarError, rows, attributes}: BulkUnpackageDownloadButtonProps) {
+export function BulkUnpackageDownloadButton({ submitSnackbarMessage, submitSnackbarError, rows, attributes }: BulkUnpackageDownloadButtonProps) {
     const onClick = () => {
-        if(attributes == undefined) {
+        if (attributes == undefined) {
             submitSnackbarError("No attributes provided");
             return;
         }
 
         let content = attributes.map(x => JSON.stringify(x)).join(",");
-            content += "\n";
+        content += "\n";
 
-            for (const row of rows) {
-                for (const key of attributes) {
-                    content += JSON.stringify(row.get(key) || "")
-                    content += ","
-                }
-                content += "\n"
+        for (const row of rows) {
+            for (const key of attributes) {
+                content += JSON.stringify(row.get(key) || "")
+                content += ","
             }
+            content += "\n"
+        }
 
-            const blob = new Blob([content], {
-                type: "text/csv",
-            })
+        const blob = new Blob([content], {
+            type: "text/csv",
+        })
 
-            downloadFile(blob, "bulk.csv");
-            submitSnackbarMessage("Downloaded bulk report");
+        downloadFile(blob, "bulk.csv");
+        submitSnackbarMessage("Downloaded bulk report");
     }
-    
-    if(rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
+
+    if (rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
         return (
             <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarError("No attributes to download")} >Download Report</Button>
         )
@@ -142,10 +142,10 @@ export function UnPackageNifi() {
 
             if (uniqueAttributes.size <= 0) {
                 submitSnackbarError("Did not find any attributes in the given files.",
-                {
-                    uniqueAttributes: uniqueAttributes.size,
-                    files: files.length,
-                });
+                    {
+                        uniqueAttributes: uniqueAttributes.size,
+                        files: files.length,
+                    });
                 return;
             }
 
@@ -171,8 +171,15 @@ export function UnPackageNifi() {
         <>
             <Nf2tHeader to="/unpackageBulk" />
             <h5>1. Packaged FlowFiles</h5>
-            <p>Provide multiple FlowFiles.</p>
-            <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
+            {rows.length <= 0 ? (<>
+                <p>Provide multiple FlowFiles.</p>
+                <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
+            </>) : (<>
+                <p>Clear provided FlowFiles.</p>
+                <Button onClick={() => setRows([])}>Clear</Button>
+            </>)}
+
+
             <Spacing />
             <h5>2. Download FlowFile Attributes CSV</h5>
             <p>A CSV will be downloadable with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
@@ -191,19 +198,19 @@ export function UnPackageNifi() {
                         <TableBody>
                             {rows.map((row, rowIndex) => (
                                 <TableRow key={rowIndex}>
-                                {attributes.map((attribute, attributeIndex) => (
-                                    <TableCell key={attributeIndex}>
-                                        {row.get(attribute) || ""}
-                                    </TableCell>
-                                ))}
+                                    {attributes.map((attribute, attributeIndex) => (
+                                        <TableCell key={attributeIndex}>
+                                            {row.get(attribute) || ""}
+                                        </TableCell>
+                                    ))}
                                 </TableRow>
-                            ))}                           
+                            ))}
                         </TableBody>
                     </Table>
                     <Spacing />
                 </>
             )}
-            <BulkUnpackageDownloadButton {...snackbarResults} rows={rows} attributes={attributes}/>
+            <BulkUnpackageDownloadButton {...snackbarResults} rows={rows} attributes={attributes} />
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />
         </>

@@ -1,7 +1,7 @@
 import { ChangeEvent, useMemo } from "react"
 import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import readNars from "../../utils/readNars";
-import { Table, TableBody, TableCell, TableRow, TextField } from "@mui/material";
+import { Button, Table, TableBody, TableCell, TableRow, TextField } from "@mui/material";
 import Nf2tLinearProgress, { useNf2tLinearProgress } from "../../components/Nf2tLinearProgress";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { useNf2tContext } from "../../components/Nf2tContextProvider";
@@ -47,11 +47,28 @@ export default function NarReader() {
         <>
             <Nf2tHeader to="/narReader" />
 
-            <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
+            <h5>Provide Nars</h5>
+            {context.attributes.size <= 0 ? (
+                <>
+                    <p>Provide multiple Nar files.</p>
+                    <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
+                </>
+            ) : (
+                <>
+                    <p>Clear provided Nar files.</p>
+                    <Button onClick={() => {
+                        context.setNars([]);
+                        progressBar.updateCurrent(undefined, undefined);
+                    }}>Clear</Button>
+                </>
+
+            )}
+
+
             <Spacing />
             <Nf2tLinearProgress {...progressBar} />
 
-            <h4>Attribute Names</h4>
+            <h5>Attribute Names</h5>
             <Table>
                 <TableBody>
                     {sortedAttributes.map(([attributeName, attributeValues], index) => (
@@ -67,7 +84,7 @@ export default function NarReader() {
                 </TableBody>
             </Table>
 
-            <h4>Debug</h4>
+            <h5>Debug</h5>
             <Table>
                 <TableBody>
                     <TableRow>

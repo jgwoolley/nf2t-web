@@ -12,12 +12,14 @@ export const Route = createLazyRoute("/extensionLookup")({
 })
 
 interface ExtensionAttributeTableProps {
+    nar_index: number,
+    extension_index: number,
     extension?: NarExtension,
     type: NarAttributeType,
     title: string,
 }
 
-function ExtensionAttributeTable({ extension, type, title, }: ExtensionAttributeTableProps) {
+function ExtensionAttributeTable({ extension, type, title, extension_index, nar_index, }: ExtensionAttributeTableProps) {
     if (extension == undefined) {
         return null;
     }
@@ -42,7 +44,7 @@ function ExtensionAttributeTable({ extension, type, title, }: ExtensionAttribute
                     {values.map((attribute, attribute_index) => (
                         <TableRow key={attribute_index}>
                             <TableCell>
-                                <Link search={{ name: attribute.name }} to="/attributesLookup">{attribute.name}</Link>
+                                <Link search={{ nar_index: nar_index, extension_index: extension_index, attribute_index: attribute_index, type: type, }} to="/attributeLookup">{attribute.name}</Link>
                             </TableCell>
                             <TableCell>{attribute.description}</TableCell>
                         </TableRow>
@@ -99,8 +101,8 @@ export default function LookupExtension() {
                     </TableRow>
                 </TableBody>
             </Table>
-            <ExtensionAttributeTable title="writesAttributes" type="writesAttributes" extension={extension} />
-            <ExtensionAttributeTable title="readsAttributes" type="readsAttributes" extension={extension} />
+            <ExtensionAttributeTable title="writesAttributes" type="writesAttributes" extension={extension} extension_index={extension_index} nar_index={nar_index} />
+            <ExtensionAttributeTable title="readsAttributes" type="readsAttributes" extension={extension} extension_index={extension_index} nar_index={nar_index} />
         </>
     )
 }

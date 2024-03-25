@@ -33,12 +33,21 @@ interface PackageNifiProps extends Nf2tSnackbarProps {
     clear: () => void,
 }
 
-function SetFlowFileContent({onUpload}: PackageNifiProps) {
+function SetFlowFileContent({onUpload, rows, setRows}: PackageNifiProps) {
     return (
         <>
             <h5>1. FlowFile Content</h5>
-            <p>Upload a file to package into a FlowFile.</p>
-            <TextField type="file" onChange={onUpload}/>
+            {rows.length <= 0 ? (
+                <>       
+                    <p>Upload a file to package into a FlowFile.</p>
+                    <TextField type="file" onChange={onUpload}/>
+                </>
+            ) : (
+                <>
+                    <p>Clear existing FlowFile.</p>
+                    <Button onClick={() => setRows([])}>Clear</Button>
+                </>
+            )}
         </>
     )
 }

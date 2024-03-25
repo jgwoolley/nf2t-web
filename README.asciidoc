@@ -6,6 +6,7 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 
 ## TODO
 
+- Download FlowFile still works after clear. Something to do with method setState.
 - Change Nifi Attributes to be represented as Record<string,string>
 - Add Filters to attribute tables.
 - Add ability to download bulk unpackaged.
