@@ -1,15 +1,15 @@
 import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { useMemo } from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Nar, NarAttributeType, NarExtension } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 
-const route = getRouteApi("/extensionLookup");
-
-export const Route = createLazyRoute("/extensionLookup")({
-    component: LookupExtension,
+export const routeId = "/extensionLookup";
+export const Route = createLazyRoute(routeId)({
+    component: RouteComponent,
 })
+const localRoute = getRouteApi(routeId);
 
 interface ExtensionAttributeTableProps {
     nar_index: number,
@@ -32,7 +32,8 @@ function ExtensionAttributeTable({ extension, type, title, extension_index, nar_
     return (
         <>
             <h3>{title}</h3>
-
+            
+            <TableContainer component={Paper}>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -51,6 +52,7 @@ function ExtensionAttributeTable({ extension, type, title, extension_index, nar_
                     ))}
                 </TableBody>
             </Table>
+            </TableContainer>
         </>
     )
 }
@@ -60,8 +62,8 @@ interface LookupExtensionMemo {
     nar: Nar,
 }
 
-export default function LookupExtension() {
-    const { nar_index, extension_index } = route.useSearch();
+export default function RouteComponent() {
+    const { nar_index, extension_index } = localRoute.useSearch();
     const { nars } = useNf2tContext();
     
     const {nar, extension} = useMemo<LookupExtensionMemo>(() => {

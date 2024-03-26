@@ -1,16 +1,39 @@
 import { ChangeEvent, useMemo } from "react"
 import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import readNars from "../../utils/readNars";
-import { Button, Table, TableBody, TableCell, TableRow, TextField } from "@mui/material";
+import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField } from "@mui/material";
 import Nf2tLinearProgress, { useNf2tLinearProgress } from "../../components/Nf2tLinearProgress";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import Spacing from "../../components/Spacing";
+import { RoutePathType, routeDescriptions } from "../routeDescriptions";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
 })
+
+export interface Nf2tLinkRowProps {
+    to: RoutePathType,
+}
+
+function Nf2tLinkRow({to}: Nf2tLinkRowProps) {
+    const props = routeDescriptions[to]
+
+    return (
+        <TableRow>
+            <TableCell>
+                <Link to={to}>
+                    {props.name}
+                </Link>
+            </TableCell>
+            <TableCell>
+                {props.shortDescription}
+            </TableCell>
+        </TableRow>
+
+    )
+}
 
 export default function NarReader() {
     const snackbarProps = useNf2tSnackbar();
@@ -39,10 +62,6 @@ export default function NarReader() {
         }
     }
 
-    if (context == undefined) {
-        return null;
-    }
-
     return (
         <>
             <Nf2tHeader to="/narReader" />
@@ -64,28 +83,34 @@ export default function NarReader() {
 
             )}
 
-
             <Spacing />
             <Nf2tLinearProgress {...progressBar} />
 
-            <h5>Attribute Names</h5>
+            <h5>Links</h5>
+            <p>The following links are available with more information.</p>
             <Table>
+                <TableHead>
+                    <TableRow>
+                    <TableCell>Action</TableCell>
+                    <TableCell>Description</TableCell>
+                    </TableRow>
+                </TableHead>
                 <TableBody>
-                    {sortedAttributes.map(([attributeName, attributeValues], index) => (
-                        <TableRow key={index}>
-                            <TableCell>
-                                <Link to="/attributesLookup" search={{ name: attributeName }}>
-                                    {attributeName}
-                                </Link>
-                            </TableCell>
-                            <TableCell>{attributeValues.length}</TableCell>
-                        </TableRow>
-                    ))}
+                    <Nf2tLinkRow to="/narList" />
+                    <Nf2tLinkRow to="/attributeList" />
                 </TableBody>
             </Table>
+            <Spacing />
 
-            <h5>Debug</h5>
+            <h5>Parsing Results</h5>
+            <p>The following lists details on the parsed Nars.</p>
             <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Result</TableCell>
+                        <TableCell>Amount</TableCell>
+                    </TableRow>
+                </TableHead>
                 <TableBody>
                     <TableRow>
                         <TableCell>Nars length</TableCell>

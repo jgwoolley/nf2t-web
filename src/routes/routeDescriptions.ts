@@ -3,6 +3,8 @@ import { route as technologiesInfo } from "./info/technologiesInfo";
 import { route as attributesLookup } from "./lookup/attributesLookup";
 import { route as attributeLookup } from "./lookup/attributeLookup";
 import { route as extensionLookup } from "./lookup/extensionLookup";
+import { route as narList } from "./lookup/narList";
+import { route as attributeList } from "./lookup/attributeList";
 import { route as narLookup } from "./lookup/narLookup";
 import { route as narReader } from "./lookup/narReader";
 import { route as packageFlowFile } from "./package/package";
@@ -17,6 +19,7 @@ export const routeChildren = [
   attributesLookup,
   attributeLookup,
   extensionLookup,
+  narList,
   narLookup,
   narReader,
   packageFlowFile,
@@ -24,6 +27,7 @@ export const routeChildren = [
   bulkUnpackageFlowFile,
   source,
   home,
+  attributeList,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -93,18 +97,28 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
   },
   "/attributeLookup": {
     to: "/attributeLookup",
-    name: "Attribute Lookup",
-    shortDescription: "Looks up attribute information based on location in Nars.",
+    name: "Attribute Item",
+    shortDescription: "The information of a specific attribute.",
   },
   "/extensionLookup": {
     to: "/extensionLookup",
-    name: "Extension Lookup",
-    shortDescription: "Looks up extension information based on location in Nars.",
+    name: "Extension Item",
+    shortDescription: "The information of a specific extension.",
   },
   "/narLookup": {
     to: "/narLookup",
-    name: "Nar Lookup",
-    shortDescription: "Looks up Nar information.",
+    name: "Nar Item",
+    shortDescription: "The information of a specific Nar.",
+  },
+  "/narList": {
+    to: "/narList",
+    name: "Nar List",
+    shortDescription: "Lists all Nars and their information.",
+  },
+  "/attributeList": {
+    to: "/attributeList",
+    name: "Attribute List",
+    shortDescription: "Lists all attribute and their information.",
   },
   "/narReader": {
     to: "/narReader",

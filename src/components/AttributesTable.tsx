@@ -6,10 +6,10 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { FlowfileAttributeRowSchema } from '../utils/schemas';
-import { Button, ButtonGroup, TextField } from '@mui/material';
+import { Button, ButtonGroup, TablePagination, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
 import { Nf2tSnackbarProps } from './Nf2tSnackbar';
 import { Link } from '@tanstack/react-router';
@@ -69,12 +69,31 @@ function AttributeRow({ index, rows, row, canEdit, deleteRow, editIndex, setEdit
 }
 
 export function AttributesTable(props: AttributesTableProps) {
+    const {rows, setRows, submitSnackbarMessage, canEdit} = props;
     const [editIndex, setEditIndex] = useState(-1);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
+    const handleChangePage = (_event: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    const visibleRows = useMemo(
+        () => rows.slice(
+            page * rowsPerPage,
+            page * rowsPerPage + rowsPerPage,
+        ),
+        [rows, page, rowsPerPage],
+    );
     const deleteRow = (index: number) => {
-        const deletedRows = props.rows.splice(index, 1);
-        props.setRows(props.rows);
-        props.submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x.key).join(", ")}`);
+        const deletedRows = rows.splice(index, 1);
+        setRows([...rows]);
+        submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x.key).join(", ")}`);
     }
 
     return (
@@ -85,11 +104,11 @@ export function AttributesTable(props: AttributesTableProps) {
                         <TableRow>
                             <TableCell>Attribute Key</TableCell>
                             <TableCell>Attribute Value</TableCell>
-                            {props.canEdit && <TableCell>Functions</TableCell>}
+                            {canEdit && <TableCell>Functions</TableCell>}
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {props.rows.map((row, index) =>
+                        {visibleRows.map((row, index) =>
                             <AttributeRow
                                 key={index}
                                 index={index}
@@ -102,6 +121,15 @@ export function AttributesTable(props: AttributesTableProps) {
                         )}
                     </TableBody>
                 </Table>
+                <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={rows.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
             </TableContainer>
         </>
     )

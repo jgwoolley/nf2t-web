@@ -1,6 +1,6 @@
 import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { useMemo } from "react";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Nar } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
@@ -63,6 +63,7 @@ export default function LookupNar() {
             </Table>
 
             <h4>Nar Extensions</h4>
+            <TableContainer component={Paper}>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -83,6 +84,7 @@ export default function LookupNar() {
                     })}
                 </TableBody>
             </Table>
+            </TableContainer>
         </>
     )
 }

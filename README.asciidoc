@@ -6,6 +6,7 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 
 ## TODO
 
+- New page for list of nars, and then seperate page for list of attribute names.
 - Download FlowFile still works after clear. Something to do with method setState.
 - Change Nifi Attributes to be represented as Record<string,string>
 - Add Filters to attribute tables.

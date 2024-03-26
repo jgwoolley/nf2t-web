@@ -1,6 +1,6 @@
 import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { useMemo } from "react";
-import { Table, TableBody, TableCell, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Nar, NarAttribute, NarExtension } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
@@ -38,11 +38,12 @@ export default function LookupAttribute() {
 
     return (
         <>
-            <Nf2tHeader to="/extensionLookup" />
+            <Nf2tHeader to={routeId} />
             <p>The {extension?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
 
             <h4>Nar Extension Information</h4>
 
+            <TableContainer component={Paper}>
             <Table>
                 <TableBody>
                     <TableRow>
@@ -71,6 +72,7 @@ export default function LookupAttribute() {
                     </TableRow>
                 </TableBody>
             </Table>
+            </TableContainer>
         </>
     )
 }

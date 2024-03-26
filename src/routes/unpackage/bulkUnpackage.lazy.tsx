@@ -1,4 +1,4 @@
-import { Box, Button, LinearProgress, Table, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import Spacing from '../../components/Spacing';
@@ -87,6 +87,25 @@ export function UnPackageNifi() {
     const [current, setCurrent] = useState(defaultCurrent);
     const [attributes, setAttributes] = useState<string[]>();
     const [rows, setRows] = useState<Map<string, string>[]>([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
+    const handleChangePage = (_event: unknown, newPage: number) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    const visibleRows = useMemo(
+        () => rows.slice(
+            page * rowsPerPage,
+            page * rowsPerPage + rowsPerPage,
+        ),
+        [rows, page, rowsPerPage],
+    );
 
     const resetProgress = () => {
         setTotal(defaultTotal);
@@ -187,26 +206,37 @@ export function UnPackageNifi() {
             <Spacing />
             {attributes && (
                 <>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                {attributes.map((attribute, attributeIndex) => (
-                                    <TableCell key={attributeIndex}>{attribute}</TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows.map((row, rowIndex) => (
-                                <TableRow key={rowIndex}>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
                                     {attributes.map((attribute, attributeIndex) => (
-                                        <TableCell key={attributeIndex}>
-                                            {row.get(attribute) || ""}
-                                        </TableCell>
+                                        <TableCell key={attributeIndex}>{attribute}</TableCell>
                                     ))}
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHead>
+                            <TableBody>
+                                {visibleRows.map((row, rowIndex) => (
+                                    <TableRow key={rowIndex}>
+                                        {attributes.map((attribute, attributeIndex) => (
+                                            <TableCell key={attributeIndex}>
+                                                {row.get(attribute) || ""}
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                        <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    component="div"
+                    count={rows.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                />
+                    </TableContainer>
                     <Spacing />
                 </>
             )}
