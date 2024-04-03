@@ -195,7 +195,7 @@ export function UnPackageNifi() {
                 <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
             </>) : (<>
                 <p>Clear provided FlowFiles.</p>
-                <Button onClick={() => setRows([])}>Clear</Button>
+                <Button variant="outlined" onClick={() => setRows([])}>Clear</Button>
             </>)}
 
 

@@ -41,7 +41,7 @@ export default function PrevNext({ prev, next }: PrevNextProps) {
                             <Tooltip title={nextDescription.shortDescription}>
                                 <td >
                                     <Link style={linkStyles} to={nextDescription.to}>
-                                        <MenuItem>
+                                        <MenuItem sx={{justifyContent: "right"}}>
                                                 <>{nextDescription.name} →</>                                           
                                         </MenuItem>
                                     </Link>

@@ -120,7 +120,7 @@ export default function UnpackageFlowFile() {
             ) : 
             (<>
                 <p>Clear the Packaged FlowFile.</p>
-                <Button onClick={() => {
+                <Button variant="outlined" onClick={() => {
                     //TODO: Not working...
                     setDownloadContent(undefined);
                     setRows([])

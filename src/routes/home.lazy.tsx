@@ -1,10 +1,11 @@
-import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Nf2tHeader from "../components/Nf2tHeader";
 import Spacing from "../components/Spacing";
 import ExternalLink from "../components/ExternalLink";
 import PrevNext from "../components/PrevNext";
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import { routeDescriptions, RoutePathType } from "./routeDescriptions";
+import Nf2tTable, { useNf2tTable } from "../components/Nf2tTable";
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -15,21 +16,31 @@ const linkStyles: React.CSSProperties = {
     textDecoration: "inherit",
 }
 
-function ToolRow({ to }: { to: RoutePathType }) {
-    const routeDescription = routeDescriptions[to];
-
-    return (
-
-        <TableRow>
-            <TableCell><Link style={linkStyles} to={routeDescription.to}>
-                {routeDescription.name}
-            </Link></TableCell>
-            <TableCell>{routeDescription.shortDescription}</TableCell>
-        </TableRow>
-    )
-}
-
 export default function Nf2tHome() {
+    const tableProps = useNf2tTable<RoutePathType>({
+        columns: [
+            { 
+                columnName: "Tool", 
+                compareFn: (a, b) => routeDescriptions[b].name.localeCompare(routeDescriptions[a].name),
+                createBodyRow: (row) => <Link style={linkStyles} to={routeDescriptions[row].to}>{routeDescriptions[row].name}</Link>,
+                rowToString: (row) => routeDescriptions[row].name,
+            },
+            { 
+                columnName: "Description", 
+                compareFn: (a, b) => (routeDescriptions[b].shortDescription || "").localeCompare((routeDescriptions[a].shortDescription || "")),
+                createBodyRow: (row) => routeDescriptions[row].shortDescription,
+                rowToString: (row) => routeDescriptions[row].shortDescription || "",
+            },
+        ],
+        rows: [
+            "/unpackage",
+            "/unpackageBulk",
+            "/package",
+            "/narReader",
+            "/source",
+        ],
+    });
+
     return (
         <>
             <Nf2tHeader to="/" />
@@ -45,22 +56,7 @@ export default function Nf2tHome() {
                 Available Tools
             </Typography>
             <Spacing />
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Tool</TableCell>
-                        <TableCell>Description</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    <ToolRow to="/unpackage" />
-                    <ToolRow to="/unpackageBulk" />
-                    <ToolRow to="/unpackage" />
-                    <ToolRow to="/narReader" />
-                    <ToolRow to="/source" />
-                </TableBody>
-            </Table>
-
+            <Nf2tTable {...tableProps} />
             <Spacing />
             <PrevNext next="/technologiesInfo" />
         </>

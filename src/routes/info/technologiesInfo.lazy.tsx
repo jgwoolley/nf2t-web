@@ -1,9 +1,10 @@
-import { Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import Spacing from "../../components/Spacing";
 import ExternalLink from "../../components/ExternalLink";
 import PrevNext from "../../components/PrevNext";
 import { createLazyRoute } from "@tanstack/react-router";
+import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
 
 export const Route = createLazyRoute("/technologiesInfo")({
     component: TechnologyTable,
@@ -110,6 +111,29 @@ const techologies: Techonology[] = [
 ];
 
 export default function TechnologyTable() {
+    const tableProps = useNf2tTable<Techonology>({
+        columns: [
+            { 
+                columnName: "Technology", 
+                compareFn: (a, b) => b.key.localeCompare(a.key),
+                createBodyRow: (row) => <ExternalLink href={row.href}>{row.key}</ExternalLink>,
+                rowToString: (row) => row.key,
+            },
+            { 
+                columnName: "Group", 
+                compareFn: (a, b) => b.group.localeCompare(a.group),
+                createBodyRow: (row) => row.group,
+                rowToString: (row) => row.group,
+            },
+            { 
+                columnName: "Description", 
+                createBodyRow: (row) => row.description,
+                rowToString: (row) => row.description,
+            },
+        ],
+        rows: techologies,
+    });
+
     return (
         <>
             <Nf2tHeader to="/technologiesInfo" />
@@ -119,25 +143,7 @@ export default function TechnologyTable() {
             </Typography>
             <Spacing />
 
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Technology</TableCell>
-                        <TableCell>Group</TableCell>
-                        <TableCell>Description</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {techologies.map((techology, index) => (
-                        <TableRow key={index}>
-                            <TableCell><ExternalLink href={techology.href}>{techology.key}</ExternalLink></TableCell>
-                            <TableCell>{techology.group}</TableCell>
-                            <TableCell>{techology.description}</TableCell>
-                        </TableRow>   
-                    ))}
-                </TableBody>
-            </Table>
-
+            <Nf2tTable {...tableProps} />
             <Spacing />
 
             <PrevNext prev="/" next="/buildInfo"/>

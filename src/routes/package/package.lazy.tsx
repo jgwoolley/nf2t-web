@@ -1,5 +1,5 @@
-import { ChangeEvent, useState } from "react"
-import AttributesTable from "../../components/AttributesTable"
+import { ChangeEvent, useState } from "react";
+import AttributesTable from "../../components/AttributesTable";
 import { Button, ButtonGroup, TextField, } from "@mui/material";
 import { FlowfileAttributeRowSchema, } from "../../utils/schemas";
 import AttributeDialog from "../../components/AttributeDialog";
@@ -45,7 +45,7 @@ function SetFlowFileContent({onUpload, rows, setRows}: PackageNifiProps) {
             ) : (
                 <>
                     <p>Clear existing FlowFile.</p>
-                    <Button onClick={() => setRows([])}>Clear</Button>
+                    <Button variant="outlined" onClick={() => setRows([])}>Clear</Button>
                 </>
             )}
         </>
