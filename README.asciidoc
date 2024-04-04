@@ -6,6 +6,7 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 
 ## TODO
 
+- Convert home -> homeRoute (as well as lazy loaders)...
 - New page for list of nars, and then seperate page for list of attribute names.
 - Download FlowFile still works after clear. Something to do with method setState.
 - Change Nifi Attributes to be represented as Record<string,string>
