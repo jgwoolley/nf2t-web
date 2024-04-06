@@ -286,7 +286,7 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+        setPage(1);
     };
 
     const filteredRows = useMemo(
@@ -325,6 +325,13 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
         ),
         [filteredRows, page, rowsPerPage],
     );
+
+    if(visibleRows.length === 0 || filteredColumns.length === 0) {
+        return (
+            <Button onClick={handleClickOpen}
+            >Upadate Columns</Button>
+        )
+    }
 
 
     return (
