@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField } from "@mui/material";
 import { FC, useEffect, useMemo, useState } from "react";
+import Nf2tSnackbar, { useNf2tSnackbar } from "./Nf2tSnackbar";
 
 export interface BodyRowComponentProps<R> {
     row: R,
@@ -291,6 +292,8 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
     const [open, setOpen] = useState(false);
     const [filteredColumns, setFilteredColumns] = useState<number[]>([]);
     const [columnPage, setColumnPage] = useState(1);
+    const snackbarProps = useNf2tSnackbar();
+
     const onClickColumn = (value: number) => {
         setColumnPage(value);
     };
@@ -300,11 +303,17 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
     const restoreDefaultFilteredColumns = () => {
         const keys = columns.keys();
         const newFilteredColumns = Array.from(keys);
+        if(newFilteredColumns.length <= 0) {
+            snackbarProps.submitSnackbarMessage("No columns for table configured", "error")
+            return;
+        }
         newFilteredColumns.splice(maxColumns);
         setFilteredColumns(newFilteredColumns);
     }
 
-    useEffect(() => restoreDefaultFilteredColumns, [])
+    useEffect(() => {
+        restoreDefaultFilteredColumns();
+    }, [])
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -321,7 +330,7 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setRowPage(0);
+        onClickColumn(1);
     };
 
     const filteredRows = useMemo(
@@ -360,6 +369,15 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
         ),
         [filteredRows, rowPage, rowsPerPage],
     );
+
+    if(visibleRows.length === 0 || filteredColumns.length === 0) {
+        return (
+            <Button 
+            variant="outlined" 
+            onClick={handleClickOpen}
+            >Update Columns</Button>
+        )
+    }
 
 
     return (
@@ -421,6 +439,7 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
                 columnPage={columnPage}
                 onClickColumn={onClickColumn}
             />
+            <Nf2tSnackbar {...snackbarProps} />
         </>
     )
 }

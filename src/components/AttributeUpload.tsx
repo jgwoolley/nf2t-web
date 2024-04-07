@@ -11,7 +11,7 @@ interface AttributeDownloadProps extends Nf2tSnackbarProps {
 
 const jsonSchema = z.record(z.string(), z.string());
 
-export function AttributeDownload({setRows, submitSnackbarMessage, submitSnackbarError}: AttributeDownloadProps) {
+export function AttributeDownload({setRows, submitSnackbarMessage}: AttributeDownloadProps) {
     const [open, setOpen] = useState(false);
 
     const handleClose = () => {
@@ -23,7 +23,7 @@ export function AttributeDownload({setRows, submitSnackbarMessage, submitSnackba
         try {
             const files = event.target.files
             if(files === null || files.length !== 1) {
-                submitSnackbarError("Must be provided exactly one file!");
+                submitSnackbarMessage("Must be provided exactly one file.", "error");
                 handleClose();
                 return;
             }
@@ -39,18 +39,18 @@ export function AttributeDownload({setRows, submitSnackbarMessage, submitSnackba
                     })
                 }
             } else {    
-                submitSnackbarError("Error processing attributes JSON.", attributes.error);
+                submitSnackbarMessage("Error processing attributes JSON.", "error", attributes.error);
                 handleClose();
                 return;
             }
 
         } catch(e) {
-            submitSnackbarError("Error processing attributes JSON.", e);
+            submitSnackbarMessage("Error processing attributes JSON.", "error", e);
             handleClose();
             return;
         }
         setRows(newRows);
-        submitSnackbarMessage("Uploaded new Attributes.")
+        submitSnackbarMessage("Uploaded new Attributes.", "info")
         handleClose();
     }
 

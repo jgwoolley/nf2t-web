@@ -52,10 +52,9 @@ function SetFlowFileContent({onUpload, rows, setRows}: PackageNifiProps) {
     )
 }
 
-function SetFlowFileAttributes({rows, setRows, submitSnackbarMessage, submitSnackbarError, openAttribute, setOpenAttribute, clear}: PackageNifiProps) {
+function SetFlowFileAttributes({rows, setRows, submitSnackbarMessage, openAttribute, setOpenAttribute, clear}: PackageNifiProps) {
     const snackbarProps: Nf2tSnackbarProps = {
         submitSnackbarMessage: submitSnackbarMessage,
-        submitSnackbarError: submitSnackbarError,
     }
     
     return (
@@ -71,7 +70,6 @@ function SetFlowFileAttributes({rows, setRows, submitSnackbarMessage, submitSnac
                 <Button startIcon={<ClearIcon />} onClick={() => clear()}>Clear All</Button>
                 <AttributeDownload 
                     submitSnackbarMessage={submitSnackbarMessage}
-                    submitSnackbarError={submitSnackbarError}
                     rows={rows} 
                 />
             </ButtonGroup>
@@ -79,13 +77,13 @@ function SetFlowFileAttributes({rows, setRows, submitSnackbarMessage, submitSnac
     )
 }
 
-function GetFlowFile({submit, file, submitSnackbarError}: PackageNifiProps) {
+function GetFlowFile({submit, file, submitSnackbarMessage}: PackageNifiProps) {
     return (
         <>
             <h5>3. FlowFile Download</h5>
             <p>Download the Packaged FlowFile.</p>
             {file === null ? (
-                <Button variant="outlined" startIcon={<SyncProblemIcon />} onClick={() => submitSnackbarError("FlowFile Content was not provided.")}>Download FlowFile</Button>
+                <Button variant="outlined" startIcon={<SyncProblemIcon />} onClick={() => submitSnackbarMessage("FlowFile Content was not provided.", "error")}>Download FlowFile</Button>
             ): (
                 <Button variant="outlined" startIcon={<CloudDownloadIcon />} onClick={() => submit()}>Download FlowFile</Button>
             )}
@@ -98,11 +96,11 @@ export default function PackageNifi() {
     const [file, setFile] = useState<File | null>(null);
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
     const snackbarResults = useNf2tSnackbar();
-    const {submitSnackbarMessage, submitSnackbarError } = snackbarResults;
+    const {submitSnackbarMessage } = snackbarResults;
 
     const submit = () => {
         if (file == undefined) {
-            submitSnackbarError("No File Provided")
+            submitSnackbarMessage("No File Provided.", "error")
             return;
         }
 
@@ -113,10 +111,10 @@ export default function PackageNifi() {
     const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files == undefined) {
-            submitSnackbarError("No File Provided")
+            submitSnackbarMessage("No File Provided.", "error")
             return;
         } else if (files.length != 1) {
-            submitSnackbarError(`Only one file should be provided: ${files.length}`)
+            submitSnackbarMessage(`Only one file should be provided: ${files.length}.`, "error")
             return;
         }
 
@@ -173,7 +171,7 @@ export default function PackageNifi() {
     const clear = () => {
         setFile(null);
         setRows([]);
-        submitSnackbarMessage("Cleared");
+        submitSnackbarMessage("Cleared", "error");
     }
 
     const props: PackageNifiProps = {
@@ -187,7 +185,6 @@ export default function PackageNifi() {
         onUpload: onUpload,
         clear: clear,
         submitSnackbarMessage: submitSnackbarMessage,
-        submitSnackbarError: submitSnackbarError,
     }
 
     return (

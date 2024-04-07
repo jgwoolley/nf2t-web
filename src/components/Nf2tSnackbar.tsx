@@ -1,13 +1,11 @@
 import { Alert, AlertColor, Snackbar } from "@mui/material";
 import { useState } from "react";
 
-export type SubmitSnackbarMessageType = (message: string, data?: unknown) => void;
-export type SubmitSnackbarErrorType = (message: string, error?: unknown) => void;
+export type SubmitSnackbarMessageType = (message: string, type: AlertColor, data?: unknown) => void;
 export type SnackbarHandleClose = (event: React.SyntheticEvent | Event, reason?: string) => void;
 
 export interface Nf2tSnackbarProps {
     submitSnackbarMessage: SubmitSnackbarMessageType,
-    submitSnackbarError: SubmitSnackbarErrorType,
 }
 //submitSnackbarMessage, submitSnackbarError
 
@@ -26,17 +24,10 @@ export function useNf2tSnackbar(): Nf2tSnackbarResult {
     const [snackbarMessage, setSnackbarMessage] = useState("No Message");
     const [alertColor, setAlertColor] = useState<AlertColor>("info");
 
-    const submitSnackbarMessage: SubmitSnackbarMessageType = (message, data) => {
+    const submitSnackbarMessage: SubmitSnackbarMessageType = (message, type, data) => {
         console.log(data || message);
-        setAlertColor("info");
+        setAlertColor(type);
         setSnackbarMessage(message);
-        setSnackbarOpen(true);
-    }
-
-    const submitSnackbarError: SubmitSnackbarErrorType = (message, error) => {
-        console.error(error || message);
-        setSnackbarMessage(message);
-        setAlertColor("error");
         setSnackbarOpen(true);
     }
 
@@ -54,7 +45,6 @@ export function useNf2tSnackbar(): Nf2tSnackbarResult {
         snackbarMessage: snackbarMessage,
         setSnackbarMessage: setSnackbarMessage,
         submitSnackbarMessage: submitSnackbarMessage,
-        submitSnackbarError: submitSnackbarError,
         alertColor: alertColor,
         setAlertColor: setAlertColor,
         handleClose: handleClose,

@@ -1,13 +1,15 @@
+import { SubmitSnackbarMessageType } from "./Nf2tSnackbar";
+
 export type CodeSnippetProps = {
     code: string,
-    submitAlert?: (message: string) => void,
+    submitSnackbarMessage?: SubmitSnackbarMessageType,
 }
 
-export default function CodeSnippet({code, submitAlert}: CodeSnippetProps) {
+export default function CodeSnippet({code, submitSnackbarMessage}: CodeSnippetProps) {
     const onClick = () => {
         navigator.clipboard.writeText(code);
-        if(submitAlert) {
-            submitAlert("Copied to clipboard.");
+        if(submitSnackbarMessage) {
+            submitSnackbarMessage("Copied to clipboard.", "info");
         }
     }
 

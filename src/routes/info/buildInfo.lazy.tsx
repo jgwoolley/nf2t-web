@@ -1,34 +1,20 @@
-import { Snackbar } from "@mui/material";
 import CodeSnippet from "../../components/CodeSnippet";
 import ExternalLink from "../../components/ExternalLink";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import PrevNext from "../../components/PrevNext";
 import Spacing from "../../components/Spacing";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Slides, { Slide } from "../../components/Nf2tSlides";
 import { createLazyRoute } from "@tanstack/react-router";
 import { sourceReferences } from "../routeDescriptions";
+import Nf2tSnackbar, { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 
 export const Route = createLazyRoute("/buildInfo")({
     component: BuildProcess,
 })
 
 export default function BuildProcess() {
-    const [openAlert, setOpenAlert] = useState(false);
-    const [message, setMessage] = useState("No Message");
-
-    const submitAlert = (message: string) => {
-        setMessage(message);
-        setOpenAlert(true);
-    }
-
-    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-
-        setOpenAlert(false);
-    };
+    const snackbarProps = useNf2tSnackbar();
 
     const slides: Slide[] = useMemo(() => [
         {
@@ -64,7 +50,7 @@ export default function BuildProcess() {
                 <>
                     <p>Change directories into the newly created repository folder.</p>
                     <ol>
-                        <li><CodeSnippet submitAlert={submitAlert} code="cd Nifi-Flow-File-Helper" /></li>
+                        <li><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code="cd Nifi-Flow-File-Helper" /></li>
                     </ol>
                 </>
             )
@@ -75,7 +61,7 @@ export default function BuildProcess() {
                 <>
                     <p>Install the NPM dependencies.</p>
                     <ol>
-                        <li><CodeSnippet submitAlert={submitAlert} code="npm install" /></li>
+                        <li><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code="npm install" /></li>
                     </ol>
                 </>
             )
@@ -86,13 +72,13 @@ export default function BuildProcess() {
                 <>
                     <p>Run the ViteJS development server.</p>
                     <ol>
-                        <li><CodeSnippet submitAlert={submitAlert} code="npm run dev" /></li>
+                        <li><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code="npm run dev" /></li>
                         <li>This command does the following:</li>
                         <ol>
                             <li>Looks in "scripts" for "dev" <ExternalLink href="https://github.com/jgwoolley/Nifi-Flow-File-Helper/blob/main/package.json">package.json</ExternalLink> and runs the <code>vite</code> command as a child process.</li>
                             <li>The <code>vite</code> plugin looks for <ExternalLink href="https://github.com/jgwoolley/Nifi-Flow-File-Helper/blob/main/vite.config.ts">vite.config.ts</ExternalLink>, and runs that script.</li>
                             <ol>
-                                <li>Runs <CodeSnippet submitAlert={submitAlert} code="git log" /> to get some build information, which will be writen to <code>buildinfo.json</code>, and read by the Web Site.</li>
+                                <li>Runs <CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code="git log" /> to get some build information, which will be writen to <code>buildinfo.json</code>, and read by the Web Site.</li>
                                 <li>Runs the <ExternalLink href="https://vite-pwa-org.netlify.app/">VitePWA Plugin</ExternalLink> which creates files needed for the Web Site to be run as a PWA.</li>
                                 <li>Runs the <code>react</code> ViteJS plugin to create a ReactJS website.</li>
                                 <ol>
@@ -111,7 +97,7 @@ export default function BuildProcess() {
                 <>
                     <p>Build the ViteJS SPA.</p>
                     <ol>
-                        <li><CodeSnippet submitAlert={submitAlert} code="npm run build" /></li>
+                        <li><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code="npm run build" /></li>
                         <li>Does everything in the "development server step", except it builds a SPA. This will not create a developer server, just the files needed to deploy the site.</li>
                     </ol>
                 </>
@@ -126,12 +112,7 @@ export default function BuildProcess() {
             <Spacing />
 
             <PrevNext prev="/technologiesInfo" next="/" />
-            <Snackbar
-                open={openAlert}
-                autoHideDuration={6000}
-                onClose={handleClose}
-                message={message}
-            />
+            <Nf2tSnackbar {...snackbarProps} />
         </>
     );
 }

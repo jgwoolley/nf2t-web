@@ -2,11 +2,11 @@ import { FlowfileAttributeRowSchema } from '../utils/schemas';
 import { Button, ButtonGroup, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
 import { Nf2tSnackbarProps } from './Nf2tSnackbar';
 import { Link } from '@tanstack/react-router';
-import Nf2tTable, { useNf2tTable } from './Nf2tTable';
+import Nf2tTable, { Nf2tTableColumnSpec, useNf2tTable } from './Nf2tTable';
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
@@ -17,16 +17,8 @@ export interface AttributesTableProps extends Nf2tSnackbarProps {
 export function AttributesTable(props: AttributesTableProps) {
     const { rows, setRows, submitSnackbarMessage } = props;
     const [editIndex, setEditIndex] = useState(-1);
-
-    const deleteRow = (index: number) => {
-        const deletedRows = rows.splice(index, 1);
-        setRows([...rows]);
-        submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x.key).join(", ")}`);
-    }
-
-    const tableProps = useNf2tTable<FlowfileAttributeRowSchema>({
-        canEditColumn: false,
-        columns: [
+    const columns: Nf2tTableColumnSpec<FlowfileAttributeRowSchema>[] = useMemo(() => {
+        const newColumns: Nf2tTableColumnSpec<FlowfileAttributeRowSchema>[] = [
             {
                 columnName: "Attribute Key",
                 bodyRow: ({row}) => {
@@ -49,7 +41,7 @@ export function AttributesTable(props: AttributesTableProps) {
                         rows[columnIndex] = newRow;
                         setRows([...rows]);
                     }
-
+        
                     const isEditing = filteredColumnIndex === editIndex;
                     return (isEditing) ? (
                         <TextField onChange={onChange} defaultValue={row.value} />
@@ -59,7 +51,10 @@ export function AttributesTable(props: AttributesTableProps) {
                 },
                 rowToString: (row) => row.value,
             },
-            {
+        ];
+
+        if(props.canEdit) {
+            newColumns.push({
                 columnName: "Functions",
                 rowToString: (row) => row.key,
                 bodyRow: ({columnIndex, filteredColumnIndex}) => {
@@ -71,8 +66,22 @@ export function AttributesTable(props: AttributesTableProps) {
                         </ButtonGroup>                 
                     )
                 }
-            }
-        ],
+            });
+        }
+
+        return newColumns;
+    }, [props.canEdit, setRows, rows])
+
+
+    const deleteRow = (index: number) => {
+        const deletedRows = rows.splice(index, 1);
+        setRows([...rows]);
+        submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x.key).join(", ")}`, "info");
+    }
+
+    const tableProps = useNf2tTable<FlowfileAttributeRowSchema>({
+        canEditColumn: false,
+        columns: columns,
         rows: rows,
     });
 

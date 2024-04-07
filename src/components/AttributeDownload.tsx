@@ -9,7 +9,7 @@ interface AttributeDownloadProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
 }
 
-export function AttributeDownload({rows, submitSnackbarError}: AttributeDownloadProps) {
+export function AttributeDownload({rows, submitSnackbarMessage}: AttributeDownloadProps) {
     const onClick = () => {
         const result = new Map<string,string>();
         for(let i = 0; i < rows.length; i++) {
@@ -26,7 +26,7 @@ export function AttributeDownload({rows, submitSnackbarError}: AttributeDownload
 
     if(rows.length <= 0) {
         return (
-            <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarError("No attributes to download")} >Download Attributes</Button>
+            <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarMessage("No attributes to download", "error")} >Download Attributes</Button>
         )
     }
 

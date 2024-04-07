@@ -43,10 +43,10 @@ export interface BulkUnpackageDownloadButtonProps extends Nf2tSnackbarProps {
 
 
 
-export function BulkUnpackageDownloadButton({ submitSnackbarMessage, submitSnackbarError, rows, attributes }: BulkUnpackageDownloadButtonProps) {
+export function BulkUnpackageDownloadButton({ submitSnackbarMessage, rows, attributes }: BulkUnpackageDownloadButtonProps) {
     const onClick = () => {
         if (attributes == undefined) {
-            submitSnackbarError("No attributes provided");
+            submitSnackbarMessage("No attributes provided.", "error");
             return;
         }
 
@@ -66,12 +66,12 @@ export function BulkUnpackageDownloadButton({ submitSnackbarMessage, submitSnack
         })
 
         downloadFile(blob, "bulk.csv");
-        submitSnackbarMessage("Downloaded bulk report");
+        submitSnackbarMessage("Downloaded bulk report.", "info");
     }
 
     if (rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
         return (
-            <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarError("No attributes to download")} >Download Report</Button>
+            <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarMessage("No attributes to download", "error")} >Download Report</Button>
         )
     }
 
@@ -82,7 +82,7 @@ export function BulkUnpackageDownloadButton({ submitSnackbarMessage, submitSnack
 
 export function UnPackageNifi() {
     const snackbarResults = useNf2tSnackbar();
-    const { submitSnackbarError } = snackbarResults;
+    const { submitSnackbarMessage } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
     const [attributes, setAttributes] = useState<string[]>();
@@ -117,7 +117,7 @@ export function UnPackageNifi() {
             resetProgress();
             const files = e.target.files;
             if (files === null || files.length < 1) {
-                submitSnackbarError(`At least one FlowFile should be provided: ${files?.length}`)
+                submitSnackbarMessage(`At least one FlowFile should be provided: ${files?.length}.`, "error")
                 return;
             }
             setCurrent(0);
@@ -160,7 +160,8 @@ export function UnPackageNifi() {
             }
 
             if (uniqueAttributes.size <= 0) {
-                submitSnackbarError("Did not find any attributes in the given files.",
+                submitSnackbarMessage("Did not find any attributes in the given files.",
+                    "error",
                     {
                         uniqueAttributes: uniqueAttributes.size,
                         files: files.length,
@@ -172,16 +173,18 @@ export function UnPackageNifi() {
             setAttributes(attributes);
 
             if (attributes.length <= 0) {
-                submitSnackbarError("Did not find any attributes in the given files.", {
-                    uniqueAttributes: uniqueAttributes.size,
-                    attributes: attributes.length,
-                    files: files.length,
-                });
+                submitSnackbarMessage("Did not find any attributes in the given files.",
+                    "error",
+                    {
+                        uniqueAttributes: uniqueAttributes.size,
+                        attributes: attributes.length,
+                        files: files.length,
+                    });
                 return;
             }
             setRows([...rows]);
         } catch (error) {
-            submitSnackbarError("Error", error);
+            submitSnackbarMessage("Unknown error.", "error", error);
         }
     }
 
@@ -228,14 +231,14 @@ export function UnPackageNifi() {
                             </TableBody>
                         </Table>
                         <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                            rowsPerPageOptions={[5, 10, 25]}
+                            component="div"
+                            count={rows.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                        />
                     </TableContainer>
                     <Spacing />
                 </>

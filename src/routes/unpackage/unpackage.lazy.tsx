@@ -39,10 +39,10 @@ interface ContentDownloadButtonProps extends Nf2tSnackbarProps {
     downloadContent?: DownloadContentType,
 }
 
-function ContentDownloadButton({ downloadContent, submitSnackbarError }: ContentDownloadButtonProps) {
+function ContentDownloadButton({ downloadContent, submitSnackbarMessage }: ContentDownloadButtonProps) {
     if (downloadContent == undefined) {
         return (
-            <Button startIcon={<SyncProblem />} variant="outlined" onClick={() => submitSnackbarError("No content to download")} >Download Content</Button>
+            <Button startIcon={<SyncProblem />} variant="outlined" onClick={() => submitSnackbarMessage("No content to download.", "error")} >Download Content</Button>
         )
     }
 
@@ -59,11 +59,11 @@ export default function UnpackageFlowFile() {
     const onUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files == undefined) {
-            snackbarResults.submitSnackbarError("No File Provided");
+            snackbarResults.submitSnackbarMessage("No File Provided.", "error");
             setDownloadContent(undefined);
             return;
         } else if (files.length != 1) {
-            snackbarResults.submitSnackbarError(`Only one file should be provided: ${files.length}`)
+            snackbarResults.submitSnackbarMessage(`Only one file should be provided: ${files.length}.`, "error")
             setDownloadContent(undefined);
             return;
         }
@@ -97,11 +97,11 @@ export default function UnpackageFlowFile() {
                         type: mimetype,
                     });
                     downloadFile(blob, filename);
-                    snackbarResults.submitSnackbarMessage("downloaded flowfile content");
+                    snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
                 });
 
             } catch (e) {
-                snackbarResults.submitSnackbarError("error unpacking the file", e);
+                snackbarResults.submitSnackbarMessage("error unpacking the file.", "error", e);
             }
         }
 

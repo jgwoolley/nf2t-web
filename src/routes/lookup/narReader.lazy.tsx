@@ -47,11 +47,11 @@ export default function NarReader() {
     const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (context == undefined) {
-            snackbarProps.submitSnackbarError("No context provided")
+            snackbarProps.submitSnackbarMessage("No context provided.", "error")
             return;
         }
         if (files == undefined) {
-            snackbarProps.submitSnackbarError("Please Provide at Least One File")
+            snackbarProps.submitSnackbarMessage("Please Provide at Least One File.", "error")
             progressBar.updateCurrent(undefined, undefined);
         } else {
             const results = await readNars(files, progressBar.updateCurrent);

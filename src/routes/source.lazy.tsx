@@ -71,19 +71,19 @@ export default function Nf2tSource() {
                         <>
                         <TableRow>
                             <TableCell>Commit</TableCell>
-                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.H}/></TableCell>
+                            <TableCell><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code={buildinfo.git.H}/></TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>Commit Message</TableCell>
-                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.B}/></TableCell>
+                            <TableCell><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code={buildinfo.git.B}/></TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>Commit Author Name</TableCell>
-                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.an}/></TableCell>
+                            <TableCell><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code={buildinfo.git.an}/></TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>Commit Author Email</TableCell>
-                            <TableCell><CodeSnippet submitAlert={snackbarProps.submitSnackbarMessage} code={buildinfo.git.ae}/></TableCell>
+                            <TableCell><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code={buildinfo.git.ae}/></TableCell>
                         </TableRow>
                         </>
                     ) : null }                    
