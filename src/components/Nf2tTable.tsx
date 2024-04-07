@@ -1,9 +1,16 @@
 import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField } from "@mui/material";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
+
+export interface BodyRowComponentProps<R> {
+    row: R,
+    columnIndex: number,
+    rowIndex: number,
+    filteredColumnIndex: number,
+}
 
 export interface Nf2tTableColumnSpec<R> {
     columnName: string,
-    createBodyRow: (row: R) => ReactNode,
+    bodyRow: FC<BodyRowComponentProps<R>>,
     rowToString: (row: R) => string,
     compareFn?: (a: R, b: R) => number,
 }
@@ -16,12 +23,14 @@ export interface Nf2tTableColumn<R> extends Nf2tTableColumnSpec<R> {
 export interface Nf2tTableParams<R> {
     columns: Nf2tTableColumnSpec<R>[],
     rows: R[],
+    canEditColumn: boolean,
 }
 
 export interface Nf2tTableProps<R> {
     columns: Nf2tTableColumn<R>[],
     setColumns: React.Dispatch<React.SetStateAction<Nf2tTableColumn<R>[]>>,
     rows: R[],
+    canEditColumn: boolean,
 }
 
 function createColumn<R>(column: Nf2tTableColumnSpec<R>): Nf2tTableColumn<R> {
@@ -32,13 +41,14 @@ function createColumn<R>(column: Nf2tTableColumnSpec<R>): Nf2tTableColumn<R> {
     }
 }
 
-export function useNf2tTable<R>({ rows, columns: incomingColumns }: Nf2tTableParams<R>): Nf2tTableProps<R> {
+export function useNf2tTable<R>({ rows, columns: incomingColumns, canEditColumn }: Nf2tTableParams<R>): Nf2tTableProps<R> {
     const [columns, setColumns] = useState<Nf2tTableColumn<R>[]>(incomingColumns.map(createColumn));
 
     return {
         columns,
         setColumns,
         rows,
+        canEditColumn,
     }
 }
 
@@ -50,15 +60,20 @@ interface Nf2tTableColumnHeadCellProps<R> {
     columnIndex: number,
     filteredColumnIndex: number,
     handleClickOpen: () => void,
+    canEditColumn: boolean,
+    onClickColumn: Nf2tOnClickColumn,
 }
 
-function Nf2tTableColumnHeadCell<R>({ columns, columnIndex, handleClickOpen }: Nf2tTableColumnHeadCellProps<R>) {
+function Nf2tTableColumnHeadCell<R>({ columns, columnIndex, handleClickOpen, onClickColumn }: Nf2tTableColumnHeadCellProps<R>) {
     const column = columns[columnIndex];
 
     return (
         <TableCell
             sortDirection={column.sortDirection === "ignored" ? false : column.sortDirection}
-            onClick={handleClickOpen}
+            onClick={() => {
+                onClickColumn(columnIndex + 1);
+                handleClickOpen();
+            }}
         >
             {column.compareFn == undefined ? (
                 <>{column.columnName}{column.filter.length > 0 && " *"}</>
@@ -84,14 +99,14 @@ interface Nf2tColumnEditDialogContentProps<R> {
     setColumns: React.Dispatch<React.SetStateAction<Nf2tTableColumn<R>[]>>,
     filteredColumns: number[],
     setFilteredColumns: React.Dispatch<React.SetStateAction<number[]>>,
-    page: number,
-    setPage: React.Dispatch<React.SetStateAction<number>>,
-    handleChange: (event: React.ChangeEvent<unknown>, value: number) => void,
+    columnPage: number,
+    onClickColumn: Nf2tOnClickColumn,
+    canEditColumn: boolean,
 }
 
-function Nf2tColumnEditDialogContent<R>({ page, setPage, handleChange, filteredColumns, columns, setColumns, setFilteredColumns }: Nf2tColumnEditDialogContentProps<R>) {
+function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredColumns, columns, setColumns, setFilteredColumns, canEditColumn }: Nf2tColumnEditDialogContentProps<R>) {
     const columnMemoResult = useMemo<Nf2tColumnEditDialogMemoType<R>>(() => {
-        const filteredColumnIndex = page - 1;
+        const filteredColumnIndex = columnPage - 1;
         if (filteredColumnIndex < 0 || filteredColumnIndex >= filteredColumns.length) {
             return {
                 errorMessage: "No column available. Please create a new column.",
@@ -116,7 +131,7 @@ function Nf2tColumnEditDialogContent<R>({ page, setPage, handleChange, filteredC
             columnIndex: columnIndex,
             column: column,
         };
-    }, [columns, filteredColumns, page]);
+    }, [columns, filteredColumns, columnPage]);
 
     if (columnMemoResult.errorMessage !== undefined) {
         return columnMemoResult.errorMessage;
@@ -130,23 +145,28 @@ function Nf2tColumnEditDialogContent<R>({ page, setPage, handleChange, filteredC
 
     return (
         <>
-            <TextField
-                value={columnIndex}
-                label="Column"
-                select
-                fullWidth
-                variant="standard"
-                margin="dense"
-                onChange={(event) => {
-                    const value = event.target.value;
-                    filteredColumns[filteredColumnIndex] = parseInt(value);
-                    setColumns([...columns]);
-                }}
-            >
-                {columns.map((column, columnIndex) => (
-                    <MenuItem key={columnIndex} value={columnIndex}>{column.columnName}</MenuItem>
-                ))}
-            </TextField>
+            {canEditColumn ? (
+                <TextField
+                    value={columnIndex}
+                    label="Column"
+                    select
+                    fullWidth
+                    variant="standard"
+                    margin="dense"
+                    onChange={(event) => {
+                        const value = event.target.value;
+                        filteredColumns[filteredColumnIndex] = parseInt(value);
+                        setColumns([...columns]);
+                    }}
+                >
+                    {columns.map((column, columnIndex) => (
+                        <MenuItem key={columnIndex} value={columnIndex}>{column.columnName}</MenuItem>
+                    ))}
+                </TextField>
+            ) : (
+                <>{column.columnName}</>
+            )}
+
 
             <TextField
                 value={column.sortDirection}
@@ -190,16 +210,21 @@ function Nf2tColumnEditDialogContent<R>({ page, setPage, handleChange, filteredC
                         setColumns([...columns]);
                     }}
                 >Clear</Button>
-                <Button onClick={() => {
-                    filteredColumns.splice(filteredColumnIndex, 1);
-                    setPage(1);
-                    setFilteredColumns([...filteredColumns]);
-                }}>Remove</Button>
+                {canEditColumn && (
+                    <Button onClick={() => {
+                        filteredColumns.splice(filteredColumnIndex, 1);
+                        onClickColumn(1);
+                        setFilteredColumns([...filteredColumns]);
+                    }}>Remove</Button>
+                )}
+
             </ButtonGroup>
-            <Pagination count={filteredColumns.length} page={page} onChange={handleChange} />
+            <Pagination count={filteredColumns.length} page={columnPage} onChange={(_, newPage) => onClickColumn(newPage)} />
         </>
     )
 }
+
+type Nf2tOnClickColumn = (columnPage: number) => void;
 
 interface Nf2tColumnEditDialogProps<R> {
     open: boolean,
@@ -209,21 +234,21 @@ interface Nf2tColumnEditDialogProps<R> {
     filteredColumns: number[],
     setFilteredColumns: React.Dispatch<React.SetStateAction<number[]>>,
     restoreDefaultFilteredColumns: () => void,
+    canEditColumn: boolean,
+    columnPage: number,
+    onClickColumn: Nf2tOnClickColumn,
 }
 
-function Nf2tColumnEditDialog<R>({ open, handleClose, filteredColumns, columns, setColumns, setFilteredColumns, restoreDefaultFilteredColumns }: Nf2tColumnEditDialogProps<R>) {
-    const [page, setPage] = useState(1);
-    const handleChange = (_event: React.ChangeEvent<unknown>, value: number) => {
-        setPage(value);
-    };
 
+
+function Nf2tColumnEditDialog<R>({ open, handleClose, filteredColumns, columns, setColumns, setFilteredColumns, restoreDefaultFilteredColumns, canEditColumn, onClickColumn, columnPage }: Nf2tColumnEditDialogProps<R>) {
     useEffect(() => {
-        setPage(1);
+        onClickColumn(1);
     }, [filteredColumns.length, columns.length])
 
     const addFilteredColumns = () => {
         filteredColumns.push(1);
-        setPage(filteredColumns.length);
+        onClickColumn(filteredColumns.length);
         setFilteredColumns([...filteredColumns]);
     }
 
@@ -241,25 +266,35 @@ function Nf2tColumnEditDialog<R>({ open, handleClose, filteredColumns, columns, 
                     setColumns={setColumns}
                     filteredColumns={filteredColumns}
                     setFilteredColumns={setFilteredColumns}
-                    page={page}
-                    setPage={setPage}
-                    handleChange={handleChange}
+                    columnPage={columnPage}
+                    onClickColumn={onClickColumn}
+                    canEditColumn={canEditColumn}
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={addFilteredColumns}>Add Column</Button>
-                <Button onClick={restoreDefaultFilteredColumns}>Restore</Button>
+                {canEditColumn && (
+                    <>
+                        <Button onClick={addFilteredColumns}>Add Column</Button>
+                        <Button onClick={restoreDefaultFilteredColumns}>Restore</Button>
+                    </>
+                )}
+
                 <Button onClick={handleClose} autoFocus>Close</Button>
             </DialogActions>
         </Dialog>
     )
 }
 
-export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
-    const [page, setPage] = useState(0);
+export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTableProps<R>) {
+    const [rowPage, setRowPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [open, setOpen] = useState(false);
     const [filteredColumns, setFilteredColumns] = useState<number[]>([]);
+    const [columnPage, setColumnPage] = useState(1);
+    const onClickColumn = (value: number) => {
+        setColumnPage(value);
+    };
+
     const maxColumns = 10;
 
     const restoreDefaultFilteredColumns = () => {
@@ -281,12 +316,12 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
 
 
     const handleChangePage = (_event: unknown, newPage: number) => {
-        setPage(newPage);
+        setRowPage(newPage);
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
+        setRowPage(0);
     };
 
     const filteredRows = useMemo(
@@ -320,10 +355,10 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
 
     const visibleRows = useMemo(
         () => filteredRows.slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage,
+            rowPage * rowsPerPage,
+            rowPage * rowsPerPage + rowsPerPage,
         ),
-        [filteredRows, page, rowsPerPage],
+        [filteredRows, rowPage, rowsPerPage],
     );
 
 
@@ -342,7 +377,10 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
                                     setFilteredColumns={setFilteredColumns}
                                     columnIndex={columnIndex}
                                     filteredColumnIndex={filteredColumnIndex}
-                                    handleClickOpen={handleClickOpen} />
+                                    handleClickOpen={handleClickOpen}
+                                    canEditColumn={canEditColumn}
+                                    onClickColumn={onClickColumn}
+                                />
                             ))}
                         </TableRow>
                     </TableHead>
@@ -353,7 +391,7 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
                                     const column = columns[columnIndex];
                                     return (
                                         <TableCell key={filteredColumnIndex}>
-                                            {column.createBodyRow(row)}
+                                            <column.bodyRow row={row} columnIndex={columnIndex} rowIndex={rowIndex} filteredColumnIndex={filteredColumnIndex} />
                                         </TableCell>
                                     )
                                 })}
@@ -366,7 +404,7 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
                     component="div"
                     count={filteredRows.length}
                     rowsPerPage={rowsPerPage}
-                    page={page}
+                    page={rowPage}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
@@ -379,6 +417,9 @@ export default function <R>({ columns, setColumns, rows }: Nf2tTableProps<R>) {
                 setColumns={setColumns}
                 setFilteredColumns={setFilteredColumns}
                 restoreDefaultFilteredColumns={restoreDefaultFilteredColumns}
+                canEditColumn={canEditColumn}
+                columnPage={columnPage}
+                onClickColumn={onClickColumn}
             />
         </>
     )

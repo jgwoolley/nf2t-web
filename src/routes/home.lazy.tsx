@@ -18,17 +18,18 @@ const linkStyles: React.CSSProperties = {
 
 export default function Nf2tHome() {
     const tableProps = useNf2tTable<RoutePathType>({
+        canEditColumn: false,
         columns: [
             { 
                 columnName: "Tool", 
                 compareFn: (a, b) => routeDescriptions[b].name.localeCompare(routeDescriptions[a].name),
-                createBodyRow: (row) => <Link style={linkStyles} to={routeDescriptions[row].to}>{routeDescriptions[row].name}</Link>,
+                bodyRow: ({row}) => <Link style={linkStyles} to={routeDescriptions[row].to}>{routeDescriptions[row].name}</Link>,
                 rowToString: (row) => routeDescriptions[row].name,
             },
             { 
                 columnName: "Description", 
                 compareFn: (a, b) => (routeDescriptions[b].shortDescription || "").localeCompare((routeDescriptions[a].shortDescription || "")),
-                createBodyRow: (row) => routeDescriptions[row].shortDescription,
+                bodyRow: ({row}) => routeDescriptions[row].shortDescription,
                 rowToString: (row) => routeDescriptions[row].shortDescription || "",
             },
         ],

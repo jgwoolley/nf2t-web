@@ -112,22 +112,23 @@ const techologies: Techonology[] = [
 
 export default function TechnologyTable() {
     const tableProps = useNf2tTable<Techonology>({
+        canEditColumn: false,
         columns: [
             { 
                 columnName: "Technology", 
                 compareFn: (a, b) => b.key.localeCompare(a.key),
-                createBodyRow: (row) => <ExternalLink href={row.href}>{row.key}</ExternalLink>,
+                bodyRow: ({row}) => <ExternalLink href={row.href}>{row.key}</ExternalLink>,
                 rowToString: (row) => row.key,
             },
             { 
                 columnName: "Group", 
                 compareFn: (a, b) => b.group.localeCompare(a.group),
-                createBodyRow: (row) => row.group,
+                bodyRow: ({row}) => row.group,
                 rowToString: (row) => row.group,
             },
             { 
                 columnName: "Description", 
-                createBodyRow: (row) => row.description,
+                bodyRow: ({row}) => row.description,
                 rowToString: (row) => row.description,
             },
         ],
