@@ -21,7 +21,8 @@ export interface Nf2tTableColumnSpec<R> {
 export interface Nf2tTableColumn {
     columnIndex: number,
     sortDirection: "asc" | "desc" | "ignored",
-    filter: string, //RegExp
+    emptyFilter: "non-empty" | "empty" | "ignored",
+    regexFilter: string, //RegExp
 }
 
 export interface Nf2tTableParams<R> {
@@ -58,6 +59,11 @@ export interface Nf2tTableProps<R> {
     snackbarProps: Nf2tSnackbarResult,
 }
 
+const emptyFilterLut = new Map<"empty" | "non-empty" | "ignored", undefined | ((value: string) => boolean)>();
+emptyFilterLut.set("empty", (value) => value.length === 0);
+emptyFilterLut.set("non-empty", (value) => value.length !== 0);
+emptyFilterLut.set("ignored", undefined);
+
 export function useNf2tTable<R>({ snackbarProps, rows, columns, canEditColumn }: Nf2tTableParams<R>): Nf2tTableProps<R> {
     const [filteredColumns, setFilteredColumns] = useState<Nf2tTableColumn[]>([]);
     const [rowPage, setRowPage] = useState(0);
@@ -81,7 +87,8 @@ export function useNf2tTable<R>({ snackbarProps, rows, columns, canEditColumn }:
             const newColumn: Nf2tTableColumn = {
                 columnIndex: columnIndex,
                 sortDirection: "ignored",
-                filter: "",
+                emptyFilter: "ignored",
+                regexFilter: "",
             }
 
             return newColumn;
@@ -121,7 +128,25 @@ export function useNf2tTable<R>({ snackbarProps, rows, columns, canEditColumn }:
             for (let filteredColumnIndex = 0; filteredColumnIndex < filteredColumns.length; filteredColumnIndex++) {
                 const {
                     columnIndex,
-                    filter,
+                    emptyFilter,
+                } = filteredColumns[filteredColumnIndex];
+                
+                const filter = emptyFilterLut.get(emptyFilter);
+                if (filter == undefined) {
+                    continue;
+                }
+                const column = columns[columnIndex];
+
+                newRows = newRows.filter((row) => {
+                    const value = column.rowToString(row);
+                    return filter(value);
+                });
+            }
+
+            for (let filteredColumnIndex = 0; filteredColumnIndex < filteredColumns.length; filteredColumnIndex++) {
+                const {
+                    columnIndex,
+                    regexFilter: filter,
                 } = filteredColumns[filteredColumnIndex];
                 if (filter == undefined) {
                     continue;
@@ -211,7 +236,7 @@ interface Nf2tTableColumnHeadCellProps<R> {
 function Nf2tTableColumnHeadCell<R>({ filteredColumns, filteredColumnIndex, columns, columnIndex, handleClickOpen, onClickColumn }: Nf2tTableColumnHeadCellProps<R>) {
     const {
         sortDirection,
-        filter,
+        regexFilter: filter,
     } = filteredColumns[filteredColumnIndex];
     
     const column = columns[columnIndex];
@@ -349,23 +374,45 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
             </TextField>
 
             <TextField
+                value={filteredColumn.emptyFilter}
+                label="Empty Filter"
+                select
+                fullWidth
+                variant="standard"
+                margin="dense"
+                onChange={(event) => {
+                    const value = event.target.value;
+                    if (value === "non-empty" || value === "empty" || value === "ignored") {
+                        filteredColumn.emptyFilter = value;
+                    }
+
+                    setFilteredColumns([...filteredColumns]);
+                }}
+            >
+                <MenuItem value="ignored">Ignored</MenuItem>
+                <MenuItem value="non-empty">Non-Empty</MenuItem>
+                <MenuItem value="empty">Empty</MenuItem>
+            </TextField>
+
+            <TextField
                 fullWidth
                 label="Regex Filter"
-                value={filteredColumn.filter}
+                value={filteredColumn.regexFilter}
                 variant="standard"
                 margin="dense"
                 onChange={(e) => {
-                    filteredColumn.filter = e.target.value;
+                    filteredColumn.regexFilter = e.target.value;
                     setFilteredColumns([...filteredColumns]);
                 }}
             />
 
             <ButtonGroup >
                 <Button
-                    variant={filteredColumn.filter != undefined || filteredColumn.sortDirection !== "ignored" ? "contained" : "outlined"}
+                    variant={filteredColumn.regexFilter != undefined || filteredColumn.sortDirection !== "ignored" ? "contained" : "outlined"}
                     onClick={() => {
-                        filteredColumn.filter = "";
+                        filteredColumn.regexFilter = "";
                         filteredColumn.sortDirection = "ignored";
+                        filteredColumn.emptyFilter = "ignored";
                         setFilteredColumns([...filteredColumns]);
                     }}
                 >Clear</Button>
@@ -408,7 +455,8 @@ function Nf2tColumnEditDialog<R>({ open, handleClose, filteredColumns, columns, 
         filteredColumns.push({
             columnIndex: 1,
             sortDirection: "ignored",
-            filter: "",
+            emptyFilter: "ignored",
+            regexFilter: "",
         });
         onClickColumn(filteredColumns.length);
         setFilteredColumns([...filteredColumns]);
