@@ -3,10 +3,12 @@ import { FC, useEffect, useMemo, useState } from "react";
 import Nf2tSnackbar, { useNf2tSnackbar } from "./Nf2tSnackbar";
 
 export interface BodyRowComponentProps<R> {
-    row: R,
-    columnIndex: number,
+    filteredRowIndex: number,
     rowIndex: number,
+    row: R,
     filteredColumnIndex: number,
+    columnIndex: number,
+    column: Nf2tTableColumn<R>,
 }
 
 export interface Nf2tTableColumnSpec<R> {
@@ -18,7 +20,7 @@ export interface Nf2tTableColumnSpec<R> {
 
 export interface Nf2tTableColumn<R> extends Nf2tTableColumnSpec<R> {
     sortDirection: "asc" | "desc" | "ignored",
-    filter: string,
+    filter?: RegExp,
 }
 
 export interface Nf2tTableParams<R> {
@@ -34,11 +36,16 @@ export interface Nf2tTableProps<R> {
     canEditColumn: boolean,
 }
 
+export type VisibleRow<R> = {
+    row: R,
+    rowIndex: R,
+};
+
 function createColumn<R>(column: Nf2tTableColumnSpec<R>): Nf2tTableColumn<R> {
     return {
         ...column,
         sortDirection: "ignored",
-        filter: "",
+        filter: undefined,
     }
 }
 
@@ -77,13 +84,13 @@ function Nf2tTableColumnHeadCell<R>({ columns, columnIndex, handleClickOpen, onC
             }}
         >
             {column.compareFn == undefined ? (
-                <>{column.columnName}{column.filter.length > 0 && " *"}</>
+                <>{column.columnName}{column.filter != undefined && " *"}</>
             ) : (
                 <TableSortLabel
                     active={column.sortDirection !== "ignored"}
                     direction={column.sortDirection === "ignored" ? undefined : column.sortDirection}
                 >
-                    {column.columnName}{column.filter.length > 0 && " *"}
+                    {column.columnName}{column.filter != undefined && " *"}
                 </TableSortLabel>
             )}
         </TableCell>
@@ -197,16 +204,20 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
                 variant="standard"
                 margin="dense"
                 onChange={(e) => {
-                    column.filter = e.target.value;
+                    if (e.target.value.length <= 0) {
+                        return;
+                    }
+
+                    column.filter = new RegExp(e.target.value);
                     setColumns([...columns]);
                 }}
             />
 
             <ButtonGroup >
                 <Button
-                    variant={column.filter.length > 0 || column.sortDirection !== "ignored" ? "contained" : "outlined"}
+                    variant={column.filter != undefined || column.sortDirection !== "ignored" ? "contained" : "outlined"}
                     onClick={() => {
-                        column.filter = "";
+                        column.filter = undefined;
                         column.sortDirection = "ignored";
                         setColumns([...columns]);
                     }}
@@ -303,7 +314,7 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
     const restoreDefaultFilteredColumns = () => {
         const keys = columns.keys();
         const newFilteredColumns = Array.from(keys);
-        if(newFilteredColumns.length <= 0) {
+        if (newFilteredColumns.length <= 0) {
             snackbarProps.submitSnackbarMessage("No columns for table configured", "error")
             return;
         }
@@ -341,11 +352,11 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
                 const index = filteredColumns[filteredColumnIndex];
                 const column = columns[index];
                 const { filter } = column;
-                if (filter.length <= 0) {
+                if (filter == undefined) {
                     continue;
                 }
 
-                newRows = newRows.filter((row) => column.rowToString(row).match(column.filter));
+                newRows = newRows.filter((row) => filter.test(column.rowToString(row)));
             }
 
             for (let filteredColumnIndex = 0; filteredColumnIndex < filteredColumns.length; filteredColumnIndex++) {
@@ -363,19 +374,31 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
     )
 
     const visibleRows = useMemo(
-        () => filteredRows.slice(
-            rowPage * rowsPerPage,
-            rowPage * rowsPerPage + rowsPerPage,
-        ),
+
+        () => {
+            return Array.from(filteredRows.entries()).map(([rowIndex, row]) => {
+                return {
+                    rowIndex: rowIndex,
+                    row: row,
+                }
+            }).slice(
+                rowPage * rowsPerPage,
+                rowPage * rowsPerPage + rowsPerPage,
+            )
+        },
         [filteredRows, rowPage, rowsPerPage],
     );
 
-    if(visibleRows.length === 0 || filteredColumns.length === 0) {
+    if (filteredColumns.length === 0) {
         return (
-            <Button 
-            variant="outlined" 
-            onClick={handleClickOpen}
-            >Update Columns</Button>
+            <>
+                <Button
+                    variant="outlined"
+                    onClick={handleClickOpen}
+                >Update Columns</Button>
+                <p>columns: {JSON.stringify(columns)}</p>
+                <p>filteredColumns: {JSON.stringify(filteredColumns)}</p>
+            </>
         )
     }
 
@@ -403,13 +426,20 @@ export default function <R>({ columns, setColumns, rows, canEditColumn }: Nf2tTa
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {visibleRows.map((row, rowIndex) => (
-                            <TableRow key={rowIndex}>
+                        {visibleRows.map((rowEntry, filteredRowIndex) => (
+                            <TableRow key={filteredRowIndex}>
                                 {filteredColumns.map((columnIndex, filteredColumnIndex) => {
                                     const column = columns[columnIndex];
                                     return (
                                         <TableCell key={filteredColumnIndex}>
-                                            <column.bodyRow row={row} columnIndex={columnIndex} rowIndex={rowIndex} filteredColumnIndex={filteredColumnIndex} />
+                                            <column.bodyRow
+                                                filteredColumnIndex={filteredColumnIndex}
+                                                columnIndex={columnIndex}
+                                                column={column}
+                                                filteredRowIndex={filteredRowIndex}
+                                                row={rowEntry.row}
+                                                rowIndex={rowEntry.rowIndex}
+                                            />
                                         </TableCell>
                                     )
                                 })}

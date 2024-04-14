@@ -5,7 +5,7 @@ This is a simple react client app that will allow you to package and unpackage A
 https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 
 ## TODO
-
+- Seperate FilterColumn and inputcolumn into seperate concepts.
 - Convert home -> homeRoute (as well as lazy loaders)...
 - New page for list of nars, and then seperate page for list of attribute names.
 - Download FlowFile still works after clear. Something to do with method setState.

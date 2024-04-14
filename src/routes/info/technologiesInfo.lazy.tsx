@@ -117,7 +117,28 @@ export default function TechnologyTable() {
             { 
                 columnName: "Technology", 
                 compareFn: (a, b) => b.key.localeCompare(a.key),
-                bodyRow: ({row}) => <ExternalLink href={row.href}>{row.key}</ExternalLink>,
+                bodyRow: ({row}) => {
+                    // const matches = column.filter?.exec(row.key);
+                    // if(matches !== undefined && matches !== null) {
+                    //     const match = matches.last;
+                    //     const startIndex = matches.findIndex()
+                    //     match.indexOf(0);
+                    //     const lastIndex = matches.lastIndexOf(0);
+
+                    //     return (
+                    //         <ExternalLink href={row.href}>
+                    //             index={match.index},length={match.length}
+                    //             <span>{row.key.slice(0, match.index)}</span>
+                    //             <span style={{backgroundColor: "yellow"}}>{row.key.slice(match.index, match.index + match.length)}</span>
+                    //             <span>{row.key.slice(match.index + match.length)}</span>
+                    //         </ExternalLink>
+                    //     )
+                    // }
+
+                return (
+                    <ExternalLink href={row.href}>{row.key}</ExternalLink>
+                )
+            },
                 rowToString: (row) => row.key,
             },
             { 

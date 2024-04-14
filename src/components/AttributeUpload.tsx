@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { FlowfileAttributeRowSchema } from "../utils/schemas";
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { z } from "zod";
@@ -58,10 +58,13 @@ export function AttributeDownload({setRows, submitSnackbarMessage}: AttributeDow
         <>
             <Button startIcon={<FileUploadIcon />} variant="outlined" onClick={() => setOpen(true)}>Upload Attributes</Button>
             <Dialog onClose={handleClose} open={open}>
-                <DialogTitle>Set backup account</DialogTitle>
+                <DialogTitle>Upload Attribute JSON</DialogTitle>
                 <DialogContent>
                     <TextField onChange={onChange} type="file" />
                 </DialogContent>
+                <DialogActions>
+                <Button onClick={handleClose} autoFocus>Close</Button>
+                </DialogActions>
             </Dialog>
         </>
     )
