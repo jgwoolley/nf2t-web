@@ -6,6 +6,7 @@ import Spacing from "../components/Spacing";
 import CodeSnippet from "../components/CodeSnippet";
 import Nf2tSnackbar, { useNf2tSnackbar } from "../components/Nf2tSnackbar";
 import { createLazyRoute } from "@tanstack/react-router";
+import ExternalLink from "../components/ExternalLink";
 
 export const Route = createLazyRoute("/source")({
     component: Nf2tSource,
@@ -71,7 +72,7 @@ export default function Nf2tSource() {
                         <>
                         <TableRow>
                             <TableCell>Commit</TableCell>
-                            <TableCell><CodeSnippet submitSnackbarMessage={snackbarProps.submitSnackbarMessage} code={buildinfo.git.H}/></TableCell>
+                            <TableCell><ExternalLink href={`https://github.com/jgwoolley/Nifi-Flow-File-Helper/commit/${buildinfo.git.H}`}>{buildinfo.git.H}</ExternalLink></TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>Commit Message</TableCell>

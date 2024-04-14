@@ -5,6 +5,7 @@ import ExternalLink from "../../components/ExternalLink";
 import PrevNext from "../../components/PrevNext";
 import { createLazyRoute } from "@tanstack/react-router";
 import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
+import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 
 export const Route = createLazyRoute("/technologiesInfo")({
     component: TechnologyTable,
@@ -22,7 +23,7 @@ const techologies: Techonology[] = [
         href: "https://nifi.apache.org/docs.html",
         key: "Apache Nifi",
         group: "Apache Nifi",
-        description: "Apache NiFi automates the flow of data between system."
+        description: "Apache NiFi automates the flow of data between systems."
     },
     {
         href: "https://nifi.apache.org/docs/nifi-docs/html/nifi-in-depth.html#life-of-a-flowfile",
@@ -40,7 +41,7 @@ const techologies: Techonology[] = [
         href: "https://en.wikipedia.org/wiki/JavaScript",
         key: "JavaScript",
         group: "Web Technology",
-        description: "a programming language which can be embedded within HTML webpages to allow dynamic content."
+        description: "A programming language which can be embedded within HTML webpages to allow dynamic content."
     },
     {
         href: "https://en.wikipedia.org/wiki/TypeScript",
@@ -111,7 +112,9 @@ const techologies: Techonology[] = [
 ];
 
 export default function TechnologyTable() {
+    const snackbarProps = useNf2tSnackbar();
     const tableProps = useNf2tTable<Techonology>({
+        snackbarProps: snackbarProps,
         canEditColumn: false,
         columns: [
             { 

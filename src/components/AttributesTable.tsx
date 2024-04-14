@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useMemo, useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
-import { Nf2tSnackbarProps } from './Nf2tSnackbar';
+import { Nf2tSnackbarProps, useNf2tSnackbar } from './Nf2tSnackbar';
 import { Link } from '@tanstack/react-router';
 import Nf2tTable, { Nf2tTableColumnSpec, useNf2tTable } from './Nf2tTable';
 
@@ -15,6 +15,7 @@ export interface AttributesTableProps extends Nf2tSnackbarProps {
 }
 
 export function AttributesTable(props: AttributesTableProps) {
+    const snackbarProps = useNf2tSnackbar();
     const { rows, setRows, submitSnackbarMessage } = props;
     const [editIndex, setEditIndex] = useState(-1);
     const columns: Nf2tTableColumnSpec<FlowfileAttributeRowSchema>[] = useMemo(() => {
@@ -80,6 +81,7 @@ export function AttributesTable(props: AttributesTableProps) {
     }
 
     const tableProps = useNf2tTable<FlowfileAttributeRowSchema>({
+        snackbarProps: snackbarProps,
         canEditColumn: false,
         columns: columns,
         rows: rows,

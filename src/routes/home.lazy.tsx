@@ -6,6 +6,7 @@ import PrevNext from "../components/PrevNext";
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import { routeDescriptions, RoutePathType } from "./routeDescriptions";
 import Nf2tTable, { useNf2tTable } from "../components/Nf2tTable";
+import { useNf2tSnackbar } from "../components/Nf2tSnackbar";
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -17,8 +18,11 @@ const linkStyles: React.CSSProperties = {
 }
 
 export default function Nf2tHome() {
+    const snackbarProps = useNf2tSnackbar();
+
     const tableProps = useNf2tTable<RoutePathType>({
         canEditColumn: false,
+        snackbarProps: snackbarProps,
         columns: [
             { 
                 columnName: "Tool", 
