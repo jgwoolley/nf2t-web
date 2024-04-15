@@ -69,7 +69,7 @@ export function NifiAppBar() {
                 <Toolbar disableGutters >
                     <Tooltip title={routeDescriptions["/"].shortDescription}>
                         <>
-                            {/* <img src="https://nifi.apache.org/assets/images/apache-nifi-logo.svg" height="25px"/> */}
+                            {/* <Icon><img src="/favicon.svg" height="25px"/></Icon> */}
                             <Typography variant="h6" color="inherit" component="div"><Link style={{ color: "inherit", textDecoration: "inherit" }} to="/">Nifi FlowFile Tools</Link></Typography>
                         </>
                     </Tooltip>

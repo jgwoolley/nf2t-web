@@ -13,6 +13,7 @@ export default function RouteComponent() {
     const { nars } = useNf2tContext();
     const snackbarProps = useNf2tSnackbar();
     const tableProps = useNf2tTable({
+        childProps: undefined,
         rows: nars,
         snackbarProps:snackbarProps,
         columns: [

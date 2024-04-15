@@ -113,7 +113,8 @@ const techologies: Techonology[] = [
 
 export default function TechnologyTable() {
     const snackbarProps = useNf2tSnackbar();
-    const tableProps = useNf2tTable<Techonology>({
+    const tableProps = useNf2tTable<Techonology, undefined>({
+        childProps: undefined,
         snackbarProps: snackbarProps,
         canEditColumn: false,
         columns: [

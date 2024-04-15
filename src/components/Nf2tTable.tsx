@@ -2,32 +2,42 @@ import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle,
 import { FC, useEffect, useMemo, useState } from "react";
 import Nf2tSnackbar, { Nf2tSnackbarResult } from "./Nf2tSnackbar";
 
-export interface BodyRowComponentProps<R> {
+export interface BodyRowComponentProps<R,C> {
     filteredRowIndex: number,
     rowIndex: number,
     row: R,
     filteredColumnIndex: number,
     columnIndex: number,
-    column: Nf2tTableColumnSpec<R>,
+    column: Nf2tTableColumnSpec<R,C>,
+    childProps: C,
+    hideFilter?: boolean,
 }
 
-export interface Nf2tTableColumnSpec<R> {
+export interface Nf2tTableColumnSpec<R,C> {
     columnName: string,
-    bodyRow: FC<BodyRowComponentProps<R>>,
+    bodyRow: FC<BodyRowComponentProps<R,C>>,
+    hideFilter?: boolean,
     rowToString: (row: R) => string,
     compareFn?: (a: R, b: R) => number,
 }
 
+type Nf2tTableColumnSortDirectionType = "asc" | "desc" | "ignored";
+type Nf2tTableColumnEmptyFilterType = "non-empty" | "empty" | "ignored";
+
+const Nf2tTableColumnSortDirectionDefault: Nf2tTableColumnSortDirectionType = "ignored";
+const Nf2tTableColumnEmptyFilterTypeDefault: Nf2tTableColumnEmptyFilterType = "ignored";
+
 export interface Nf2tTableColumn {
     columnIndex: number,
-    sortDirection: "asc" | "desc" | "ignored",
-    emptyFilter: "non-empty" | "empty" | "ignored",
+    sortDirection: Nf2tTableColumnSortDirectionType,
+    emptyFilter: Nf2tTableColumnEmptyFilterType,
     regexFilter: string, //RegExp
 }
 
-export interface Nf2tTableParams<R> {
+export interface Nf2tTableParams<R, C> {
+    childProps: C,
     snackbarProps: Nf2tSnackbarResult,
-    columns: Nf2tTableColumnSpec<R>[],
+    columns: Nf2tTableColumnSpec<R, C>[],
     rows: R[],
     canEditColumn: boolean,
 }
@@ -37,11 +47,11 @@ export type VisibleRow<R> = {
     rowIndex: number,
 };
 
-
-export interface Nf2tTableProps<R> {
+export interface Nf2tTableProps<R, C> {
+    childProps: C,
     rowsPerPage: number, 
     rowPage: number,
-    columns: Nf2tTableColumnSpec<R>[],
+    columns: Nf2tTableColumnSpec<R, C>[],
     filteredColumns: Nf2tTableColumn[],
     setFilteredColumns: React.Dispatch<React.SetStateAction<Nf2tTableColumn[]>>,
     rows: R[],
@@ -59,12 +69,16 @@ export interface Nf2tTableProps<R> {
     snackbarProps: Nf2tSnackbarResult,
 }
 
+function isColumnDefault(filteredColumn: Nf2tTableColumn) {
+    return filteredColumn.regexFilter.length > 0 || filteredColumn.sortDirection !== Nf2tTableColumnSortDirectionDefault || filteredColumn.emptyFilter !== Nf2tTableColumnEmptyFilterTypeDefault;
+}
+
 const emptyFilterLut = new Map<"empty" | "non-empty" | "ignored", undefined | ((value: string) => boolean)>();
 emptyFilterLut.set("empty", (value) => value.length === 0);
 emptyFilterLut.set("non-empty", (value) => value.length !== 0);
 emptyFilterLut.set("ignored", undefined);
 
-export function useNf2tTable<R>({ snackbarProps, rows, columns, canEditColumn }: Nf2tTableParams<R>): Nf2tTableProps<R> {
+export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, canEditColumn }: Nf2tTableParams<R, C>): Nf2tTableProps<R, C> {    
     const [filteredColumns, setFilteredColumns] = useState<Nf2tTableColumn[]>([]);
     const [rowPage, setRowPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -86,8 +100,8 @@ export function useNf2tTable<R>({ snackbarProps, rows, columns, canEditColumn }:
         const newFilteredColumns: Nf2tTableColumn[] = Array.from(keys).map((_value, columnIndex) => {
             const newColumn: Nf2tTableColumn = {
                 columnIndex: columnIndex,
-                sortDirection: "ignored",
-                emptyFilter: "ignored",
+                sortDirection: Nf2tTableColumnSortDirectionDefault,
+                emptyFilter: Nf2tTableColumnEmptyFilterTypeDefault,
                 regexFilter: "",
             }
 
@@ -201,6 +215,7 @@ export function useNf2tTable<R>({ snackbarProps, rows, columns, canEditColumn }:
 
 
     return {
+        childProps,
         rowsPerPage, 
         rowPage,
         columns,
@@ -222,8 +237,8 @@ export function useNf2tTable<R>({ snackbarProps, rows, columns, canEditColumn }:
     }
 }
 
-interface Nf2tTableColumnHeadCellProps<R> {
-    columns: Nf2tTableColumnSpec<R>[],
+interface Nf2tTableColumnHeadCellProps<R, C> {
+    columns: Nf2tTableColumnSpec<R, C>[],
     filteredColumns: Nf2tTableColumn[],
     setFilteredColumns: React.Dispatch<React.SetStateAction<Nf2tTableColumn[]>>,
     columnIndex: number,
@@ -233,30 +248,27 @@ interface Nf2tTableColumnHeadCellProps<R> {
     onClickColumn: Nf2tOnClickColumn,
 }
 
-function Nf2tTableColumnHeadCell<R>({ filteredColumns, filteredColumnIndex, columns, columnIndex, handleClickOpen, onClickColumn }: Nf2tTableColumnHeadCellProps<R>) {
-    const {
-        sortDirection,
-        regexFilter: filter,
-    } = filteredColumns[filteredColumnIndex];
+function Nf2tTableColumnHeadCell<R, C>({ filteredColumns, filteredColumnIndex, columns, columnIndex, handleClickOpen, onClickColumn }: Nf2tTableColumnHeadCellProps<R, C>) {
+    const filteredColumn = filteredColumns[filteredColumnIndex];
     
     const column = columns[columnIndex];
 
     return (
         <TableCell
-            sortDirection={sortDirection === "ignored" ? false : sortDirection}
+            sortDirection={filteredColumn.sortDirection === "ignored" ? false : filteredColumn.sortDirection}
             onClick={() => {
                 onClickColumn(columnIndex + 1);
                 handleClickOpen();
             }}
         >
             {column.compareFn == undefined ? (
-                <>{column.columnName}{filter.length > 0 && " *"}</>
+                <>{column.columnName}{isColumnDefault(filteredColumn) && " *"}</>
             ) : (
                 <TableSortLabel
-                    active={sortDirection !== "ignored"}
-                    direction={sortDirection === "ignored" ? undefined : sortDirection}
+                    active={filteredColumn.sortDirection !== "ignored"}
+                    direction={filteredColumn.sortDirection === "ignored" ? undefined : filteredColumn.sortDirection}
                 >
-                    {column.columnName}{filter.length > 0 && " *"}
+                    {column.columnName}{isColumnDefault(filteredColumn) && " *"}
                 </TableSortLabel>
             )}
         </TableCell>
@@ -264,12 +276,12 @@ function Nf2tTableColumnHeadCell<R>({ filteredColumns, filteredColumnIndex, colu
 }
 
 type Nf2tColumnEditDialogMemoErrorType = { errorMessage: string }
-type Nf2tColumnEditDialogMemoSuccessType<R> = { errorMessage: undefined, filteredColumnIndex: number, columnIndex: number, column: Nf2tTableColumnSpec<R>, filteredColumn: Nf2tTableColumn };
-type Nf2tColumnEditDialogMemoType<R> = Nf2tColumnEditDialogMemoErrorType | Nf2tColumnEditDialogMemoSuccessType<R>;
+type Nf2tColumnEditDialogMemoSuccessType<R, C> = { errorMessage: undefined, filteredColumnIndex: number, columnIndex: number, column: Nf2tTableColumnSpec<R, C>, filteredColumn: Nf2tTableColumn };
+type Nf2tColumnEditDialogMemoType<R, C> = Nf2tColumnEditDialogMemoErrorType | Nf2tColumnEditDialogMemoSuccessType<R, C>;
 
 
-interface Nf2tColumnEditDialogContentProps<R> {
-    columns: Nf2tTableColumnSpec<R>[],
+interface Nf2tColumnEditDialogContentProps<R, C> {
+    columns: Nf2tTableColumnSpec<R, C>[],
     filteredColumns: Nf2tTableColumn[],
     setFilteredColumns: React.Dispatch<React.SetStateAction<Nf2tTableColumn[]>>,
     columnPage: number,
@@ -277,8 +289,8 @@ interface Nf2tColumnEditDialogContentProps<R> {
     canEditColumn: boolean,
 }
 
-function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredColumns, columns, setFilteredColumns, canEditColumn }: Nf2tColumnEditDialogContentProps<R>) {
-    const columnMemoResult = useMemo<Nf2tColumnEditDialogMemoType<R>>(() => {
+function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filteredColumns, columns, setFilteredColumns, canEditColumn }: Nf2tColumnEditDialogContentProps<R, C>) {
+    const columnMemoResult = useMemo<Nf2tColumnEditDialogMemoType<R, C>>(() => {
         const filteredColumnIndex = columnPage - 1;
         if (filteredColumnIndex < 0 || filteredColumnIndex >= filteredColumns.length) {
             const result : Nf2tColumnEditDialogMemoErrorType = {
@@ -304,7 +316,7 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
             return result;
         }
 
-        const result: Nf2tColumnEditDialogMemoSuccessType<R> = {
+        const result: Nf2tColumnEditDialogMemoSuccessType<R, C> = {
             errorMessage: undefined,
             filteredColumnIndex: filteredColumnIndex,
             columnIndex: filteredColumn.columnIndex,
@@ -330,6 +342,7 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
         <>
             {canEditColumn ? (
                 <TextField
+                    disabled={column.hideFilter}
                     value={columnIndex}
                     label="Column"
                     select
@@ -353,6 +366,7 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
 
 
             <TextField
+                disabled={column.hideFilter}
                 value={filteredColumn.sortDirection}
                 label="Sort Direction"
                 select
@@ -374,6 +388,7 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
             </TextField>
 
             <TextField
+                disabled={column.hideFilter}
                 value={filteredColumn.emptyFilter}
                 label="Empty Filter"
                 select
@@ -395,6 +410,7 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
             </TextField>
 
             <TextField
+                disabled={column.hideFilter}
                 fullWidth
                 label="Regex Filter"
                 value={filteredColumn.regexFilter}
@@ -408,7 +424,7 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
 
             <ButtonGroup >
                 <Button
-                    variant={filteredColumn.regexFilter != undefined || filteredColumn.sortDirection !== "ignored" ? "contained" : "outlined"}
+                    variant={isColumnDefault(filteredColumn)? "contained" : "outlined"}
                     onClick={() => {
                         filteredColumn.regexFilter = "";
                         filteredColumn.sortDirection = "ignored";
@@ -417,11 +433,14 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
                     }}
                 >Clear</Button>
                 {canEditColumn && (
-                    <Button onClick={() => {
-                        filteredColumns.splice(filteredColumnIndex, 1);
-                        onClickColumn(1);
-                        setFilteredColumns([...filteredColumns]);
-                    }}>Remove</Button>
+                    <Button 
+                        disabled={column.hideFilter}
+                        onClick={() => {
+                            filteredColumns.splice(filteredColumnIndex, 1);
+                            onClickColumn(1);
+                            setFilteredColumns([...filteredColumns]);
+                        }}
+                    >Remove</Button>
                 )}
 
             </ButtonGroup>
@@ -432,10 +451,10 @@ function Nf2tColumnEditDialogContent<R>({ columnPage, onClickColumn, filteredCol
 
 type Nf2tOnClickColumn = (columnPage: number) => void;
 
-interface Nf2tColumnEditDialogProps<R> {
+interface Nf2tColumnEditDialogProps<R, C> {
     open: boolean,
     handleClose: () => void,
-    columns: Nf2tTableColumnSpec<R>[],
+    columns: Nf2tTableColumnSpec<R, C>[],
     filteredColumns: Nf2tTableColumn[],
     setFilteredColumns: React.Dispatch<React.SetStateAction<Nf2tTableColumn[]>>,
     restoreDefaultFilteredColumns: () => void,
@@ -446,7 +465,7 @@ interface Nf2tColumnEditDialogProps<R> {
 
 
 
-function Nf2tColumnEditDialog<R>({ open, handleClose, filteredColumns, columns, setFilteredColumns, restoreDefaultFilteredColumns, canEditColumn, onClickColumn, columnPage }: Nf2tColumnEditDialogProps<R>) {
+function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, columns, setFilteredColumns, restoreDefaultFilteredColumns, canEditColumn, onClickColumn, columnPage }: Nf2tColumnEditDialogProps<R, C>) {
     useEffect(() => {
         onClickColumn(1);
     }, [filteredColumns.length, columns.length])
@@ -454,8 +473,8 @@ function Nf2tColumnEditDialog<R>({ open, handleClose, filteredColumns, columns, 
     const addFilteredColumns = () => {
         filteredColumns.push({
             columnIndex: 1,
-            sortDirection: "ignored",
-            emptyFilter: "ignored",
+            sortDirection: Nf2tTableColumnSortDirectionDefault,
+            emptyFilter: Nf2tTableColumnEmptyFilterTypeDefault,
             regexFilter: "",
         });
         onClickColumn(filteredColumns.length);
@@ -494,7 +513,7 @@ function Nf2tColumnEditDialog<R>({ open, handleClose, filteredColumns, columns, 
     )
 }
 
-export default function <R>({ columns, filteredColumns, filteredRows, canEditColumn, handleClickOpen, setFilteredColumns, onClickColumn, visibleRows, rowsPerPage, rowPage, handleChangePage, handleChangeRowsPerPage, handleClose, restoreDefaultFilteredColumns, columnPage, snackbarProps, open}: Nf2tTableProps<R>) {
+export default function <R, C>({ childProps, columns, filteredColumns, filteredRows, canEditColumn, handleClickOpen, setFilteredColumns, onClickColumn, visibleRows, rowsPerPage, rowPage, handleChangePage, handleChangeRowsPerPage, handleClose, restoreDefaultFilteredColumns, columnPage, snackbarProps, open}: Nf2tTableProps<R, C>) {
 
     if (filteredColumns.length === 0) {
         return (
@@ -536,15 +555,18 @@ export default function <R>({ columns, filteredColumns, filteredRows, canEditCol
                             <TableRow key={filteredRowIndex}>
                                 {filteredColumns.map((filteredColumn, filteredColumnIndex) => {
                                     const column = columns[filteredColumn.columnIndex];
+                                                                        
                                     return (
                                         <TableCell key={filteredColumnIndex}>
                                             <column.bodyRow
+                                                childProps={childProps}
                                                 filteredColumnIndex={filteredColumnIndex}
                                                 columnIndex={filteredColumn.columnIndex}
                                                 column={column}
                                                 filteredRowIndex={filteredRowIndex}
                                                 row={rowEntry.row}
                                                 rowIndex={rowEntry.rowIndex}
+                                                hideFilter={column.hideFilter}
                                             />
                                         </TableCell>
                                     )

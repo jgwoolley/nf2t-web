@@ -96,7 +96,7 @@ export default function PackageNifi() {
     const [file, setFile] = useState<File | null>(null);
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
     const snackbarResults = useNf2tSnackbar();
-    const {submitSnackbarMessage } = snackbarResults;
+    const { submitSnackbarMessage } = snackbarResults;
 
     const submit = () => {
         if (file == undefined) {

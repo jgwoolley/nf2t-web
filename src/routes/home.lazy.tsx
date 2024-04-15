@@ -20,7 +20,8 @@ const linkStyles: React.CSSProperties = {
 export default function Nf2tHome() {
     const snackbarProps = useNf2tSnackbar();
 
-    const tableProps = useNf2tTable<RoutePathType>({
+    const tableProps = useNf2tTable<RoutePathType, undefined>({
+        childProps: undefined,
         canEditColumn: false,
         snackbarProps: snackbarProps,
         columns: [
