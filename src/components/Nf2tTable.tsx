@@ -40,6 +40,8 @@ export interface Nf2tTableParams<R, C> {
     columns: Nf2tTableColumnSpec<R, C>[],
     rows: R[],
     canEditColumn: boolean,
+    ignoreNoColumnsError?: boolean,
+    maxColumns?: number,
 }
 
 export type VisibleRow<R> = {
@@ -78,7 +80,7 @@ emptyFilterLut.set("empty", (value) => value.length === 0);
 emptyFilterLut.set("non-empty", (value) => value.length !== 0);
 emptyFilterLut.set("ignored", undefined);
 
-export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, canEditColumn }: Nf2tTableParams<R, C>): Nf2tTableProps<R, C> {    
+export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, canEditColumn, ignoreNoColumnsError, maxColumns: incomingMaxColumns}: Nf2tTableParams<R, C>): Nf2tTableProps<R, C> {    
     const [filteredColumns, setFilteredColumns] = useState<Nf2tTableColumn[]>([]);
     const [rowPage, setRowPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -89,10 +91,10 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
         setColumnPage(value);
     };
 
-    const maxColumns = 10;
+    const maxColumns = incomingMaxColumns || 6;
 
     const restoreDefaultFilteredColumns = () => {
-        if (columns.length <= 0) {
+        if (!ignoreNoColumnsError && columns.length <= 0) {
             snackbarProps.submitSnackbarMessage("No columns for table configured", "error")
             return;
         }
@@ -111,6 +113,7 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
 
         newFilteredColumns.splice(maxColumns);
         setFilteredColumns(newFilteredColumns);
+        console.log("reset columns.")
     }
 
     useEffect(() => {
@@ -174,17 +177,23 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
             }
 
             for (let filteredColumnIndex = 0; filteredColumnIndex < filteredColumns.length; filteredColumnIndex++) {
-                const {
-                    columnIndex,
-                    sortDirection,
-                } = filteredColumns[filteredColumnIndex];
-                const { 
-                    compareFn,
-                } = columns[columnIndex];
-                if (compareFn == undefined || sortDirection === "ignored") {
+                const filteredColumn = filteredColumns[filteredColumnIndex];
+                if(filteredColumn == undefined) {
+                    continue;
+                }                
+
+                const column = columns[filteredColumn.columnIndex];
+
+                if(column == undefined) {
                     continue;
                 }
-                newRows = newRows.sort(sortDirection === "asc" ? compareFn : (a, b) => compareFn(b, a));
+
+                const {compareFn} = column;
+
+                if (compareFn == undefined || filteredColumn.sortDirection === "ignored") {
+                    continue;
+                }
+                newRows = newRows.sort(filteredColumn.sortDirection === "asc" ? compareFn : (a, b) => compareFn(b, a));
             }
             return [...newRows];
         },
@@ -250,8 +259,14 @@ interface Nf2tTableColumnHeadCellProps<R, C> {
 
 function Nf2tTableColumnHeadCell<R, C>({ filteredColumns, filteredColumnIndex, columns, columnIndex, handleClickOpen, onClickColumn }: Nf2tTableColumnHeadCellProps<R, C>) {
     const filteredColumn = filteredColumns[filteredColumnIndex];
-    
+    if(filteredColumn == undefined) {
+        return null;
+    }
+
     const column = columns[columnIndex];
+    if(column == undefined) {
+        return null;
+    }
 
     return (
         <TableCell
@@ -520,14 +535,11 @@ export default function <R, C>({ childProps, columns, filteredColumns, filteredR
             <>
                 <Button
                     variant="outlined"
-                    onClick={handleClickOpen}
-                >Update Columns</Button>
-                {/* <p>columns: {JSON.stringify(columns)}</p>
-                <p>filteredColumns: {JSON.stringify(filteredColumns)}</p> */}
+                    onClick={restoreDefaultFilteredColumns}
+                >Refresh Table</Button>
             </>
         )
     }
-
 
     return (
         <>

@@ -1,4 +1,4 @@
-import { Box, Button, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import Spacing from '../../components/Spacing';
@@ -8,6 +8,7 @@ import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../componen
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 import { createLazyRoute } from '@tanstack/react-router';
+import Nf2tTable, { Nf2tTableColumnSpec, useNf2tTable } from '../../components/Nf2tTable';
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: UnPackageNifi,
@@ -40,8 +41,6 @@ export interface BulkUnpackageDownloadButtonProps extends Nf2tSnackbarProps {
     rows: Map<string, string>[],
     attributes: string[] | undefined,
 }
-
-
 
 export function BulkUnpackageDownloadButton({ submitSnackbarMessage, rows, attributes }: BulkUnpackageDownloadButtonProps) {
     const onClick = () => {
@@ -87,30 +86,38 @@ export function UnPackageNifi() {
     const [current, setCurrent] = useState(defaultCurrent);
     const [attributes, setAttributes] = useState<string[]>();
     const [rows, setRows] = useState<Map<string, string>[]>([]);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-
-    const handleChangePage = (_event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
-    const visibleRows = useMemo(
-        () => rows.slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage,
-        ),
-        [rows, page, rowsPerPage],
-    );
 
     const resetProgress = () => {
+        tableProps.restoreDefaultFilteredColumns();
         setTotal(defaultTotal);
         setCurrent(defaultCurrent);
     }
+
+    const columns: Nf2tTableColumnSpec<Map<string, string>, undefined>[] = useMemo(() => {
+        const results: Nf2tTableColumnSpec<Map<string, string>, undefined>[] = [];
+        if(attributes == undefined) {
+            return results;
+        }
+
+        for(const attribute of attributes) {
+            results.push({
+                columnName: attribute,
+                bodyRow: ({row}) => row.get(attribute) || "",
+                rowToString: (row: Map<string, string>) => row.get(attribute) || "",
+            });
+        }
+
+        return results;
+    }, [attributes]);
+
+    const tableProps = useNf2tTable<Map<string, string>, undefined>({
+        childProps: undefined,
+        snackbarProps: snackbarResults,
+        canEditColumn: true,
+        columns: columns,
+        rows: rows,
+        ignoreNoColumnsError: true,
+    });
 
     const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
         try {
@@ -129,6 +136,7 @@ export function UnPackageNifi() {
 
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
                 setCurrent(fileIndex);
+                setTotal(files.length);
                 const file = files[fileIndex];
                 await new Promise((resolve) => {
                     const reader = new FileReader();
@@ -159,6 +167,9 @@ export function UnPackageNifi() {
                 });
             }
 
+            setCurrent(files.length);
+            setTotal(files.length);
+
             if (uniqueAttributes.size <= 0) {
                 submitSnackbarMessage("Did not find any attributes in the given files.",
                     "error",
@@ -183,9 +194,16 @@ export function UnPackageNifi() {
                 return;
             }
             setRows([...rows]);
+            tableProps.restoreDefaultFilteredColumns();
         } catch (error) {
             submitSnackbarMessage("Unknown error.", "error", error);
         }
+    }
+
+    const clearFlowFiles = () => {
+        setRows([]);
+        setAttributes([]);
+        tableProps.restoreDefaultFilteredColumns();
     }
 
     return (
@@ -197,9 +215,8 @@ export function UnPackageNifi() {
                 <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
             </>) : (<>
                 <p>Clear provided FlowFiles.</p>
-                <Button variant="outlined" onClick={() => setRows([])}>Clear</Button>
+                <Button variant="outlined" onClick={clearFlowFiles}>Clear</Button>
             </>)}
-
 
             <Spacing />
             <h5>2. Download FlowFile Attributes CSV</h5>
@@ -208,37 +225,7 @@ export function UnPackageNifi() {
             <Spacing />
             {attributes && (
                 <>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    {attributes.map((attribute, attributeIndex) => (
-                                        <TableCell key={attributeIndex}>{attribute}</TableCell>
-                                    ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {visibleRows.map((row, rowIndex) => (
-                                    <TableRow key={rowIndex}>
-                                        {attributes.map((attribute, attributeIndex) => (
-                                            <TableCell key={attributeIndex}>
-                                                {row.get(attribute) || ""}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25]}
-                            component="div"
-                            count={rows.length}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                        />
-                    </TableContainer>
+                    <Nf2tTable {...tableProps} />
                     <Spacing />
                 </>
             )}
