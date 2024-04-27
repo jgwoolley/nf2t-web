@@ -1,3 +1,5 @@
+import { FlowfileAttributesSchema } from "./schemas";
+
 const MAGIC_HEADER = 'NiFiFF3';
 
 // TODO: This really isn't an inputstream, I just stole the name from Java.
@@ -70,8 +72,8 @@ function fillBuffer(view: InputStream, bytes: number[], length: number) {
     }
 }
 
-function readAttributes(view: InputStream) {
-    const attributes = new Map<string,string>();
+function readAttributes(view: InputStream): FlowfileAttributesSchema | null {
+    const attributes: FlowfileAttributesSchema = {};
     const numAttributes = readFieldLength(view);
     if (numAttributes == null) {
         return null;
@@ -83,7 +85,7 @@ function readAttributes(view: InputStream) {
     for (let i = 0; i < numAttributes; i++) { //read each attribute key/value pair
         const key = readString(view);
         const value = readString(view);
-        attributes.set(key, value);
+        attributes[key] = value;
     }
 
     return attributes;

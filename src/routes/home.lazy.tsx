@@ -39,7 +39,6 @@ export default function Nf2tHome() {
             },
         ],
         rows: [
-            "/unpackage",
             "/unpackageBulk",
             "/package",
             "/narReader",

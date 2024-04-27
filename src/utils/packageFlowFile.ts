@@ -59,47 +59,36 @@ function writeLong(bytes: number[], val: number) {
         byteHelper(val, 6),
         byteHelper(val, 7),
     ];
-    console.log(new_bytes);
-    console.log(bytes);
+    // console.log(new_bytes);
+    // console.log(bytes);
     for(let x of new_bytes.entries()) {
         bytes.push(x[1]);
     }
-    console.log(bytes);
+    // console.log(bytes);
 }
 
-function findFilename(rows: FlowfileAttributeRowSchema[], file: File) {
-    const filteredRows = rows.filter((x) => x.key === "filename");
-    if (filteredRows.length == 0) {
-        rows.push({
-            key: "filename",
-            value: file.name,
-        });
-        return file.name;
-    } else {
-        return filteredRows[0].value;
+function findFilename(attributes: FlowfileAttributeRowSchema[], file: File) {    
+    for(let index = 0; index < attributes.length; index++) {
+        const attribute = attributes[index];
+        if(attribute[0] === "filename") {
+            return attribute[1];
+        }
     }
+
+    return file.name;
 }
 
-export function packageFlowFile(rows: FlowfileAttributeRowSchema[], file: File) {
-    const filename = findFilename(rows, file);
-
-    // TODO: Potentally remove??
-    if (rows.filter((x) => x.key === "mime.type").length == 0) {
-        rows.push({
-            key: "mime.type",
-            value: file.type,
-        })
-    }
-
+export function packageFlowFile(attributes: FlowfileAttributeRowSchema[], file: File) {
+    const filename = findFilename(attributes, file);
     const bytes: number[] = [];
 
     pushUTF8(bytes, MAGIC_HEADER);
 
-    writeFieldLength(bytes, rows.length);
-    for(var i=0; i < rows.length; i++) {
-        var row = rows[i];
-        writeString(bytes, row.key);
-        writeString(bytes, row.value);
+    writeFieldLength(bytes, attributes.length);
+    for(var i=0; i < attributes.length; i++) {
+        const row = attributes[i];
+        writeString(bytes, row[0]);
+        writeString(bytes, row[1]);
     }
     writeLong(bytes, file.size);
 

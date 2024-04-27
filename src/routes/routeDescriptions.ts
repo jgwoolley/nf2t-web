@@ -135,14 +135,14 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
   "/unpackage": {
     to: "/unpackage",
     source: FlowFileUnpackagerV3Reference,
-    name: "Unpackager",
+    name: "Unpackager (Single)",
     shortDescription: "Unpackage a FlowFile's content, and attributes.",
   },
   "/unpackageBulk": {
     to: "/unpackageBulk",
     source: FlowFileUnpackagerV3Reference,
-    name: "Bulk Unpackager",
-    shortDescription: "Unpackage multiple FlowFiles' attributes into a CSV file.",
+    name: "Unpackager",
+    shortDescription: "Unpackage the attributes and content of multiple FlowFiles.",
   },
   "/source": {
     to: "/source",

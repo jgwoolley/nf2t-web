@@ -22,21 +22,17 @@ type AttributesTableChildProps = {
     deleteRow: (index: number) => void,
 }
 
-function AttributeValueRow({childProps, row, columnIndex, filteredRowIndex, childProps: {rows, setRows}}: BodyRowComponentProps<FlowfileAttributeRowSchema, AttributesTableChildProps>) {
+function AttributeValueRow({childProps, row, filteredRowIndex, childProps: {rows, setRows}}: BodyRowComponentProps<FlowfileAttributeRowSchema, AttributesTableChildProps>) {
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newRow: FlowfileAttributeRowSchema = {
-            key: row.key,
-            value: event.target.value,
-        }
-        rows[columnIndex] = newRow;
+        row[1] = event.target.value;
         setRows([...rows]);
     }
 
     const isEditing = filteredRowIndex === childProps.editIndex;
     return (isEditing) ? (
-        <TextField onChange={onChange} defaultValue={row.value} />
+        <TextField onChange={onChange} value={row[1]} />
     ) : (
-        <>{row.value}</>
+        <>{row[1]}</>
     );
 }
 
@@ -65,7 +61,7 @@ export function AttributesTable(props: AttributesTableProps) {
     const deleteRow = (index: number) => {
         const deletedRows = rows.splice(index, 1);
         setRows([...rows]);
-        submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x.key).join(", ")}`, "info");
+        submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x[0]).join(", ")}`, "info");
     }
 
     const childProps: AttributesTableChildProps = {
@@ -82,24 +78,24 @@ export function AttributesTable(props: AttributesTableProps) {
                 columnName: "Attribute Key",
                 bodyRow: ({row}) => {
                     return (
-                        <Link to="/attributesLookup" search={{ name: row.key }}>
-                            {row.key}
+                        <Link to="/attributesLookup" search={{ name: row[0] }}>
+                            {row[0]}
                         </Link>
                     )
                 },
-                rowToString: (row) => row.key,
+                rowToString: (row) => row[0],
             },
             {
                 columnName: "Attribute Value",
                 bodyRow: AttributeValueRow,
-                rowToString: (row) => row.value,
+                rowToString: (row) => row[1],
             },
         ];
 
         if(props.canEdit) {
             newColumns.push({
                 columnName: "Functions",
-                rowToString: (row) => row.key,
+                rowToString: (row) => row[0],
                 bodyRow: FunctionsRow,
                 hideFilter: true,
             });

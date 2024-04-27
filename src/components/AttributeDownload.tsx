@@ -14,7 +14,7 @@ export function AttributeDownload({rows, submitSnackbarMessage}: AttributeDownlo
         const result = new Map<string,string>();
         for(let i = 0; i < rows.length; i++) {
             let row = rows[i];
-            result.set(row.key, row.value);
+            result.set(row[0], row[1]);
         }
         const blob = new Blob(
             [JSON.stringify(Object.fromEntries(result))], 

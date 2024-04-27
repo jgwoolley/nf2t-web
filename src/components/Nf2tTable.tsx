@@ -94,6 +94,10 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
     const maxColumns = incomingMaxColumns || 6;
 
     const restoreDefaultFilteredColumns = () => {
+        if(columns.length == 0 || filteredColumns.length !== 0) {
+            return;
+        }
+
         if (!ignoreNoColumnsError && columns.length <= 0) {
             snackbarProps.submitSnackbarMessage("No columns for table configured", "error")
             return;
@@ -118,7 +122,11 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
 
     useEffect(() => {
         restoreDefaultFilteredColumns();
-    }, [])
+    }, []);
+
+    useEffect(() => {
+        restoreDefaultFilteredColumns();
+    }, [columns, filteredColumns]);
 
     const handleClickOpen = () => {  
         setOpen(true);

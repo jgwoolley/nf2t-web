@@ -12,15 +12,14 @@ export const CORE_ATTRIBUTES = [
     "alternate.identifier",
 ]
 
-export const flowfileAttributeRow = z.object({
-    key: z.string().min(1),
-    value: z.string().min(1),
-})
-
-export type FlowfileAttributeRowSchema = z.infer<typeof flowfileAttributeRow>;
-
-export const flowfileAttributes = z.array(
-    flowfileAttributeRow,
-);
+export const flowfileAttributes = z.record(z.string(), z.string());
 
 export type FlowfileAttributesSchema = z.infer<typeof flowfileAttributes>;
+
+export const flowfileAttributeRow = z.array(z.string()).refine(
+    (val) => val.length === 2, {
+        message: "Length must be exactly two",
+    }
+);
+
+export type FlowfileAttributeRowSchema = [string, string];

@@ -15,19 +15,19 @@ export const Route = createLazyRoute("/unpackage")({
     component: UnpackageFlowFile,
 })
 
-function findFilename(rows: FlowfileAttributeRowSchema[]) {
-    const filteredRows = rows.filter((x) => x.key === "filename");
+export function findFilename(rows: FlowfileAttributeRowSchema[]) {
+    const filteredRows = rows.filter((x) => x[0] === "filename");
     if (filteredRows.length == 1) {
-        return filteredRows[0].value;
+        return filteredRows[0][1];
     } else {
         return new Date().toString() + ".bin";
     }
 }
 
-function findMimetype(rows: FlowfileAttributeRowSchema[]) {
-    const filteredRows = rows.filter((x) => x.key === "mime.type");
+export function findMimetype(rows: FlowfileAttributeRowSchema[]) {
+    const filteredRows = rows.filter((x) => x[0] === "mime.type");
     if (filteredRows.length == 1) {
-        return filteredRows[0].value;
+        return filteredRows[0][1];
     } else {
         return "application/octet-stream";
     }
@@ -82,16 +82,14 @@ export default function UnpackageFlowFile() {
                     setDownloadContent(undefined);
                     return;
                 }
-                const { attributes, content } = result;
-                const newRows: FlowfileAttributeRowSchema[] = [];
-                attributes.forEach((value, key) => {
-                    newRows.push({ key, value });
-                });;
-                setRows(newRows);
+                const { content } = result;
+                const attributes = Object.entries(result.attributes);
+
+                setRows(attributes);
 
                 setDownloadContent(() => () => {
-                    const filename = findFilename(newRows);
-                    const mimetype = findMimetype(newRows);
+                    const filename = findFilename(attributes);
+                    const mimetype = findMimetype(attributes);
 
                     const blob = new Blob([content], {
                         type: mimetype,
@@ -112,7 +110,7 @@ export default function UnpackageFlowFile() {
         <>
             <Nf2tHeader to="/unpackage" />
             <h5>1. Packaged FlowFile</h5>
-            {rows.length <= 0 ? (
+            {Object.entries(rows).length <= 0 ? (
                 <>
                     <p>Provide a Packaged FlowFile. The unpackaged FlowFile content will be available for download.</p>
                     <TextField type="file" onChange={onUpload} />
@@ -123,7 +121,7 @@ export default function UnpackageFlowFile() {
                 <Button variant="outlined" onClick={() => {
                     //TODO: Not working...
                     setDownloadContent(undefined);
-                    setRows([])
+                    setRows([]);
                 }}>Clear</Button>
             </>)
             }

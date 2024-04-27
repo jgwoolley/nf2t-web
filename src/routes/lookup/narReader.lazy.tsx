@@ -15,9 +15,10 @@ export const Route = createLazyRoute("/narReader")({
 
 export interface Nf2tLinkRowProps {
     to: RoutePathType,
+    length: number,
 }
 
-function Nf2tLinkRow({to}: Nf2tLinkRowProps) {
+function Nf2tLinkRow({to, length}: Nf2tLinkRowProps) {
     const props = routeDescriptions[to]
 
     return (
@@ -29,6 +30,9 @@ function Nf2tLinkRow({to}: Nf2tLinkRowProps) {
             </TableCell>
             <TableCell>
                 {props.shortDescription}
+            </TableCell>
+            <TableCell>
+                {length}
             </TableCell>
         </TableRow>
 
@@ -86,42 +90,22 @@ export default function NarReader() {
             <Spacing />
             <Nf2tLinearProgress {...progressBar} />
 
-            <h5>Links</h5>
+            <h5>Results</h5>
             <p>The following links are available with more information.</p>
             <Table>
                 <TableHead>
                     <TableRow>
-                    <TableCell>Action</TableCell>
+                    <TableCell>Results</TableCell>
                     <TableCell>Description</TableCell>
+                    <TableCell>Length</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    <Nf2tLinkRow to="/narList" />
-                    <Nf2tLinkRow to="/attributeList" />
+                    <Nf2tLinkRow to="/narList" length={Object.keys(context.nars).length}/>
+                    <Nf2tLinkRow to="/attributeList" length={sortedAttributes.length} />
                 </TableBody>
             </Table>
             <Spacing />
-
-            <h5>Parsing Results</h5>
-            <p>The following lists details on the parsed Nars.</p>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Result</TableCell>
-                        <TableCell>Amount</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    <TableRow>
-                        <TableCell>Nars length</TableCell>
-                        <TableCell>{Object.keys(context.nars).length}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Attributes length</TableCell>
-                        <TableCell>{sortedAttributes.length}</TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
         </>
     )
 }

@@ -1,21 +1,17 @@
-# Nifi FlowFile Tools (NF2T)
+= Nifi FlowFile Tools (NF2T)
 
 This is a simple react client app that will allow you to package and unpackage Apache Nifi Flow Files.
 
 https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 
-## TODO
+== TODO
 - Convert home -> homeRoute (as well as lazy loaders)...
-- New page for list of nars, and then seperate page for list of attribute names.
 - Download FlowFile still works after clear. Something to do with method setState.
-- Change Nifi Attributes to be represented as Record<string,string>
-- Add ability to download bulk unpackaged.
 - See if its possible to add nars to a persistant localstorage...
 - Build Info in NextPrev doesn't work... Honestly the RouteDescription thing may be too complicated...
 - See why Extensions are duplicating.
 - Use regular manifest in readNar but also seperate extensionManifest / regularManifest / javascriptFile attributes in zod object...
 - Make sure PWA works on Chrome.
 - See if its possible to do the title / descriptions different for each route.: https://tanstack.com/router/latest.
-- Move project info to asciidocs.
 - Update Source to Nf2tSource, any anything else that looks generic.
-- Create Nf2t logo.
+- Make a better Nf2t logo.

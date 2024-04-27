@@ -1,8 +1,9 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material";
-import { FlowfileAttributeRowSchema, flowfileAttributeRow, } from "../utils/schemas";
+import { FlowfileAttributeRowSchema } from "../utils/schemas";
 import { Dispatch, } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 export interface AttributeDialogProps {
     open: boolean,
@@ -11,14 +12,21 @@ export interface AttributeDialogProps {
     setRows: Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
 }
 
+const attributeDialogRow = z.object({
+    key: z.string(),
+    value: z.string(),
+})
+
+export type AttributeDialogRowSchema = z.infer<typeof attributeDialogRow>;
+
 export function AttributeDialog(props: AttributeDialogProps) {
     const {
         register,
         handleSubmit,
         reset,
         formState: { errors, },
-    } = useForm<FlowfileAttributeRowSchema>({
-        resolver: zodResolver(flowfileAttributeRow),
+    } = useForm<AttributeDialogRowSchema>({
+        resolver: zodResolver(attributeDialogRow),
     });
 
     const handleClose = () => {
@@ -26,8 +34,8 @@ export function AttributeDialog(props: AttributeDialogProps) {
         reset();
     };
 
-    const onSubmit: SubmitHandler<FlowfileAttributeRowSchema> = (data) => {
-        props.setRows([...props.rows, data]);
+    const onSubmit: SubmitHandler<AttributeDialogRowSchema> = (data) => {
+        props.setRows([...props.rows, [data.key, data.value]]);
         handleClose();
     }
 

@@ -1,4 +1,4 @@
-import { Box, Button, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, ButtonGroup, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import Spacing from '../../components/Spacing';
@@ -9,6 +9,7 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 import { createLazyRoute } from '@tanstack/react-router';
 import Nf2tTable, { Nf2tTableColumnSpec, useNf2tTable } from '../../components/Nf2tTable';
+import { FlowfileAttributesSchema } from '../../utils/schemas';
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: UnPackageNifi,
@@ -16,6 +17,19 @@ export const Route = createLazyRoute("/unpackageBulk")({
 
 const defaultTotal = -1;
 const defaultCurrent = 0;
+
+interface BulkUnpackageRow {
+    attributes: FlowfileAttributesSchema,
+    file: File,
+}
+
+export function findFilename(row: BulkUnpackageRow) {
+    return row.attributes["filename"] || new Date().toString() + ".bin";
+}
+
+export function findMimetype(row: BulkUnpackageRow) {
+    return row.attributes["mime.type"] || "application/octet-stream";
+}
 
 // From: https://mui.com/material-ui/react-progress/
 function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {
@@ -38,7 +52,7 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
 }
 
 export interface BulkUnpackageDownloadButtonProps extends Nf2tSnackbarProps {
-    rows: Map<string, string>[],
+    rows: BulkUnpackageRow[],
     attributes: string[] | undefined,
 }
 
@@ -53,8 +67,8 @@ export function BulkUnpackageDownloadButton({ submitSnackbarMessage, rows, attri
         content += "\n";
 
         for (const row of rows) {
-            for (const key of attributes) {
-                content += JSON.stringify(row.get(key) || "")
+            for (const attribute of attributes) {
+                content += JSON.stringify(row.attributes[attribute] || "")
                 content += ","
             }
             content += "\n"
@@ -85,32 +99,69 @@ export function UnPackageNifi() {
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
     const [attributes, setAttributes] = useState<string[]>();
-    const [rows, setRows] = useState<Map<string, string>[]>([]);
+    const [rows, setRows] = useState<BulkUnpackageRow[]>([]);
 
-    const resetProgress = () => {
-        tableProps.restoreDefaultFilteredColumns();
-        setTotal(defaultTotal);
-        setCurrent(defaultCurrent);
-    }
-
-    const columns: Nf2tTableColumnSpec<Map<string, string>, undefined>[] = useMemo(() => {
-        const results: Nf2tTableColumnSpec<Map<string, string>, undefined>[] = [];
+    const columns: Nf2tTableColumnSpec<BulkUnpackageRow, undefined>[] = useMemo(() => {
+        const results: Nf2tTableColumnSpec<BulkUnpackageRow, undefined>[] = [];
         if(attributes == undefined) {
             return results;
         }
 
+        results.push({
+            columnName: "Edit",
+            bodyRow: ({row}) => {
+                return (
+                    <ButtonGroup>
+                        <Button 
+                            startIcon={<CloudDownloadIcon />}
+                            variant="outlined"
+                            onClick={() => {
+                                  
+                                const blob = new Blob([JSON.stringify(row.attributes)], {
+                                    type: "application/json",
+                                });
+                                downloadFile(blob, (row.attributes["filename"] || "attributes") + ".json");
+                                snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
+
+                            }}
+                        >Attributes</Button>
+                        <Button 
+                            startIcon={<CloudDownloadIcon />}
+                            onClick={async () => {
+                                const filename = findFilename(row);
+                                const mimetype = findMimetype(row);
+            
+                                const results = unpackageFlowFile(await row.file.arrayBuffer());
+                                if(results == undefined) {
+                                    return;
+                                }
+
+                                const blob = new Blob([results.content], {
+                                    type: mimetype,
+                                });
+                                downloadFile(blob, filename);
+                                snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
+                            }}
+                            variant="outlined"
+                        >Content</Button>
+                    </ButtonGroup>
+                )
+            },
+            rowToString: () => "Edit",
+        });
+
         for(const attribute of attributes) {
             results.push({
                 columnName: attribute,
-                bodyRow: ({row}) => row.get(attribute) || "",
-                rowToString: (row: Map<string, string>) => row.get(attribute) || "",
+                bodyRow: ({row}) => row.attributes[attribute] || "",
+                rowToString: (row: BulkUnpackageRow) => row.attributes[attribute] || "",
             });
         }
 
         return results;
     }, [attributes]);
 
-    const tableProps = useNf2tTable<Map<string, string>, undefined>({
+    const tableProps = useNf2tTable<BulkUnpackageRow, undefined>({
         childProps: undefined,
         snackbarProps: snackbarResults,
         canEditColumn: true,
@@ -118,6 +169,12 @@ export function UnPackageNifi() {
         rows: rows,
         ignoreNoColumnsError: true,
     });
+
+    const resetProgress = () => {
+        tableProps.restoreDefaultFilteredColumns();
+        setTotal(defaultTotal);
+        setCurrent(defaultCurrent);
+    }
 
     const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
         try {
@@ -131,7 +188,7 @@ export function UnPackageNifi() {
             setTotal(files.length);
 
             const uniqueAttributes = new Set<string>();
-            const rows: Map<string, string>[] = [];
+            const rows: BulkUnpackageRow[] = [];
             console.log(`Starting to process ${files.length} file(s).`)
 
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
@@ -154,8 +211,11 @@ export function UnPackageNifi() {
                                 resolve(2);
                                 return;
                             }
-                            result.attributes.forEach((_value, key) => uniqueAttributes.add(key));
-                            rows.push(result.attributes);
+                            Object.entries(result.attributes).forEach(attribute => uniqueAttributes.add(attribute[0]));
+                            rows.push({
+                                attributes: result.attributes,
+                                file: file,
+                            });
                         } catch (e) {
                             console.error(e);
                             resolve(3);
@@ -194,7 +254,6 @@ export function UnPackageNifi() {
                 return;
             }
             setRows([...rows]);
-            tableProps.restoreDefaultFilteredColumns();
         } catch (error) {
             submitSnackbarMessage("Unknown error.", "error", error);
         }
@@ -203,7 +262,6 @@ export function UnPackageNifi() {
     const clearFlowFiles = () => {
         setRows([]);
         setAttributes([]);
-        tableProps.restoreDefaultFilteredColumns();
     }
 
     return (
@@ -221,14 +279,12 @@ export function UnPackageNifi() {
             <Spacing />
             <h5>2. Download FlowFile Attributes CSV</h5>
             <p>A CSV will be downloadable with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
-            <LinearProgressWithLabel current={current} total={total} />
-            <Spacing />
-            {attributes && (
-                <>
-                    <Nf2tTable {...tableProps} />
-                    <Spacing />
-                </>
+            {attributes ? (
+               <Nf2tTable {...tableProps} />
+            ) : (
+                <LinearProgressWithLabel current={current} total={total} />
             )}
+            <Spacing />
             <BulkUnpackageDownloadButton {...snackbarResults} rows={rows} attributes={attributes} />
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />

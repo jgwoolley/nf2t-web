@@ -75,7 +75,7 @@ export function NifiAppBar() {
                     </Tooltip>
                     <div style={{ flex: 1 }} />
                     <Stack direction="row">
-                        <Nf2tMenuItem to="/unpackage" />
+                        {/* <Nf2tMenuItem to="/unpackage" /> */}
                         <Nf2tMenuItem to="/unpackageBulk" />
                         <Nf2tMenuItem to="/package" />
                         <Nf2tSettingsMenu />

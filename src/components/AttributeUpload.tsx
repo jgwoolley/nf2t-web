@@ -33,10 +33,10 @@ export function AttributeDownload({setRows, submitSnackbarMessage}: AttributeDow
             const attributes = jsonSchema.safeParse(JSON.parse(text));
             if(attributes.success) {
                 for(const key of Object.keys(attributes.data)) {
-                    newRows.push({
-                        key: key, 
-                        value: attributes.data[key],
-                    })
+                    newRows.push([
+                        key,
+                        attributes.data[key],
+                    ])
                 }
             } else {    
                 submitSnackbarMessage("Error processing attributes JSON.", "error", attributes.error);

@@ -91,6 +91,52 @@ function GetFlowFile({submit, file, submitSnackbarMessage}: PackageNifiProps) {
     )
 }
 
+
+
+async function generateDefaults(file: File, rows: FlowfileAttributeRowSchema[]) {
+
+    if (rows.filter((x) => x[0] === "filename").length == 0) {
+        rows.push([
+            "filename",
+            file.name,
+        ]);
+    }
+
+
+    if (file.type.length > 0 && rows.filter((x) => x[0] === "mime.type").length == 0) {
+        rows.push([
+            "mime.type",
+            file.type,
+        ])
+    }
+
+    if (rows.filter((x) => x[0] === "lastModified").length == 0) {
+        rows.push([
+            "lastModified",
+            file.lastModified.toString(),
+        ]);
+    }
+
+    if (rows.filter((x) => x[0] === "size").length == 0) {
+        rows.push([
+            "size",
+            file["size"].toString(),
+        ]);
+    }
+
+    if (rows.filter((x) => x[0] === "SHA-256").length == 0) {
+        try {
+            const value = await generateHash(file, "SHA-256");
+            rows.push([
+                "SHA-256",
+                value,
+            ]);
+        } catch(e) {
+            console.error(e);
+        }
+    }  
+}
+
 export default function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
     const [file, setFile] = useState<File | null>(null);
@@ -125,46 +171,7 @@ export default function PackageNifi() {
         rows.forEach(x => newRows.push(x));
         setRows([]);
 
-        if (newRows.filter((x) => x.key === "filename").length == 0) {
-            newRows.push({
-                key: "filename",
-                value: newFile.name,
-            });
-        }
-
-
-        if (newFile.type.length > 0 && newRows.filter((x) => x.key === "mime.type").length == 0) {
-            newRows.push({
-                key: "mime.type",
-                value: newFile.type,
-            })
-        }
-
-        if (newRows.filter((x) => x.key === "lastModified").length == 0) {
-            newRows.push({
-                key: "lastModified",
-                value: newFile.lastModified.toString(),
-            })
-        }
-
-        if (newRows.filter((x) => x.key === "size").length == 0) {
-            newRows.push({
-                key: "size",
-                value: newFile["size"].toString(),
-            })
-        }
-
-        if (newRows.filter((x) => x.key === "SHA-256").length == 0) {
-            try {
-                const value = await generateHash(newFile, "SHA-256");
-                newRows.push({
-                    key: "SHA-256",
-                    value: value,
-                });
-            } catch(e) {
-                console.error(e);
-            }
-        }  
+        await generateDefaults(newFile, newRows);
         setRows(newRows);
     }
 
