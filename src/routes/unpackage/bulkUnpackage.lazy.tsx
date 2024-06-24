@@ -9,7 +9,7 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 import { createLazyRoute } from '@tanstack/react-router';
 import Nf2tTable, { Nf2tTableColumnSpec, useNf2tTable } from '../../components/Nf2tTable';
-import { FlowfileAttributesSchema } from '../../utils/schemas';
+import downloadAllUnpackaged, { BulkUnpackageRow } from '../../utils/downloadAllUnpackaged';
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: UnPackageNifi,
@@ -17,11 +17,6 @@ export const Route = createLazyRoute("/unpackageBulk")({
 
 const defaultTotal = -1;
 const defaultCurrent = 0;
-
-interface BulkUnpackageRow {
-    attributes: FlowfileAttributesSchema,
-    file: File,
-}
 
 export function findFilename(row: BulkUnpackageRow) {
     return row.attributes["filename"] || new Date().toString() + ".bin";
@@ -51,13 +46,13 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
     );
 }
 
-export interface BulkUnpackageDownloadButtonProps extends Nf2tSnackbarProps {
+export interface BulkUnpackageDownloadButtonsProps extends Nf2tSnackbarProps {
     rows: BulkUnpackageRow[],
     attributes: string[] | undefined,
 }
 
-export function BulkUnpackageDownloadButton({ submitSnackbarMessage, rows, attributes }: BulkUnpackageDownloadButtonProps) {
-    const onClick = () => {
+export function BulkUnpackageDownloadReportButton({ submitSnackbarMessage, rows, attributes }: BulkUnpackageDownloadButtonsProps) {
+    const onClickDownloadReport = () => {
         if (attributes == undefined) {
             submitSnackbarMessage("No attributes provided.", "error");
             return;
@@ -82,15 +77,53 @@ export function BulkUnpackageDownloadButton({ submitSnackbarMessage, rows, attri
         submitSnackbarMessage("Downloaded bulk report.", "info");
     }
 
-    if (rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
-        return (
-            <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarMessage("No attributes to download", "error")} >Download Report</Button>
-        )
+    const onClickIsntDownloadable = () => {
+        submitSnackbarMessage("No attributes to download", "error")
+    };
+
+    const isntDownloadable = rows.length <= 0 || attributes == undefined || attributes.length <= 0;
+    const onClick = isntDownloadable ? onClickIsntDownloadable: onClickDownloadReport;
+
+    return (
+        <Button startIcon={ isntDownloadable ? <SyncProblemIcon /> : <CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download Report</Button>
+    )
+}
+
+export function BulkUnpackageDownloadAllButton({ submitSnackbarMessage, rows, attributes }: BulkUnpackageDownloadButtonsProps) {
+    let hasIssue = false;    
+    let onClick = async () => {
+        const directoryHandle = await window.showDirectoryPicker();
+        await downloadAllUnpackaged({
+            directoryHandle: directoryHandle,
+            rows: rows,
+        });
+        submitSnackbarMessage(`Completed download to ${directoryHandle.name}`, "success");
+    };
+    if(typeof window.showDirectoryPicker == "undefined") {
+        hasIssue = true;
+        onClick = async () => {
+            submitSnackbarMessage("Your browser doesn't support the showDirectoryPicker API", "error")
+        };
+    } else if(rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
+        hasIssue = true;
+        onClick = async () => {
+            submitSnackbarMessage("No attributes to download", "error")
+        };
     }
 
     return (
-        <Button startIcon={<CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download Report</Button>
+        <Button startIcon={ hasIssue ? <SyncProblemIcon /> : <CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download All Content and Attributes</Button>
     )
+}
+
+export function BulkUnpackageDownloadButtons(props: BulkUnpackageDownloadButtonsProps) {
+    return (
+        <ButtonGroup>
+            <BulkUnpackageDownloadReportButton {...props} />
+            <BulkUnpackageDownloadAllButton {...props}  />
+        </ButtonGroup>
+    )
+    
 }
 
 export function UnPackageNifi() {
@@ -285,7 +318,7 @@ export function UnPackageNifi() {
                 <LinearProgressWithLabel current={current} total={total} />
             )}
             <Spacing />
-            <BulkUnpackageDownloadButton {...snackbarResults} rows={rows} attributes={attributes} />
+            <BulkUnpackageDownloadButtons {...snackbarResults} rows={rows} attributes={attributes} />
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />
         </>

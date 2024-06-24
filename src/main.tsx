@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import {
   RouterProvider,
+  createHashHistory,
   createRouter,
 } from '@tanstack/react-router'
 import rootRoute from './routes/rootRoute';
@@ -9,7 +10,10 @@ import {routeChildren} from './routes/routeDescriptions';
 
 const routeTree = rootRoute.addChildren(routeChildren);
 
+const history = createHashHistory();
+
 const router = createRouter({
+  history: history,
   routeTree: routeTree ,
   basepath: import.meta.env.BASE_URL,
 });

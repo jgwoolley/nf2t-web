@@ -1,5 +1,10 @@
 import { FlowfileAttributesSchema } from "./schemas";
 
+export type UnpackageResult = {
+    attributes: FlowfileAttributesSchema,
+    content: ArrayBuffer,
+}
+
 const MAGIC_HEADER = 'NiFiFF3';
 
 // TODO: This really isn't an inputstream, I just stole the name from Java.
@@ -105,7 +110,7 @@ function readLong(view: InputStream) {
 
 }
 
-export function unpackageFlowFile(buffer: ArrayBuffer) {
+export function unpackageFlowFile(buffer: ArrayBuffer): UnpackageResult | null {
     const view = new InputStream(buffer);
 
     for(let i = 0; i < MAGIC_HEADER.length; i++) {

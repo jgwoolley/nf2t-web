@@ -4,7 +4,13 @@ This is a simple react client app that will allow you to package and unpackage A
 
 https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 
+== Required Software
+
+- Git
+
 == TODO
+- Add download all button that works without showDirectoryPicker API
+- Remove React Router Debug menu
 - Convert home -> homeRoute (as well as lazy loaders)...
 - Download FlowFile still works after clear. Something to do with method setState.
 - See if its possible to add nars to a persistant localstorage...
