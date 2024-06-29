@@ -43,6 +43,7 @@ export default function Nf2tHome() {
             "/package",
             "/narReader",
             "/source",
+            "/settings",
         ],
     });
 

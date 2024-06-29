@@ -12,6 +12,8 @@ import { route as unpackageFlowFile } from "./unpackage/unpackage";
 import { route as bulkUnpackageFlowFile } from "./unpackage/bulkUnpackage";
 import { route as source } from "./source";
 import { route as home } from "./home";
+import { route as settings } from "./settings";
+
 
 export const routeChildren = [
   buildInfo,
@@ -28,6 +30,7 @@ export const routeChildren = [
   source,
   home,
   attributeList,
+  settings,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -84,6 +87,11 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
     to: "/buildInfo",
     name: "Build Information",
     shortDescription: "Describes how the project is build.",
+  },
+  "/settings": {
+    to: "/settings",
+    name: "Program Settings",
+    shortDescription: "Change the settings for Nf2t Tools.",
   },
   "/technologiesInfo": {
     to: "/technologiesInfo",

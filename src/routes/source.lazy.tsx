@@ -9,7 +9,7 @@ import { createLazyRoute } from "@tanstack/react-router";
 import ExternalLink from "../components/ExternalLink";
 
 export const Route = createLazyRoute("/source")({
-    component: Nf2tSource,
+    component: SourceComponent,
 })
 
 export const GitInfoSchema = z.object({
@@ -28,7 +28,7 @@ export const BuildInfoSchema = z.object({
 
 export type BuildInfo = z.infer<typeof BuildInfoSchema>;
 
-export default function Nf2tSource() {
+function SourceComponent() {
     const [buildinfo, setBuildinfo] = useState<BuildInfo>();
     const [authorDate, setAuthorDate] = useState<Date>();
 

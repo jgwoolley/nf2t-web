@@ -54,6 +54,7 @@ function Nf2tSettingsMenu() {
                 <Nf2tMenuItem to="/" />
                 <Nf2tMenuItem to="/narReader" />
                 <Nf2tMenuItem to="/source" />
+                <Nf2tMenuItem to="/settings" />
                 <Tooltip title="External Apache Nifi Documentation.">
                     <MenuItem><ExternalLink style={{ ...linkStyles }} href="https://nifi.apache.org/docs.html">Nifi Docs</ExternalLink></MenuItem>
                 </Tooltip>
