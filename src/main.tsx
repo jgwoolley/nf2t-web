@@ -15,7 +15,7 @@ const history = createHashHistory();
 const router = createRouter({
   history: history,
   routeTree: routeTree ,
-  basepath: import.meta.env.BASE_URL,
+  // basepath: import.meta.env.BASE_URL, # I believe this is not needed for HashHistory...
 });
 
 declare module '@tanstack/react-router' {
