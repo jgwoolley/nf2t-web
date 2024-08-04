@@ -5,6 +5,7 @@ import { route as attributeLookup } from "./lookup/attributeLookup";
 import { route as extensionLookup } from "./lookup/extensionLookup";
 import { route as narList } from "./lookup/narList";
 import { route as attributeList } from "./lookup/attributeList";
+import { route as extensionList} from "./lookup/extensionList";
 import { route as narLookup } from "./lookup/narLookup";
 import { route as narReader } from "./lookup/narReader";
 import { route as packageFlowFile } from "./package/package";
@@ -21,6 +22,7 @@ export const routeChildren = [
   attributesLookup,
   attributeLookup,
   extensionLookup,
+  extensionList,
   narList,
   narLookup,
   narReader,
@@ -111,6 +113,11 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
   "/extensionLookup": {
     to: "/extensionLookup",
     name: "Extension Item",
+    shortDescription: "The information of a specific extension.",
+  },
+  "/extensionList": {
+    to: "/extensionList",
+    name: "Extension List",
     shortDescription: "The information of a specific extension.",
   },
   "/narLookup": {

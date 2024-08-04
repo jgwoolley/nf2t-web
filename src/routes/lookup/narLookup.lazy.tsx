@@ -4,6 +4,8 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Nar } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
+import { convertBytes } from "../../utils/convertBytes";
+import { convertDate } from "../../utils/convertDates";
 
 const route = getRouteApi("/narLookup");
 
@@ -33,11 +35,11 @@ export default function LookupNar() {
                     </TableRow>
                     <TableRow>
                         <TableCell>lastModified</TableCell>
-                        <TableCell>{nar?.lastModified}</TableCell>
+                        <TableCell>{convertDate(nar?.lastModified)}</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>size</TableCell>
-                        <TableCell>{nar?.size}</TableCell>
+                        <TableCell>{convertBytes(nar?.size)}</TableCell>
                     </TableRow>
                     <TableRow>
                         <TableCell>groupId</TableCell>

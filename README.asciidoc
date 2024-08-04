@@ -9,6 +9,7 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 - Git
 
 == TODO
+- https://code.visualstudio.com/api/extension-guides/custom-editors
 - Add download all button that works without showDirectoryPicker API
 - Remove React Router Debug menu
 - Convert home -> homeRoute (as well as lazy loaders)...

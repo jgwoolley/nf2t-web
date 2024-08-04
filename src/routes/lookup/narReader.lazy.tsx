@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo } from "react"
+import { ChangeEvent, useMemo, useState } from "react"
 import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 import readNars from "../../utils/readNars";
 import { Button, Table, TableBody, TableCell, TableHead, TableRow, TextField } from "@mui/material";
@@ -8,6 +8,7 @@ import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import Spacing from "../../components/Spacing";
 import { RoutePathType, routeDescriptions } from "../routeDescriptions";
+import { convertBytes } from "../../utils/convertBytes";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -43,6 +44,7 @@ export default function NarReader() {
     const snackbarProps = useNf2tSnackbar();
     const progressBar = useNf2tLinearProgress();
     const context = useNf2tContext();
+    const [estimate, setEstimate] = useState<StorageEstimate>();
 
     const sortedAttributes = useMemo(() => {
         return Array.from(context.attributes.entries()).sort((a, b) => b[1].length - a[1].length);
@@ -66,9 +68,20 @@ export default function NarReader() {
         }
     }
 
+    navigator.storage.estimate().then(estimate => setEstimate(estimate));
+
     return (
         <>
             <Nf2tHeader to="/narReader" />
+
+            {/* {estimate && (
+                <>
+                    <h5>Estimate</h5>
+                    <p><abbr title={estimate.usage?.toString()}>{convertBytes(estimate.usage)}</abbr></p>
+                    <p><abbr title={estimate.quota?.toString()}>{convertBytes(estimate.quota)}</abbr></p>
+                    <p>{estimate.usage && estimate.quota ? Math.round(estimate.usage /estimate.quota * 10000) / 100: 0}%</p>
+                </>
+            )} */}
 
             <h5>Provide Nars</h5>
             {context.attributes.size <= 0 ? (
@@ -103,6 +116,7 @@ export default function NarReader() {
                 <TableBody>
                     <Nf2tLinkRow to="/narList" length={Object.keys(context.nars).length}/>
                     <Nf2tLinkRow to="/attributeList" length={sortedAttributes.length} />
+                    <Nf2tLinkRow to="/extensionList" length={0} />
                 </TableBody>
             </Table>
             <Spacing />

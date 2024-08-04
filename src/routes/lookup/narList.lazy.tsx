@@ -3,6 +3,8 @@ import Nf2tHeader from "../../components/Nf2tHeader";
 import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
 import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import { convertBytes } from "../../utils/convertBytes";
+import { convertDate } from "../../utils/convertDates";
 
 export const routeId = "/narList";
 export const Route = createLazyRoute(routeId)({
@@ -24,13 +26,13 @@ export default function RouteComponent() {
             },
             {
                 columnName: "Last Modified",
-                bodyRow: ({row}) => <>{row.lastModified}</>,
+                bodyRow: ({row}) => <>{convertDate(row.lastModified)}</>,
                 compareFn: (a, b) => a.size - b.size,
                 rowToString: (row) => row.lastModified.toLocaleString(),
             },
             {
                 columnName: "Size",
-                bodyRow: ({row}) => <>{row.size}</>,
+                bodyRow: ({row}) => <>{convertBytes(row.size)}</>,
                 compareFn: (a, b) => a.size - b.size,
                 rowToString: (row) => row.size.toLocaleString(),
             },
@@ -66,6 +68,7 @@ export default function RouteComponent() {
     return (
         <>
             <Nf2tHeader to={routeId} />
+            <p><Link to="/narReader">Go back to NarReader</Link>.</p>
 
             <Nf2tTable {...tableProps} />
         </>

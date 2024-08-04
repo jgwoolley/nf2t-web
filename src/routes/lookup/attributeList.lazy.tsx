@@ -34,6 +34,7 @@ export default function RouteComponent() {
     return (
         <>
             <Nf2tHeader to="/attributeList" />
+            <p><Link to="/narReader">Go back to NarReader</Link>.</p>
 
             <TableContainer component={Paper}>
                 <Table>
