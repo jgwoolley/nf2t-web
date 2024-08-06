@@ -1,11 +1,12 @@
-import { useNf2tContext } from "../../components/Nf2tContextProvider";
-import { useMemo } from "react";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
-import { Nar } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import { convertBytes } from "../../utils/convertBytes";
 import { convertDate } from "../../utils/convertDates";
+import { useNf2tContext } from "../../hooks/useNf2tContext";
+import { useMemo } from "react";
+import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
+import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 
 const route = getRouteApi("/narLookup");
 
@@ -14,11 +15,56 @@ export const Route = createLazyRoute("/narLookup")({
 })
 
 export default function LookupNar() {
-    const { nar_index } = route.useSearch();
-    const { nars } = useNf2tContext();
-    const nar = useMemo<Nar | undefined>(() => {
-        return nars[nar_index];
-    }, [nars]);
+    const { name } = route.useSearch();
+    const { queryResults } = useNf2tContext();
+    const snackbarProps = useNf2tSnackbar();
+
+    const extensions = useMemo(()=>{
+        if(!queryResults.data) {
+            return []
+        }
+
+        return queryResults.data.extensions.filter(extension => extension.narId === name);
+    }, [queryResults.data, name]);
+
+    const tableProps = useNf2tTable({
+        childProps: undefined,
+        rows: extensions,
+        snackbarProps: snackbarProps,
+        columns: [
+            {
+                columnName: "Extension",
+                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/extensionLookup">{row.name}</Link>,
+                rowToString: (row) => row.name,
+            },
+            {
+                columnName: "Type",
+                bodyRow: ({row}) => row.type,
+                rowToString: (row) => row.type,
+            },
+            {
+                columnName: "Description",
+                bodyRow: ({row}) => row.description,
+                rowToString: (row) => row.description || "",
+            },
+        ],
+        canEditColumn: false,
+    });
+
+    const nar = useMemo(() => {
+        if(!name) {
+            return null;
+        }
+        if(!queryResults.data) {
+            return null;
+        }
+        const nars = queryResults.data.nars.filter(nar => nar.name === name);
+        if(nars.length !== 1){
+            throw new Error("No data");
+        }
+    
+        return nars[0];
+    }, [name, queryResults.data]);
 
     return (
         <>
@@ -65,28 +111,8 @@ export default function LookupNar() {
             </Table>
 
             <h4>Nar Extensions</h4>
-            <TableContainer component={Paper}>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Extension</TableCell>
-                        <TableCell>Description</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {nar?.extensions.map((extension, extension_index) => {
-                        return (
-                            <TableRow key={extension_index}>
-                                <TableCell>
-                                    <Link search={{extension_index: extension_index, nar_index: nar_index}} to="/extensionLookup">{extension.name}</Link>
-                                </TableCell>
-                                <TableCell>{extension.description}</TableCell>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
-            </TableContainer>
+
+            <Nf2tTable {...tableProps} />
         </>
     )
 }

@@ -1,13 +1,6 @@
 import { createRoute } from "@tanstack/react-router";
 import routeTree from "../rootRoute.tsx";
-import { z } from "zod";
-
-export const searchParamsSchema = z.object({
-    nar_index: z.number(),
-    extension_index: z.number(),
-    type: z.enum(["writesAttributes", "readsAttributes"]),
-    attribute_index: z.number(),
-})
+import { searchParamsSchema } from "./searchParams.ts";
 
 export const route = createRoute({
     path: "/attributeLookup",

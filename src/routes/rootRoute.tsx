@@ -1,57 +1,18 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
-import Nf2tContextProvider, { useNf2tContext } from "../components/Nf2tContextProvider";
-import { Container, } from "@mui/material";
-import Nf2tAppBar from "../components/Nf2tAppBar";
-import Spacing from "../components/Spacing";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-
-function InnerComponent() {
-  const { 
-    reactRouterDebug, 
-    // colorMode: mode, 
-    // setColorMode: setMode,
-  } = useNf2tContext();
-  
-  // const colorMode = useMemo(
-  //   () => ({
-  //     toggleColorMode: () => {
-  //       setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
-  //     },
-  //   }),
-  //   [],
-  // );
-
-  // const theme = useMemo(
-  //   () =>
-  //     createTheme({
-  //       palette: {
-  //         mode,
-  //       },
-  //     }),
-  //   [colorMode],
-  // );
-
-  return (
-    // <ColorModeContext.Provider value={colorMode}>
-    //   <ThemeProvider theme={theme}>
-        <Container >
-          <Nf2tAppBar />
-          <div style={{ marginTop: "10px" }} />
-          <Outlet />
-          <Spacing height="100px" />
-          {reactRouterDebug && <TanStackRouterDevtools />}
-        </Container>
-    //   </ThemeProvider>
-    // </ColorModeContext.Provider>
-  )
-}
+import { createRootRoute } from "@tanstack/react-router";
+import Nf2tContextProvider from "../components/Nf2tContextProvider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Nf2tContainer from "../components/Nf2tContainer";
 
 const rootRoute = createRootRoute({
   component: () => {
+    const client = new QueryClient();
+
     return (
-      <Nf2tContextProvider>
-        <InnerComponent />
-      </Nf2tContextProvider>
+      <QueryClientProvider client={client}>
+        <Nf2tContextProvider>
+          <Nf2tContainer />
+        </Nf2tContextProvider>
+      </QueryClientProvider>
     )
   }
 });

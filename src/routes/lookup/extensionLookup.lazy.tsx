@@ -1,9 +1,9 @@
-import { useNf2tContext } from "../../components/Nf2tContextProvider";
-import { useMemo } from "react";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
-import { Nar, NarAttributeType, NarExtension } from "../../utils/readNars";
+import { NarAttributeType, NarAttributes, NarExtension } from "../../utils/readNars";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
+import { useNf2tContext } from "../../hooks/useNf2tContext";
+import { useMemo } from "react";
 
 export const routeId = "/extensionLookup";
 export const Route = createLazyRoute(routeId)({
@@ -12,21 +12,28 @@ export const Route = createLazyRoute(routeId)({
 const localRoute = getRouteApi(routeId);
 
 interface ExtensionAttributeTableProps {
-    nar_index: number,
-    extension_index: number,
-    extension?: NarExtension,
+    extension?: NarExtension | null,
+    attributes?: NarAttributes | null,
     type: NarAttributeType,
     title: string,
 }
 
-function ExtensionAttributeTable({ extension, type, title, extension_index, nar_index, }: ExtensionAttributeTableProps) {
-    if (extension == undefined) {
+function ExtensionAttributeTable({ type, title, attributes, }: ExtensionAttributeTableProps) {
+    
+    const filteredAttributes = useMemo(()=>{    
+        if (attributes == undefined) {
+            return null;
+        }
+
+        return attributes.filter(attribute => attribute.type === type);
+    }, [attributes, type]);
+
+    if(!filteredAttributes) {
         return null;
     }
 
-    const values = extension[type];
-    if(values.length <= 0) {
-        return;
+    if(filteredAttributes.length <= 0) {
+        return null;
     }
 
     return (
@@ -42,10 +49,10 @@ function ExtensionAttributeTable({ extension, type, title, extension_index, nar_
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {values.map((attribute, attribute_index) => (
+                    {filteredAttributes.map((attribute, attribute_index) => (
                         <TableRow key={attribute_index}>
                             <TableCell>
-                                <Link search={{ nar_index: nar_index, extension_index: extension_index, attribute_index: attribute_index, type: type, }} to="/attributeLookup">{attribute.name}</Link>
+                                <Link search={{ id: attribute.id }} to="/attributeLookup">{attribute.name}</Link>
                             </TableCell>
                             <TableCell>{attribute.description}</TableCell>
                         </TableRow>
@@ -57,24 +64,37 @@ function ExtensionAttributeTable({ extension, type, title, extension_index, nar_
     )
 }
 
-interface LookupExtensionMemo {
-    extension: NarExtension,
-    nar: Nar,
-}
-
 export default function RouteComponent() {
-    const { nar_index, extension_index } = localRoute.useSearch();
-    const { nars } = useNf2tContext();
+    const { name } = localRoute.useSearch();
+    const { queryResults } = useNf2tContext();
     
-    const {nar, extension} = useMemo<LookupExtensionMemo>(() => {
-        const newNar = nars[nar_index];
-        const newExtension = newNar.extensions[extension_index];
-
-        return {
-            extension: newExtension,
-            nar: newNar,
+    const extension = useMemo(()=>{
+        if(!name) {
+            return null;
         }
-    }, [nars, nar_index, extension_index]);
+        if(!queryResults.data) {
+            return null;
+        }
+
+        const extensions = queryResults.data.extensions.filter(extension => extension.name === name);
+        if(extensions.length !== 1) {
+            return null;
+        }
+    
+        return extensions[0];
+    },[name, queryResults.data]);
+
+    const attributes = useMemo(()=>{
+        if(!name) {
+            return null;
+        }
+        if(!queryResults.data) {
+            return null;
+        }
+        return queryResults.data.attributes.filter(attribute => attribute.extensionId === name);
+
+    },[name, queryResults.data]);
+
 
     return (
         <>
@@ -99,12 +119,12 @@ export default function RouteComponent() {
                     </TableRow>
                     <TableRow>
                         <TableCell>Nar</TableCell>
-                        <TableCell><Link search={{nar_index: nar_index}} to="/narLookup">{nar?.name}</Link></TableCell>
+                        <TableCell><Link search={{name: extension?.narId}} to="/narLookup">{extension?.narId}</Link></TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
-            <ExtensionAttributeTable title="writesAttributes" type="writesAttributes" extension={extension} extension_index={extension_index} nar_index={nar_index} />
-            <ExtensionAttributeTable title="readsAttributes" type="readsAttributes" extension={extension} extension_index={extension_index} nar_index={nar_index} />
+            <ExtensionAttributeTable title="writesAttributes" type="writes" extension={extension} attributes={attributes}/>
+            <ExtensionAttributeTable title="readsAttributes" type="reads" extension={extension} attributes={attributes} />
         </>
     )
 }

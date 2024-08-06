@@ -536,7 +536,7 @@ function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, column
     )
 }
 
-export default function <R, C>({ childProps, columns, filteredColumns, filteredRows, canEditColumn, handleClickOpen, setFilteredColumns, onClickColumn, visibleRows, rowsPerPage, rowPage, handleChangePage, handleChangeRowsPerPage, handleClose, restoreDefaultFilteredColumns, columnPage, snackbarProps, open}: Nf2tTableProps<R, C>) {
+export default function Nf2tTable<R, C>({ childProps, columns, filteredColumns, filteredRows, canEditColumn, handleClickOpen, setFilteredColumns, onClickColumn, visibleRows, rowsPerPage, rowPage, handleChangePage, handleChangeRowsPerPage, handleClose, restoreDefaultFilteredColumns, columnPage, snackbarProps, open}: Nf2tTableProps<R, C>) {
 
     if (filteredColumns.length === 0) {
         return (

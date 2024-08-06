@@ -1,54 +1,37 @@
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
-import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
 import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
-import { Nar, NarExtension } from "../../utils/readNars";
+import { useNf2tContext } from "../../hooks/useNf2tContext";
 
 export const routeId = "/extensionList";
 export const Route = createLazyRoute(routeId)({
     component: RouteComponent,
-})
-
-type ExtensionWithNar = {
-    nar_index: number,
-    extension_index: number,
-    nar: Nar,
-    extension: NarExtension,
-}
+});
 
 export default function RouteComponent() {
-    const { nars } = useNf2tContext();
-
-    const extensions: ExtensionWithNar[] = [];
-
-    nars.forEach((nar, nar_index) => {
-        nar.extensions.forEach((extension, extension_index) => {
-            extensions.push({
-                nar_index,
-                extension_index,
-                nar,
-                extension,
-            })
-        });
-    });
-
+    const { queryResults } = useNf2tContext();
 
     const snackbarProps = useNf2tSnackbar();
     const tableProps = useNf2tTable({
         childProps: undefined,
-        rows: extensions,
+        rows: queryResults.data?.extensions || [],
         snackbarProps:snackbarProps,
         columns: [
             {
                 columnName: "Nar",
-                bodyRow: ({row}) => <Link search={{ nar_index: row.nar_index}} to="/narLookup">{row.nar.name}</Link>,
-                rowToString: (row) => row.extension.name,
+                bodyRow: ({row}) => <Link search={{ name: row.narId }} to="/narLookup">{row.narId}</Link>,
+                rowToString: (row) => row.name,
             },
             {
                 columnName: "Extension",
-                bodyRow: ({row}) => <Link search={{ nar_index: row.nar_index, extension_index: row.extension_index}} to="/extensionLookup">{row.extension.name}</Link>,
-                rowToString: (row) => row.extension.name,
+                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/extensionLookup">{row.name}</Link>,
+                rowToString: (row) => row.name,
+            },
+            {
+                columnName: "Type",
+                bodyRow: ({row}) => row.type,
+                rowToString: (row) => row.type,
             },
         ],
         canEditColumn: false,

@@ -1,10 +1,11 @@
-import { useNf2tContext } from "../../components/Nf2tContextProvider";
 import { useMemo } from "react";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
-import { lookupNarAttribute } from "../../utils/readNars";
 import ExternalLink from "../../components/ExternalLink";
+import { useNf2tContext } from "../../hooks/useNf2tContext";
+import { nf2tAttributes } from "../../utils/nf2tAttributes";
+import { coreAttributes } from "../../utils/coreAttributes";
 
 const route = getRouteApi("/attributesLookup");
 
@@ -12,67 +13,55 @@ export const Route = createLazyRoute("/attributesLookup")({
     component: LookupAttribute,
 })
 
-export const coreAttributes = new Map<string, string>([
-    ["path", "The FlowFile's path indicates the relative directory to which a FlowFile belongs and does not contain the filename."],
-    ["absolute.path", "The FlowFile's absolute path indicates the absolute directory to which a FlowFile belongs and does not contain the filename."],
-    ["filename", "The filename of the FlowFile. The filename should not contain any directory structure."],
-    ["uuid", "A unique UUID assigned to this FlowFile."],
-    ["priority", "A numeric value indicating the FlowFile priority."],
-    ["mime.type", "The MIME Type of this FlowFile."],
-    ["discard.reason", "Specifies the reason that a FlowFile is being discarded."],
-    ["alternate.identifier", "Indicates an identifier other than the FlowFile's UUID that is known to refer to this FlowFile."],
-]);
-
-export const nf2tAttributes = new Map<string, string>([
-    ["filename", "Incoming filename from uploaded file, determined by browser."],
-    ["mime.type", "Incoming mime.type from uploaded file, determined by browser."],
-    ["lastModified", "Incoming lastModified from uploaded file, determined by browser."],
-    ["size", "Incoming size from uploaded file, determined by browser."],
-    ["SHA-256", "Calculated by Nf2t."],
-]);
-
 export default function LookupAttribute() {
+    
     const { name } = route.useSearch();
-    const { nars, attributes } = useNf2tContext();
-    const attributeResults = useMemo(() => {
-        //TODO: Lookup coreAttributes and Nf2t values
-        return attributes.get(name) || [];
-    }, [name, attributes]);
+    const { queryResults } = useNf2tContext();
+    const attributes = useMemo(() => {
+        if(!queryResults.data){
+            return [];
+        }
+
+        return  queryResults.data.attributes.filter(x => x.name === name);
+    }, [queryResults.data, name]);
+
+    const nf2tAttributeDescription = name ? nf2tAttributes.get(name) : null;
+    const coreAttributeDescription = name ? coreAttributes.get(name) : null;
 
     return (
         <>
             <Nf2tHeader to="/attributesLookup" />
 
-            {nf2tAttributes.get(name) && (
+            {(nf2tAttributeDescription) && (
                 <>
                     <h5>Attributes from Nf2t Tool</h5>
                     <Table>
                         <TableBody>
                             <TableCell>{name}</TableCell>
-                            <TableCell>{nf2tAttributes.get(name)}</TableCell>
+                            <TableCell>{nf2tAttributeDescription}</TableCell>
                         </TableBody>
                     </Table>
                 </>
             )}
-            {coreAttributes.get(name) && (
+            {(coreAttributeDescription) && (
                 <>
                     <h5>Core Nifi Attributes</h5>
                     <p>See <ExternalLink href="https://github.com/apache/nifi/blob/main/nifi-api/src/main/java/org/apache/nifi/flowfile/attributes/CoreAttributes.java">CoreAttributes.java</ExternalLink>.</p>
                     <Table>
                         <TableBody>
                             <TableCell>{name}</TableCell>
-                            <TableCell>{coreAttributes.get(name)}</TableCell>
+                            <TableCell>{coreAttributeDescription}</TableCell>
                         </TableBody>
                     </Table>
                 </>
             )}
 
             <h5>Attributes from Nars</h5>
-            {attributeResults ? (
+
+            {attributes.length > 0 ? (
                 <>
                     <p>The {name} attribute was found on the following Nifi Processors. <Link to="/narReader">Navigate to other attributes.</Link></p>
                     <TableContainer component={Paper}>
-
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -84,25 +73,21 @@ export default function LookupAttribute() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {attributeResults?.map((narAttributeLuv, narAttributeLuvIndex) => {
-                                    const { nar, extension, type, attribute, } = lookupNarAttribute(nars, narAttributeLuv);
-
-                                    return (
-                                        <TableRow key={narAttributeLuvIndex}>
-                                            <TableCell>
-                                                <Link to="/attributeLookup" search={{ ...narAttributeLuv }}>{attribute.name}</Link>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Link to="/narLookup" search={{ nar_index: narAttributeLuv.nar_index }}>{nar.name}</Link>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Link to="/extensionLookup" search={{ nar_index: narAttributeLuv.nar_index, extension_index: narAttributeLuv.extension_index }}>{extension.name}</Link>
-                                            </TableCell>
-                                            <TableCell>{type}</TableCell>
-                                            <TableCell>{attribute.description}</TableCell>
-                                        </TableRow>
-                                    )
-                                })}
+                                {attributes.map((attribute, attributeIndex) => (
+                                    <TableRow key={attributeIndex}>
+                                    <TableCell>
+                                        <Link to="/attributeLookup" search={{ id: attribute.id }}>{attribute.name}</Link>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Link to="/narLookup" search={{ name: attribute.narId }}>{attribute.narId}</Link>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Link to="/extensionLookup" search={{ name: attribute.extensionId }}>{attribute.extensionId}</Link>
+                                    </TableCell>
+                                    <TableCell>{attribute.type}</TableCell>
+                                    <TableCell>{attribute.description}</TableCell>
+                                </TableRow>
+                                ))}
                             </TableBody>
                         </Table>
                     </TableContainer>

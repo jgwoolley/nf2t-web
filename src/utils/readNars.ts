@@ -1,20 +1,38 @@
 import JSZip from "jszip";
 import { z } from "zod";
 
+export const NarAttributeTypeSchema = z.enum(["writes", "reads"]);
+
+export type NarAttributeType = z.infer<typeof NarAttributeTypeSchema>;
+
 export const NarAttributeSchema = z.object({
+    narId: z.string(),
+    extensionId: z.string(),
+    type: NarAttributeTypeSchema,
+    id: z.string(),
     name: z.string(),
     description: z.string(),
 })
 
+export type NarAttribute = z.infer<typeof NarAttributeSchema>;
+export const NarAttributesSchema = z.array(NarAttributeSchema);
+export type NarAttributes = z.infer<typeof NarAttributesSchema>;
+
 export const NarExtensionSchema = z.object({
+    narId: z.string(),
     name: z.string(),
     type: z.string(),
     description: z.string().optional(),
-    writesAttributes: z.array(NarAttributeSchema),
-    readsAttributes: z.array(NarAttributeSchema),
 });
+export type NarExtension = z.infer<typeof NarExtensionSchema>;
+export const NarExtensionsSchema = z.array(NarExtensionSchema);
+export type NarExtensions = z.infer<typeof NarExtensionsSchema>;
+
+export const ManifestSchema = z.record(z.string(), z.string());
+export type Manifest = z.infer<typeof ManifestSchema>;
 
 export const NarSchema = z.object({
+    manifest: ManifestSchema,
     name: z.string(),
     lastModified: z.number(),
     size: z.number(),
@@ -24,106 +42,119 @@ export const NarSchema = z.object({
     version: z.string().optional(),
     buildTag: z.string().optional(),
     buildTimestamp: z.string().optional(),
-    extensions: z.array(NarExtensionSchema),
 });
 
-export type NarAttribute = z.infer<typeof NarAttributeSchema>;
-export type NarExtension = z.infer<typeof NarExtensionSchema>;
 export type Nar = z.infer<typeof NarSchema>;
-export type Nars = Nar[];
+export const NarsSchema = z.array(NarSchema);
+export type Nars = z.infer<typeof NarsSchema>;
 
-export type NarAttributeType = "writesAttributes" | "readsAttributes"
+export type ReadNarsParameters = {
+    //TODO: Update implementation of processNars to consume File[] rather than a FileList
+    files: FileList, 
+    setCurrentProgress: (current: number, total: number) => void,
+    parseNar: (nar: Nar) => Promise<void>,
+    parseExtension: (extension: NarExtension) => Promise<void>,
+    parseAttribute: (extension: NarAttribute) => Promise<void>,
+}
 
-export type NarAttributeLuv = {
-    nar_index: number,
-    extension_index: number,
-    attribute_index: number,
+type ReadExtensionManifestParameters = {
+    file: File, 
+    extensionManifest: Document,
+    manifest: Manifest,
+    parseNar: (nar: Nar) => Promise<void>,
+    parseExtension: (extension: NarExtension) => Promise<void>,
+    parseAttribute: (extension: NarAttribute) => Promise<void>,
+}
+
+type AttributesLuv = {
     type: NarAttributeType,
+    selectors: string,
 }
 
-export type NarAttributeLur = {
-    nar: Nar,
-    extension: NarExtension,
-    type: string,
-    attribute: NarAttribute,
-}
+const attributesLut: AttributesLuv[] = [
+    {
+        type: "reads",
+        selectors: "readsAttributes > readsAttribute",
+    },
+    {
+        type: "writes",
+        selectors: "writesAttributes > writesAttribute",
+    },
+]
 
-export function lookupNarAttribute(nars: Nars, value: NarAttributeLuv) {
-    const nar = nars[value.nar_index];
-    const extension = nar.extensions[value.extension_index];
-    const attributes = extension[value.type];
-    const attribute = attributes[value.attribute_index];
+async function readExtensionManifest({file, manifest, extensionManifest, parseNar, parseExtension, parseAttribute }: ReadExtensionManifestParameters) {
+    const rawNarInfo: Partial<Nar> = {
+        manifest: manifest,
+        name: file.name,
+        lastModified: file.lastModified,
+        size: file.size,
+        systemApiVersion: extensionManifest.querySelector("systemApiVersion")?.textContent || undefined,
+        groupId: extensionManifest.querySelector("groupId")?.textContent || undefined,
+        artifactId: extensionManifest.querySelector("artifactId")?.textContent || undefined,
+        version: extensionManifest.querySelector("version")?.textContent || undefined,
+        buildTag: extensionManifest.querySelector("buildInfo > tag")?.textContent || undefined,
+        buildTimestamp: extensionManifest.querySelector("buildInfo > timestamp")?.textContent || undefined,
+    }
 
-    return {
-        nar: nar,
-        extension: extension,
-        type: value.type,
-        attribute: attribute,
-    };
-}
+    if(file.name === "nifi-standard-nar") {
+        console.log(rawNarInfo);
+    }
 
-export async function readExtensionManifest(file: File, manifest: Document) {
-    const extensions: NarExtension[] = [];
+    const narResult = await NarSchema.safeParseAsync(rawNarInfo);
 
-    for (let extension of manifest.querySelectorAll("extensionManifest > extensions > extension")) {
-        const extensionInfo = await NarExtensionSchema.safeParseAsync({
-            name: manifest.querySelector("name")?.textContent,
-            type: manifest.querySelector("type")?.textContent,
-            description: manifest.querySelector("description")?.textContent,
+    if(!narResult.success) {
+        console.error(narResult.error);
+        return;
+    }
+
+    parseNar(narResult.data);
+
+    for (const extensionElement of extensionManifest.querySelectorAll("extensionManifest > extensions > extension")) {
+        const extensionResult = await NarExtensionSchema.safeParseAsync({
+            narId: narResult.data.name,
+            name: extensionElement.querySelector("name")?.textContent,
+            type: extensionElement.querySelector("type")?.textContent,
+            description: extensionElement.querySelector("description")?.textContent,
             writesAttributes: [],
             readsAttributes: [],
         })
 
-        if (!extensionInfo.success) {
+        if (!extensionResult.success) {
+            console.error(extensionResult.error);
             continue;
         }
 
-        if (extensionInfo.data.type !== "PROCESSOR") {
-            continue;
-        }
+        parseExtension(extensionResult.data);
 
-        const attributes = new Map<string, NarAttribute[]>();
-        attributes.set("writesAttributes > writesAttribute", extensionInfo.data.writesAttributes);
-        attributes.set("readsAttributes > readsAttribute", extensionInfo.data.readsAttributes);
+        for (const {type, selectors} of attributesLut) {
+            const queryResult = extensionElement.querySelectorAll(selectors);
 
-        for (let [attributeKey, attributeValues] of attributes) {
-            const queryResult = extension.querySelectorAll(attributeKey)
+            for (const attributeElement of queryResult) {
+                const rawAttribute: Partial<NarAttribute> = {
+                    narId: narResult.data.name,
+                    extensionId: extensionResult.data.name,
+                    id: `${extensionResult.data.name}|${extensionResult.data.name}`,
+                    type: type,
+                    name: attributeElement.querySelector("name")?.textContent || undefined,
+                    description: attributeElement.querySelector("description")?.textContent || undefined,
+                }
 
-            for (let attribute of queryResult) {
-                const attributeInfo = await NarAttributeSchema.parseAsync({
-                    name: attribute.querySelector("name")?.textContent,
-                    description: attribute.querySelector("description")?.textContent,
-                })
+                const attributeResult = await NarAttributeSchema.safeParseAsync(rawAttribute)
+                
+                if(!attributeResult.success) {
+                    console.error(attributeResult.error);
+                    continue;
+                }
 
-                attributeValues.push(attributeInfo);
+                parseAttribute(attributeResult.data);
             }
         }
-
-        if (extensionInfo.data.writesAttributes.length + extensionInfo.data.readsAttributes.length > 0) {
-            extensions.push(extensionInfo.data);
-        }
     }
 
-    const rawNarInfo: unknown = {
-        name: file.name,
-        lastModified: file.lastModified,
-        size: file.size,
-        systemApiVersion: manifest.querySelector("systemApiVersion")?.textContent,
-        groupId: manifest.querySelector("groupId")?.textContent,
-        artifactId: manifest.querySelector("artifactId")?.textContent,
-        version: manifest.querySelector("version")?.textContent,
-        buildTag: manifest.querySelector("buildInfo > tag")?.textContent,
-        buildTimestamp: manifest.querySelector("buildInfo > timestamp")?.textContent,
-        extensions: extensions,
-    }
-
-    const narInfo = NarSchema.safeParseAsync(rawNarInfo);
-
-    return await narInfo;
+    return narResult;
 }
 
-export default async function readNars(files: FileList, setCurrentProgress: (current: number, total: number) => void) {
-    const results: Nar[] = [];
+export default async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute}: ReadNarsParameters) {
     const parser = new DOMParser();
     const length = files.length;
 
@@ -137,15 +168,20 @@ export default async function readNars(files: FileList, setCurrentProgress: (cur
             continue;
         }
 
-        const narInfo = await JSZip.loadAsync(file).then(async (zipFile) => {
+        await JSZip.loadAsync(file).then(async (zipFile) => {
             //TODO: Actually use manifestFile
             const manifestFile = zipFile.files["META-INF/MANIFEST.MF"];
-            manifestFile.async("text").then(manifest => {
+            const manifestResult = await manifestFile.async("text").then(manifest => {
                 return manifest.split("\n").map(line => {
                     const index = line.indexOf(":");
                     return [line.substring(0, index).trim(), line.substring(index + 1).trim()]
                 }).filter(x => x[0].length > 0 || x[1].length > 0);
-            });
+            }).then(Object.fromEntries).then(ManifestSchema.safeParseAsync);
+
+            if(!manifestResult.success) {
+                console.error(manifestResult.error);
+                return null;
+            }
 
             const extensionManifestFile = zipFile.files["META-INF/docs/extension-manifest.xml"];
             if (extensionManifestFile == undefined) {
@@ -153,47 +189,17 @@ export default async function readNars(files: FileList, setCurrentProgress: (cur
             }
             return await extensionManifestFile.async("text").then(async (xml) => {
                 const extensionManifestFile = parser.parseFromString(xml, "text/xml");
-                return await readExtensionManifest(file, extensionManifestFile);
+                return await readExtensionManifest({
+                    file, 
+                    parseNar, 
+                    parseExtension, 
+                    parseAttribute,
+                    manifest: manifestResult.data,
+                    extensionManifest: extensionManifestFile,
+                });
             })
         });
-
-        if (narInfo == null) {
-            console.error("null");
-            continue;
-        }
-
-        if (!narInfo.success) {
-            console.error(narInfo.error);
-            continue;
-        }
-        if (narInfo.data.extensions.length > 0) {
-            results.push(narInfo.data);
-            continue;
-        }
     }
 
-    return results;
-}
-
-export type NarAttributeLut = Map<string, NarAttributeLuv[]>;
-
-export function createAttributeLut(attributes: NarAttributeLut, extension: NarExtension, type: NarAttributeType, nar_index: number, extension_index: number) {
-    extension[type].forEach((attribute, attribute_index) => {
-        if (attribute.name == undefined) {
-            return;
-        }
-
-        let values = attributes.get(attribute.name);
-        if (values == undefined) {
-            values = [];
-            attributes.set(attribute.name, values);
-        }
-
-        values.push({
-            nar_index: nar_index,
-            extension_index: extension_index,
-            attribute_index: attribute_index,
-            type: type,
-        })
-    });
+    setCurrentProgress(length, length);
 }

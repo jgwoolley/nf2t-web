@@ -9,6 +9,8 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 - Git
 
 == TODO
+- It seems like there is only ever one write or read attribute...
+- Lookup all attributes on https://github.com/apache/nifi/blob/main/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/GetFile.java
 - Fix issue with lazy loaded routes, they can't export anything else!! no searchParam declerations
 - https://code.visualstudio.com/api/extension-guides/custom-editors
 - Add download all button that works without showDirectoryPicker API

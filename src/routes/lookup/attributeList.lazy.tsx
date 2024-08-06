@@ -1,72 +1,70 @@
-import { useMemo, useState } from "react"
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from "@mui/material";
-import { useNf2tContext } from "../../components/Nf2tContextProvider";
+import { useMemo } from "react"
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
+import { useNf2tContext } from "../../hooks/useNf2tContext";
+import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
+import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
 
 export const routeId = "/attributeList";
 export const Route = createLazyRoute(routeId)({
     component: RouteComponent,
 })
 
+type UniqueAttributes = {
+    name: string,
+    length: number,
+}
+
 export default function RouteComponent() {
-    const context = useNf2tContext();
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const snackbarProps = useNf2tSnackbar();
+    const { queryResults } = useNf2tContext();
 
-    const handleChangePage = (_event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+    const uniqueAttributes = useMemo<UniqueAttributes[]>(() => {
+        if(!queryResults.data) {
+            return [];
+        }
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+        const result: Map<string, number> = new Map();
 
-    const visibleRows = useMemo(
-        () => Array.from(context.attributes.entries()).sort((a, b) => b[1].length - a[1].length).slice(
-            page * rowsPerPage,
-            page * rowsPerPage + rowsPerPage,
-        ),
-        [context.attributes, page, rowsPerPage],
-    );
+        for(const attribute of queryResults.data.attributes) {
+            result.set(attribute.name, 1 + (result.get(attribute.name) || 0));     
+        }
+
+        return Array.from(result.entries()).map(x => { return {name: x[0], length: x[1]}});
+
+    },[queryResults.data]);
+
+    const tableProps = useNf2tTable({
+        childProps: undefined,
+        rows: uniqueAttributes,
+        snackbarProps: snackbarProps,
+        columns: [
+            {
+                columnName: "Attribute",
+                bodyRow: ({row}) => (
+                    <Link to="/attributesLookup" search={{ name: row.name }}>
+                        {row.name}
+                    </Link>
+                ),
+                rowToString: (row) => row.name,
+            },
+            {
+                columnName: "Extension Count",
+                bodyRow: ({row}) => (
+                    <>{row.length}</>
+                ),
+                rowToString: (row) => row.length.toString(),
+            },
+        ],
+        canEditColumn: false,
+    });
 
     return (
         <>
             <Nf2tHeader to="/attributeList" />
             <p><Link to="/narReader">Go back to NarReader</Link>.</p>
 
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Attribute</TableCell>
-                            <TableCell>Extension Count</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {visibleRows.map(([attributeName, attributeValues], index) => (
-                            <TableRow key={index}>
-                                <TableCell>
-                                    <Link to="/attributesLookup" search={{ name: attributeName }}>
-                                        {attributeName}
-                                    </Link>
-                                </TableCell>
-                                <TableCell>{attributeValues.length}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={context.attributes.size}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </TableContainer>
+            <Nf2tTable {...tableProps} />
         </>
     )
 }

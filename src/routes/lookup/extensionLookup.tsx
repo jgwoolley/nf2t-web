@@ -1,11 +1,6 @@
 import { createRoute } from "@tanstack/react-router";
 import routeTree from "../rootRoute.tsx";
-import { z } from "zod";
-
-export const LookupExtensionSearchParamsSchema = z.object({
-    nar_index: z.number(),
-    extension_index: z.number(),
-});
+import { LookupExtensionSearchParamsSchema } from "./searchParams.ts";
 
 export const route = createRoute({
     path: "/extensionLookup",

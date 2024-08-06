@@ -2,8 +2,7 @@ import { createLazyRoute } from "@tanstack/react-router";
 import Nf2tHeader from "../components/Nf2tHeader";
 import Spacing from "../components/Spacing";
 import { Button, Table, TableBody, TableCell, TableRow } from "@mui/material";
-import { useNf2tContext } from "../components/Nf2tContextProvider";
-
+import { useNf2tContext } from "../hooks/useNf2tContext";
 
 export const Route = createLazyRoute("/settings")({
     component: SettingsComponent,

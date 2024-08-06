@@ -1,10 +1,6 @@
 import { createRoute } from "@tanstack/react-router";
 import routeTree from "../rootRoute.tsx";
-import { z } from "zod";
-
-export const LookupNarSearchParamsSchema = z.object({
-    nar_index: z.number(),
-});
+import { LookupNarSearchParamsSchema } from "./searchParams.ts";
 
 export const route = createRoute({
     path: "/narLookup",
