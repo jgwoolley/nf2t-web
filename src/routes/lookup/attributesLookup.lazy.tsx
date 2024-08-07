@@ -14,15 +14,15 @@ export const Route = createLazyRoute("/attributesLookup")({
 })
 
 export default function LookupAttribute() {
-    
+
     const { name } = route.useSearch();
     const { queryResults } = useNf2tContext();
     const attributes = useMemo(() => {
-        if(!queryResults.data){
+        if (!queryResults.data) {
             return [];
         }
 
-        return  queryResults.data.attributes.filter(x => x.name === name);
+        return queryResults.data.attributes.filter(x => x.name === name);
     }, [queryResults.data, name]);
 
     const nf2tAttributeDescription = name ? nf2tAttributes.get(name) : null;
@@ -37,8 +37,10 @@ export default function LookupAttribute() {
                     <h5>Attributes from Nf2t Tool</h5>
                     <Table>
                         <TableBody>
-                            <TableCell>{name}</TableCell>
-                            <TableCell>{nf2tAttributeDescription}</TableCell>
+                            <TableRow>
+                                <TableCell>{name}</TableCell>
+                                <TableCell>{nf2tAttributeDescription}</TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </>
@@ -49,8 +51,10 @@ export default function LookupAttribute() {
                     <p>See <ExternalLink href="https://github.com/apache/nifi/blob/main/nifi-api/src/main/java/org/apache/nifi/flowfile/attributes/CoreAttributes.java">CoreAttributes.java</ExternalLink>.</p>
                     <Table>
                         <TableBody>
-                            <TableCell>{name}</TableCell>
-                            <TableCell>{coreAttributeDescription}</TableCell>
+                            <TableRow>
+                                <TableCell>{name}</TableCell>
+                                <TableCell>{coreAttributeDescription}</TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </>
@@ -75,18 +79,18 @@ export default function LookupAttribute() {
                             <TableBody>
                                 {attributes.map((attribute, attributeIndex) => (
                                     <TableRow key={attributeIndex}>
-                                    <TableCell>
-                                        <Link to="/attributeLookup" search={{ id: attribute.id }}>{attribute.name}</Link>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Link to="/narLookup" search={{ name: attribute.narId }}>{attribute.narId}</Link>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Link to="/extensionLookup" search={{ name: attribute.extensionId }}>{attribute.extensionId}</Link>
-                                    </TableCell>
-                                    <TableCell>{attribute.type}</TableCell>
-                                    <TableCell>{attribute.description}</TableCell>
-                                </TableRow>
+                                        <TableCell>
+                                            <Link to="/attributeLookup" search={{ id: attribute.id }}>{attribute.name}</Link>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Link to="/narLookup" search={{ name: attribute.narId }}>{attribute.narId}</Link>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Link to="/extensionLookup" search={{ name: attribute.extensionId }}>{attribute.extensionId}</Link>
+                                        </TableCell>
+                                        <TableCell>{attribute.type}</TableCell>
+                                        <TableCell>{attribute.description}</TableCell>
+                                    </TableRow>
                                 ))}
                             </TableBody>
                         </Table>

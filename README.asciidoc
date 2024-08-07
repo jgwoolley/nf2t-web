@@ -6,9 +6,11 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 
 == Required Software
 
+- NodeJS
 - Git
 
 == TODO
+- Is there an alternative to renderToString??? https://react.dev/reference/react-dom/server/renderToString#removing-rendertostring-from-the-client-code
 - It seems like there is only ever one write or read attribute...
 - Lookup all attributes on https://github.com/apache/nifi/blob/main/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/GetFile.java
 - Fix issue with lazy loaded routes, they can't export anything else!! no searchParam declerations

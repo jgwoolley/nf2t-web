@@ -1,15 +1,17 @@
 import { DefaultError, MutationFunction, QueryClient, useMutation } from '@tanstack/react-query';
 import { ATTRIBUTE_STORE, DB_NAME, EXTENSION_STORE, NAR_STORE, openNf2tNarDB } from './openNf2tNarDB';
-import readNars from '../utils/readNars';
+import readNars, { IncomingFiles } from '../utils/readNars';
 
 export type UseNarsReadParameters = {
     queryClient: QueryClient,
-    files: FileList, 
+    files: IncomingFiles, 
     setCurrentProgress: (current: number, total: number) => void,
 }
 
 const mutationFn: MutationFunction<unknown, UseNarsReadParameters> = async (params: UseNarsReadParameters) => {
     const db = await openNf2tNarDB();
+    const parser = new DOMParser();
+    
     await readNars({
         ...params,
         parseNar: async (nar) => {
@@ -21,6 +23,7 @@ const mutationFn: MutationFunction<unknown, UseNarsReadParameters> = async (para
         parseAttribute: async (attribute) => {
             await db.put(ATTRIBUTE_STORE, attribute);
         },
+        DOMParser: parser,
     });
 
     params.queryClient.invalidateQueries({

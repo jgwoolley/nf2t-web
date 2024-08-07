@@ -60,7 +60,7 @@ export default function NarReader() {
         } else {
             context.narsParse.mutate({
                 queryClient,
-                files,
+                files: Array.from(files),
                 setCurrentProgress: progressBar.updateCurrent,
             });
 

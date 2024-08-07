@@ -48,9 +48,12 @@ export type Nar = z.infer<typeof NarSchema>;
 export const NarsSchema = z.array(NarSchema);
 export type Nars = z.infer<typeof NarsSchema>;
 
+export type IncomingFiles = File[];
+
 export type ReadNarsParameters = {
     //TODO: Update implementation of processNars to consume File[] rather than a FileList
-    files: FileList, 
+    files: IncomingFiles, 
+    DOMParser: DOMParser,
     setCurrentProgress: (current: number, total: number) => void,
     parseNar: (nar: Nar) => Promise<void>,
     parseExtension: (extension: NarExtension) => Promise<void>,
@@ -130,12 +133,14 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
             const queryResult = extensionElement.querySelectorAll(selectors);
 
             for (const attributeElement of queryResult) {
+                const name = attributeElement.querySelector("name")?.textContent || undefined;
+
                 const rawAttribute: Partial<NarAttribute> = {
                     narId: narResult.data.name,
                     extensionId: extensionResult.data.name,
-                    id: `${extensionResult.data.name}|${extensionResult.data.name}`,
+                    id: `${extensionResult.data.name}|${name}`,
                     type: type,
-                    name: attributeElement.querySelector("name")?.textContent || undefined,
+                    name: name,
                     description: attributeElement.querySelector("description")?.textContent || undefined,
                 }
 
@@ -154,13 +159,12 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
     return narResult;
 }
 
-export default async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute}: ReadNarsParameters) {
-    const parser = new DOMParser();
+export default async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters) {
     const length = files.length;
 
     for (let index = 0; index < length; index++) {
         setCurrentProgress(index, length);
-        const file = files.item(index);
+        const file = files[index];
         if (file == null) {
             continue;
         }
@@ -187,8 +191,9 @@ export default async function readNars({files, setCurrentProgress, parseNar, par
             if (extensionManifestFile == undefined) {
                 return null;
             }
+
             return await extensionManifestFile.async("text").then(async (xml) => {
-                const extensionManifestFile = parser.parseFromString(xml, "text/xml");
+                const extensionManifestFile = DOMParser.parseFromString(xml, "text/xml");
                 return await readExtensionManifest({
                     file, 
                     parseNar, 

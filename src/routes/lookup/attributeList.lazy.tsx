@@ -53,6 +53,7 @@ export default function RouteComponent() {
                 bodyRow: ({row}) => (
                     <>{row.length}</>
                 ),
+                compareFn: (x, y) => x.length - y.length,
                 rowToString: (row) => row.length.toString(),
             },
         ],
