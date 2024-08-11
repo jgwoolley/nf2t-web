@@ -7,7 +7,9 @@ import { downloadFile } from '../../utils/downloadFile';
 import Spacing from '../../components/Spacing';
 import AttributeDownload from '../../components/AttributeDownload';
 import Nf2tHeader from '../../components/Nf2tHeader';
-import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import Nf2tSnackbar from "../../components/Nf2tSnackbar";
+import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
+
 import { Download, SyncProblem } from '@mui/icons-material';
 import { createLazyRoute } from '@tanstack/react-router';
 

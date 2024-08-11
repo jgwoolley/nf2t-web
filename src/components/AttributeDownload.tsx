@@ -3,7 +3,7 @@ import { FlowfileAttributeRowSchema } from "../utils/schemas";
 import { downloadFile } from "../utils/downloadFile";
 import DownloadIcon from '@mui/icons-material/Download';
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
-import { Nf2tSnackbarProps } from "./Nf2tSnackbar";
+import { Nf2tSnackbarProps } from "../hooks/useNf2tSnackbar";
 
 interface AttributeDownloadProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
@@ -13,7 +13,7 @@ export function AttributeDownload({rows, submitSnackbarMessage}: AttributeDownlo
     const onClick = () => {
         const result = new Map<string,string>();
         for(let i = 0; i < rows.length; i++) {
-            let row = rows[i];
+            const row = rows[i];
             result.set(row[0], row[1]);
         }
         const blob = new Blob(

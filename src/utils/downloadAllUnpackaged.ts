@@ -6,7 +6,15 @@ export type BulkUnpackageRow = {
     file: File,
 }
 
-type DownloadAllUnpackagedParams = {
+export function findFilename(row: BulkUnpackageRow) {
+    return row.attributes["filename"] || new Date().toString() + ".bin";
+}
+
+export function findMimetype(row: BulkUnpackageRow) {
+    return row.attributes["mime.type"] || "application/octet-stream";
+}
+
+export type DownloadAllUnpackagedParams = {
     directoryHandle: FileSystemDirectoryHandle, 
     row: BulkUnpackageRow,
 }

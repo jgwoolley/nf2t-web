@@ -72,7 +72,7 @@ function readString(view: InputStream) {
 
 function fillBuffer(view: InputStream, bytes: number[], length: number) {
     for(let i = 0; i < length; i++) {
-        let val = view.getUint8();
+        const val = view.getUint8();
         bytes[i] = val;
     }
 }
@@ -114,7 +114,7 @@ export function unpackageFlowFile(buffer: ArrayBuffer): UnpackageResult | null {
     const view = new InputStream(buffer);
 
     for(let i = 0; i < MAGIC_HEADER.length; i++) {
-        let expected = MAGIC_HEADER.charCodeAt(i);
+        const expected = MAGIC_HEADER.charCodeAt(i);
         view.assertUint8(expected);
     }
     const attributes = readAttributes(view);

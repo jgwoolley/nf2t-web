@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useState } from "react"
-import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { Button, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import Nf2tLinearProgress, { useNf2tLinearProgress } from "../../components/Nf2tLinearProgress";
 import Nf2tHeader from "../../components/Nf2tHeader";

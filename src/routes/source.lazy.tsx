@@ -4,9 +4,10 @@ import { Table, TableBody, TableCell, TableRow } from "@mui/material";
 import { z } from "zod";
 import Spacing from "../components/Spacing";
 import CodeSnippet from "../components/CodeSnippet";
-import Nf2tSnackbar, { useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import Nf2tSnackbar from "../components/Nf2tSnackbar";
 import { createLazyRoute } from "@tanstack/react-router";
 import ExternalLink from "../components/ExternalLink";
+import { useNf2tSnackbar } from "../hooks/useNf2tSnackbar";
 
 export const Route = createLazyRoute("/source")({
     component: SourceComponent,

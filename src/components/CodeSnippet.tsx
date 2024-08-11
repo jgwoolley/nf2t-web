@@ -1,4 +1,4 @@
-import { SubmitSnackbarMessageType } from "./Nf2tSnackbar";
+import { SubmitSnackbarMessageType } from '../hooks/useNf2tSnackbar';
 
 export type CodeSnippetProps = {
     code: string,

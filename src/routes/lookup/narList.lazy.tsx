@@ -1,10 +1,11 @@
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
-import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
-import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import Nf2tTable from "../../components/Nf2tTable";
+import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { convertBytes } from "../../utils/convertBytes";
 import { convertDate } from "../../utils/convertDates";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
+import { useNf2tTable } from "../../hooks/useNf2tTable";
 
 export const routeId = "/narList";
 export const Route = createLazyRoute(routeId)({

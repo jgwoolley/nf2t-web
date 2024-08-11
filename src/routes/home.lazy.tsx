@@ -5,8 +5,9 @@ import ExternalLink from "../components/ExternalLink";
 import PrevNext from "../components/PrevNext";
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import { routeDescriptions, RoutePathType } from "./routeDescriptions";
-import Nf2tTable, { useNf2tTable } from "../components/Nf2tTable";
-import { useNf2tSnackbar } from "../components/Nf2tSnackbar";
+import Nf2tTable from "../components/Nf2tTable";
+import { useNf2tSnackbar } from "../hooks/useNf2tSnackbar";
+import { useNf2tTable } from "../hooks/useNf2tTable";
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,

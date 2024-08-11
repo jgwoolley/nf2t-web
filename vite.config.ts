@@ -3,12 +3,18 @@ import react from '@vitejs/plugin-react'
 import generateFile from 'vite-plugin-generate-file'
 import { VitePWA } from 'vite-plugin-pwa'
 import generateBuildinfo from "./scripts/generateBuildInfo"
+import { fileURLToPath } from 'url'
 
 const buildinfo = generateBuildinfo();
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: buildinfo.data.base,
+  build: {
+    rollupOptions: {
+      input: fileURLToPath(new URL("./index.html", import.meta.url)),
+    },
+  },
   plugins: [
     VitePWA({
       includeAssets: ['favicon.svg', '180.png', '512.svg'],

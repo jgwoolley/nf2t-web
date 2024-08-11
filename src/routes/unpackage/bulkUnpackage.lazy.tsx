@@ -4,12 +4,15 @@ import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import Spacing from '../../components/Spacing';
 import { downloadFile } from '../../utils/downloadFile';
 import Nf2tHeader from '../../components/Nf2tHeader';
-import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import Nf2tSnackbar from "../../components/Nf2tSnackbar";
+
+import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 import { createLazyRoute } from '@tanstack/react-router';
-import Nf2tTable, { Nf2tTableColumnSpec, useNf2tTable } from '../../components/Nf2tTable';
-import downloadAllUnpackaged, { BulkUnpackageRow } from '../../utils/downloadAllUnpackaged';
+import Nf2tTable from '../../components/Nf2tTable';
+import downloadAllUnpackaged, { BulkUnpackageRow, findFilename, findMimetype } from '../../utils/downloadAllUnpackaged';
+import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: UnPackageNifi,
@@ -18,13 +21,7 @@ export const Route = createLazyRoute("/unpackageBulk")({
 const defaultTotal = -1;
 const defaultCurrent = 0;
 
-export function findFilename(row: BulkUnpackageRow) {
-    return row.attributes["filename"] || new Date().toString() + ".bin";
-}
 
-export function findMimetype(row: BulkUnpackageRow) {
-    return row.attributes["mime.type"] || "application/octet-stream";
-}
 
 // From: https://mui.com/material-ui/react-progress/
 function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {
@@ -192,7 +189,7 @@ export function UnPackageNifi() {
         }
 
         return results;
-    }, [attributes]);
+    }, [attributes, snackbarResults]);
 
     const tableProps = useNf2tTable<BulkUnpackageRow, undefined>({
         childProps: undefined,

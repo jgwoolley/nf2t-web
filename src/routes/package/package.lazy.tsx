@@ -13,7 +13,8 @@ import Spacing from "../../components/Spacing";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import generateHash from "../../utils/generateHash";
 import AttributeUpload from "../../components/AttributeUpload";
-import Nf2tSnackbar, { Nf2tSnackbarProps, useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import Nf2tSnackbar from "../../components/Nf2tSnackbar";
+import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 import { createLazyRoute } from "@tanstack/react-router";
 

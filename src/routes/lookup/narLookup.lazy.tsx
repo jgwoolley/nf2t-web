@@ -5,8 +5,9 @@ import { convertBytes } from "../../utils/convertBytes";
 import { convertDate } from "../../utils/convertDates";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useMemo } from "react";
-import Nf2tTable, { useNf2tTable } from "../../components/Nf2tTable";
-import { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import Nf2tTable from "../../components/Nf2tTable";
+import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
+import { useNf2tTable } from "../../hooks/useNf2tTable";
 
 const route = getRouteApi("/narLookup");
 

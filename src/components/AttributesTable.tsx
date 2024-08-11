@@ -4,9 +4,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useMemo, useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
-import { Nf2tSnackbarProps, useNf2tSnackbar } from './Nf2tSnackbar';
+import { Nf2tSnackbarProps, useNf2tSnackbar } from '../hooks/useNf2tSnackbar';
 import { Link } from '@tanstack/react-router';
-import Nf2tTable, { BodyRowComponentProps, Nf2tTableColumnSpec, useNf2tTable } from './Nf2tTable';
+import { BodyRowComponentProps, Nf2tTableColumnSpec, useNf2tTable } from '../hooks/useNf2tTable';
+import Nf2tTable from './Nf2tTable';
+import { convertDate } from '../utils/convertDates';
+import { convertBytes } from '../utils/convertBytes';
+import ExternalLink from './ExternalLink';
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
     rows: FlowfileAttributeRowSchema[],
@@ -29,10 +33,25 @@ function AttributeValueRow({childProps, row, filteredRowIndex, childProps: {rows
     }
 
     const isEditing = filteredRowIndex === childProps.editIndex;
+    const value = useMemo(() => {
+        const [key, value] = row;
+        let result: JSX.Element = (<>{value}</>);
+        if(key === "lastModified") {
+            result = (<>{convertDate(parseInt(value))}</>);
+        } else if(key === "size") {
+            result = (<>{convertBytes(parseInt(value))}</>);
+        } else if(key === "mime.type") {
+            result = (<ExternalLink href={`https://mimetype.io/${value}`}>{value}</ExternalLink>)
+        }
+
+        return result;
+    }, [row])
+
+
     return (isEditing) ? (
         <TextField onChange={onChange} value={row[1]} />
     ) : (
-        <>{row[1]}</>
+        <>{value}</>
     );
 }
 
@@ -102,7 +121,7 @@ export function AttributesTable(props: AttributesTableProps) {
         }
 
         return newColumns;
-    }, [props.canEdit, setRows, rows])
+    }, [props.canEdit]);
 
     const tableProps = useNf2tTable<FlowfileAttributeRowSchema, AttributesTableChildProps>({
         childProps: childProps,

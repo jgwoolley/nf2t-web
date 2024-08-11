@@ -11,8 +11,8 @@ const MAX_VALUE_2_BYTES = 65535;
  * @param text 
  */
 function pushUTF8(bytes: number[], text: string) {
-    for(var i=0; i < text.length; i++) {
-        var charcode = text.charCodeAt(i);
+    for(let i=0; i < text.length; i++) {
+        const charcode = text.charCodeAt(i);
         if(charcode < 0x80) {
             bytes.push(charcode)
         } else {
@@ -39,7 +39,7 @@ function writeString(bytes: number[], val: string)  {
     const new_bytes: number[] = []
     pushUTF8(new_bytes, val);
     writeFieldLength(bytes, new_bytes.length);
-    for(var i=0; i < new_bytes.length; i++) {
+    for(let i=0; i < new_bytes.length; i++) {
         bytes.push(new_bytes[i]);
     }
 }
@@ -61,7 +61,7 @@ function writeLong(bytes: number[], val: number) {
     ];
     // console.log(new_bytes);
     // console.log(bytes);
-    for(let x of new_bytes.entries()) {
+    for(const x of new_bytes.entries()) {
         bytes.push(x[1]);
     }
     // console.log(bytes);
@@ -85,7 +85,7 @@ export function packageFlowFile(attributes: FlowfileAttributeRowSchema[], file: 
     pushUTF8(bytes, MAGIC_HEADER);
 
     writeFieldLength(bytes, attributes.length);
-    for(var i=0; i < attributes.length; i++) {
+    for(let i=0; i < attributes.length; i++) {
         const row = attributes[i];
         writeString(bytes, row[0]);
         writeString(bytes, row[1]);

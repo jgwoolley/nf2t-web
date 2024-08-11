@@ -7,7 +7,8 @@ import { useMemo } from "react";
 import Slides, { Slide } from "../../components/Nf2tSlides";
 import { createLazyRoute } from "@tanstack/react-router";
 import { sourceReferences } from "../routeDescriptions";
-import Nf2tSnackbar, { useNf2tSnackbar } from "../../components/Nf2tSnackbar";
+import Nf2tSnackbar from "../../components/Nf2tSnackbar";
+import { useNf2tSnackbar } from '../../hooks/useNf2tSnackbar';
 
 export const Route = createLazyRoute("/buildInfo")({
     component: BuildProcess,
@@ -103,7 +104,7 @@ export default function BuildProcess() {
                 </>
             )
         }
-    ], []);
+    ], [snackbarProps.submitSnackbarMessage]);
 
     return (
         <>
