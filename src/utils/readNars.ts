@@ -99,10 +99,6 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
         buildTimestamp: extensionManifest.querySelector("buildInfo > timestamp")?.textContent || undefined,
     }
 
-    if(file.name === "nifi-standard-nar") {
-        console.log(rawNarInfo);
-    }
-
     const narResult = await NarSchema.safeParseAsync(rawNarInfo);
 
     if(!narResult.success) {

@@ -10,6 +10,7 @@ import { convertBytes } from "../../utils/convertBytes";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileUploadOutlined } from "@mui/icons-material";
+import ExternalLink from "../../components/ExternalLink";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -108,7 +109,10 @@ export default function NarReader() {
 
             {isEmpty ? (
                 <>
-                    {/* <h6>Download example Nar file(s)</h6>
+                    <h6>Download example Nar file(s)</h6>
+                    <p>An example NAR file is located here: <ExternalLink href={"https://mvnrepository.com/artifact/org.apache.nifi/nifi-standard-services-api-nar"}>nifi-standard-services-api-nar</ExternalLink>.</p>
+                    
+                    {/* 
                     <Button variant="outlined" onClick={() => {
                         const url = "https://repo1.maven.org/maven2/org/apache/nifi/nifi-standard-services-api-nar/1.27.0/nifi-standard-services-api-nar-1.27.0.nar";
                         //TODO: Update implementation of processNars to consume File[] rather than a FileList
