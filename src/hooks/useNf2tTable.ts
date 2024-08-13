@@ -94,9 +94,9 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
     const [open, setOpen] = useState(false);
     const [columnPage, setColumnPage] = useState(1);
 
-    const onClickColumn = (value: number) => {
+    const onClickColumn = useCallback((value: number) => {
         setColumnPage(value);
-    };
+    }, [setColumnPage]);
 
     const maxColumns = incomingMaxColumns || 6;
 
@@ -124,7 +124,7 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
 
         newFilteredColumns.splice(maxColumns);
         setFilteredColumns(newFilteredColumns);
-        console.log("reset columns.")
+        console.log("reset columns.");
     }, [columns, filteredColumns.length, ignoreNoColumnsError, maxColumns, snackbarProps])
     
 

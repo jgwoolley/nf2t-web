@@ -209,7 +209,9 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
                 )}
 
             </ButtonGroup>
-            <Pagination count={filteredColumns.length} page={columnPage} onChange={(_, newPage) => onClickColumn(newPage)} />
+            <Pagination count={filteredColumns.length} page={columnPage} onChange={(_, newPage) => {
+                onClickColumn(newPage);
+            }} />
         </>
     )
 }

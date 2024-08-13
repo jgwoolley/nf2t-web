@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import Nf2tTable from "../../components/Nf2tTable";
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { useNf2tTable } from "../../hooks/useNf2tTable";
+import ExtensionTagCell from "../../components/ExtensionTagCell";
 
 const route = getRouteApi("/narLookup");
 
@@ -51,6 +52,17 @@ export default function LookupNar() {
         ],
         canEditColumn: false,
     });
+
+    const tags = useMemo(()=>{
+        const tags = new Set<string>();
+        for(const extension of extensions) {
+            for(const tag of extension.tags) {
+                tags.add(tag);
+            }
+        }
+
+        return Array.from(tags);
+    }, [extensions]);
 
     const nar = useMemo(() => {
         if(!name) {
@@ -100,14 +112,25 @@ export default function LookupNar() {
                         <TableCell>version</TableCell>
                         <TableCell>{nar?.version}</TableCell>
                     </TableRow>
-                    <TableRow>
-                        <TableCell>buildTag</TableCell>
-                        <TableCell>{nar?.buildTag}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>buildTimestamp</TableCell>
-                        <TableCell>{nar?.buildTimestamp}</TableCell>
-                    </TableRow>
+                    {nar?.buildTag && (
+                        <TableRow>
+                            <TableCell>buildTag</TableCell>
+                            <TableCell>{nar?.buildTag}</TableCell>
+                        </TableRow>
+                    )}
+                    {nar?.buildTimestamp && (
+                        <TableRow>
+                            <TableCell>buildTimestamp</TableCell>
+                            <TableCell>{nar?.buildTimestamp}</TableCell>
+                        </TableRow>
+                    )}
+                    {tags.length <= 0 && (
+                        <TableRow>
+                            <TableCell>tags</TableCell>
+                            <TableCell><ExtensionTagCell tags={tags}/></TableCell>
+                        </TableRow>
+                    )}
+
                 </TableBody>
             </Table>
 

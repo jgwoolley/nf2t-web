@@ -23,6 +23,13 @@ export const NarExtensionSchema = z.object({
     name: z.string(),
     type: z.string(),
     description: z.string().optional(),
+    tags: z.array(z.string()),
+    required: z.boolean().optional(),
+    sensitive: z.boolean().optional(),
+    expressionLanguageSupported: z.boolean().optional(),
+    expressionLanguageScope: z.string().optional(),
+    dynamicallyModifiesClasspath: z.boolean().optional(),
+    dynamic: z.boolean().optional(),
 });
 export type NarExtension = z.infer<typeof NarExtensionSchema>;
 export const NarExtensionsSchema = z.array(NarExtensionSchema);
@@ -85,18 +92,33 @@ const attributesLut: AttributesLuv[] = [
     },
 ]
 
+function querySelectorString(element: Document | Element, selectors: string) {
+    return element.querySelector(selectors)?.textContent || undefined;
+}
+
+function querySelectorBoolean(element: Document | Element, selectors: string) {
+    const value = querySelectorString(element, selectors);
+    if(value === "true") {
+        return true;
+    }
+    else if(value === "false") {
+        return true;
+    }
+    return undefined;
+}
+
 async function readExtensionManifest({file, manifest, extensionManifest, parseNar, parseExtension, parseAttribute }: ReadExtensionManifestParameters) {
     const rawNarInfo: Partial<Nar> = {
         manifest: manifest,
         name: file.name,
         lastModified: file.lastModified,
         size: file.size,
-        systemApiVersion: extensionManifest.querySelector("systemApiVersion")?.textContent || undefined,
-        groupId: extensionManifest.querySelector("groupId")?.textContent || undefined,
-        artifactId: extensionManifest.querySelector("artifactId")?.textContent || undefined,
-        version: extensionManifest.querySelector("version")?.textContent || undefined,
-        buildTag: extensionManifest.querySelector("buildInfo > tag")?.textContent || undefined,
-        buildTimestamp: extensionManifest.querySelector("buildInfo > timestamp")?.textContent || undefined,
+        systemApiVersion: querySelectorString(extensionManifest, "systemApiVersion"),
+        groupId: querySelectorString(extensionManifest, "groupId"),
+        artifactId: querySelectorString(extensionManifest, "artifactId"),
+        version: querySelectorString(extensionManifest, "version"),
+        buildTag: querySelectorString(extensionManifest, "buildInfo > tag"),
+        buildTimestamp: querySelectorString(extensionManifest, "buildInfo > timestamp"),
     }
 
     const narResult = await NarSchema.safeParseAsync(rawNarInfo);
@@ -111,16 +133,29 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
     for (const extensionElement of extensionManifest.querySelectorAll("extensionManifest > extensions > extension")) {
         const extensionResult = await NarExtensionSchema.safeParseAsync({
             narId: narResult.data.name,
-            name: extensionElement.querySelector("name")?.textContent,
-            type: extensionElement.querySelector("type")?.textContent,
-            description: extensionElement.querySelector("description")?.textContent,
+            name: querySelectorString(extensionElement, "name"),
+            type: querySelectorString(extensionElement, "type"),
+            description: querySelectorString(extensionElement, "description"),
             writesAttributes: [],
             readsAttributes: [],
-        })
+            tags: [],
+            required: querySelectorBoolean(extensionElement, "required"),
+            sensitive: querySelectorBoolean(extensionElement, "sensitive"),
+            expressionLanguageSupported: querySelectorBoolean(extensionElement, "expressionLanguageSupported"),
+            expressionLanguageScope: querySelectorString(extensionElement, "expressionLanguageScope"),
+            dynamicallyModifiesClasspath: querySelectorBoolean(extensionElement, "dynamicallyModifiesClasspath"),
+            dynamic: querySelectorBoolean(extensionElement, "dynamic"),
+        });        
 
         if (!extensionResult.success) {
             console.error(extensionResult.error);
             continue;
+        }
+
+        for(const tagElement of extensionElement.querySelectorAll("tags > tag")) {
+            if(tagElement.textContent) {
+                extensionResult.data.tags.push(tagElement.textContent);
+            }
         }
 
         parseExtension(extensionResult.data);

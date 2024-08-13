@@ -6,6 +6,7 @@ import { route as extensionLookup } from "./lookup/extensionLookup";
 import { route as narList } from "./lookup/narList";
 import { route as attributeList } from "./lookup/attributeList";
 import { route as extensionList} from "./lookup/extensionList";
+import { route as tagList } from "./lookup/tagList";
 import { route as narLookup } from "./lookup/narLookup";
 import { route as narReader } from "./lookup/narReader";
 import { route as packageFlowFile } from "./package/package";
@@ -14,7 +15,6 @@ import { route as bulkUnpackageFlowFile } from "./unpackage/bulkUnpackage";
 import { route as source } from "./source";
 import { route as home } from "./home";
 import { route as settings } from "./settings";
-
 
 export const routeChildren = [
   buildInfo,
@@ -33,6 +33,7 @@ export const routeChildren = [
   home,
   attributeList,
   settings,
+  tagList,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -166,4 +167,9 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
     shortName: "Source",
     shortDescription: "Information on source code.",
   },
+  "/tagList": {
+    to: "/tagList",
+    name: "Tag List",
+    shortDescription: "Lists all Nar Extension Tags.",
+  }
 }

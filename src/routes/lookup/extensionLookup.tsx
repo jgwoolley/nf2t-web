@@ -6,6 +6,6 @@ export const route = createRoute({
     path: "/extensionLookup",
     getParentRoute: () => routeTree,
     validateSearch: (search: Record<string, unknown>) => {
-    return LookupExtensionSearchParamsSchema.parse(search);
+        return LookupExtensionSearchParamsSchema.parse(search);
     },
 }).lazy(() => import('./extensionLookup.lazy.tsx').then((d) => d.Route));

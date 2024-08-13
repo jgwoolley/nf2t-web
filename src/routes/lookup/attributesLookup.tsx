@@ -6,6 +6,6 @@ export const route = createRoute({
     path: "/attributesLookup",
     getParentRoute: () => routeTree,
     validateSearch: (search: Record<string, unknown>) => {
-    return LookupAttributeSearchParamsSchema.parse(search);
+        return LookupAttributeSearchParamsSchema.parse(search);
     },
 }).lazy(() => import('./attributesLookup.lazy.tsx').then((d) => d.Route));

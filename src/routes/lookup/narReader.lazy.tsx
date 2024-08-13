@@ -76,6 +76,7 @@ export default function NarReader() {
     const narsLength = context.queryResults.data?.nars.length || 0;
     const extensionsLength = context.queryResults.data?.extensions.length || 0;
     const attributesLength = context.queryResults.data?.attributes.length || 0;
+    const tagsLength = context.queryResults.data?.tags.length || 0;
 
     const isEmpty = (narsLength + extensionsLength + attributesLength) <= 0;
 
@@ -107,31 +108,18 @@ export default function NarReader() {
                 </>
             )}
 
-            {isEmpty ? (
+            {isEmpty && (
                 <>
                     <h6>Download example Nar file(s)</h6>
                     <p>An example NAR file is located here: <ExternalLink href={"https://mvnrepository.com/artifact/org.apache.nifi/nifi-standard-services-api-nar"}>nifi-standard-services-api-nar</ExternalLink>.</p>
-                    
-                    {/* 
-                    <Button variant="outlined" onClick={() => {
-                        const url = "https://repo1.maven.org/maven2/org/apache/nifi/nifi-standard-services-api-nar/1.27.0/nifi-standard-services-api-nar-1.27.0.nar";
-                        //TODO: Update implementation of processNars to consume File[] rather than a FileList
-                        fetch(url).then(async x => {
-                            const file = new File([await x.blob()], x.url.split("/")?.at(-1) || "test");
-                            const files = [file];
-                            console.log(files);
-                        });
-                    }}>Download</Button>                     */}
-                </>
-            ): (
-                <>
-                    <h6>Clear provided Nar files.</h6>
-                    <Button variant="outlined" onClick={() => {
-                        context.narsDeleteAll.mutate({ queryClient });
-                        progressBar.updateCurrent(undefined, undefined);
-                    }}>Clear</Button>
                 </>
             )}
+
+            <h6>Clear provided Nar files.</h6>
+            <Button variant="outlined" onClick={() => {
+                context.narsDeleteAll.mutate({ queryClient });
+                progressBar.updateCurrent(undefined, undefined);
+            }}>Clear</Button>
 
             <Spacing />
             <Nf2tLinearProgress {...progressBar} />
@@ -150,6 +138,7 @@ export default function NarReader() {
                     <Nf2tLinkRow to="/narList" length={narsLength} />
                     <Nf2tLinkRow to="/attributeList" length={attributesLength} />
                     <Nf2tLinkRow to="/extensionList" length={extensionsLength} />
+                    <Nf2tLinkRow to="/tagList" length={tagsLength} />
                 </TableBody>
             </Table>
             <Spacing />
