@@ -1,8 +1,9 @@
-import { AppBar, Container, Menu, MenuItem, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Container,  Menu, MenuItem, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import { Link } from "@tanstack/react-router";
 import ExternalLink from "./ExternalLink";
 import { useState } from "react";
 import { routeDescriptions, RoutePathType} from "../routes/routeDescriptions";
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 
 const linkStyles: React.CSSProperties = {
     color: "inherit",
@@ -70,8 +71,8 @@ export function NifiAppBar() {
                 <Toolbar disableGutters >
                     <Tooltip title={routeDescriptions["/"].shortDescription}>
                         <>
-                            {/* <Icon><img src="/favicon.svg" height="25px"/></Icon> */}
-                            <Typography variant="h6" color="inherit" component="div"><Link style={{ color: "inherit", textDecoration: "inherit" }} to="/">Nifi FlowFile Tools</Link></Typography>
+                            <WaterDropIcon />
+                            <Typography variant="h6" color="inherit" component="div"><Link style={{ color: "inherit", textDecoration: "inherit" }} to="/">Nifi FlowFile Tools (Nf2t)</Link></Typography>
                         </>
                     </Tooltip>
                     <div style={{ flex: 1 }} />

@@ -123,14 +123,47 @@ export default function RouteComponent() {
                         <TableCell><Link search={{ name: extension?.narId }} to="/narLookup">{extension?.narId}</Link></TableCell>
                     </TableRow>
                     <TableRow>
-                    <TableCell>Tags</TableCell>
-                    <TableCell><ExtensionTagCell tags={extension?.tags}/></TableCell>
+                        <TableCell>Tags</TableCell>
+                        <TableCell><ExtensionTagCell tags={extension?.tags} /></TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
 
             <ExtensionAttributeTable title="writesAttributes" type="writes" extension={extension} attributes={attributes} />
             <ExtensionAttributeTable title="readsAttributes" type="reads" extension={extension} attributes={attributes} />
+
+            {extension?.properties && (
+                <>
+                    <h4>Properties</h4>
+                    <Table>
+                        <TableBody>
+                            {extension.properties.map((property, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{property.name}</TableCell>
+                                    <TableCell>{property.displayName}</TableCell>
+                                    <TableCell>{property.description}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </>
+            )}
+
+            {extension?.relationships && (
+                <>
+                    <h4>Relationships</h4>
+                    <Table>
+                        <TableBody>
+                            {extension.relationships.map((relationship, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{relationship.name}</TableCell>
+                                    <TableCell>{relationship.description}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </>
+            )}
         </>
     )
 }

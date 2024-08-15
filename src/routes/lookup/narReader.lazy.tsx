@@ -10,7 +10,6 @@ import { convertBytes } from "../../utils/convertBytes";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileUploadOutlined } from "@mui/icons-material";
-import ExternalLink from "../../components/ExternalLink";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -78,8 +77,6 @@ export default function NarReader() {
     const attributesLength = context.queryResults.data?.attributes.length || 0;
     const tagsLength = context.queryResults.data?.tags.length || 0;
 
-    const isEmpty = (narsLength + extensionsLength + attributesLength) <= 0;
-
     return (
         <>
             <Nf2tHeader to="/narReader" />
@@ -108,12 +105,43 @@ export default function NarReader() {
                 </>
             )}
 
-            {isEmpty && (
-                <>
-                    <h6>Download example Nar file(s)</h6>
-                    <p>An example NAR file is located here: <ExternalLink href={"https://mvnrepository.com/artifact/org.apache.nifi/nifi-standard-services-api-nar"}>nifi-standard-services-api-nar</ExternalLink>.</p>
-                </>
-            )}
+            <h6>Download Examples</h6>
+            <Button variant="outlined" onClick={async () => {
+                const files = await fetch("./nars.txt")
+                    .then(response => response.text())
+                    .then(async (text) => {
+                        const files: File[] = [];
+                        const lines = text.split("\n");
+                        const length = 5; //lines.length;
+
+                        progressBar.updateCurrent(0, length);
+                        for (let index = 0; index < length; index++) {
+                            const line = lines[index];
+                            progressBar.updateCurrent(index, length);
+                            const file = await fetch(`/nars/${line}`).then(async (response) => {
+                                const blob = await response.blob()
+                                return new File([blob], line);
+                            })
+                            files.push(file);
+                        }
+                        return files;
+                    }).catch((e) => {
+                        snackbarProps.submitSnackbarMessage("Failed to parse examples.", "error", e)
+                        const files: File[] = [];
+                        return files;
+                    });
+
+                if (!files.length) {
+                    return;
+                }
+                context.narsParse.mutate({
+                    queryClient,
+                    files: files,
+                    setCurrentProgress: progressBar.updateCurrent,
+                });
+
+                progressBar.updateCurrent(files.length, files.length);
+            }}>Download</Button>
 
             <h6>Clear provided Nar files.</h6>
             <Button variant="outlined" onClick={() => {

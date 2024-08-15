@@ -8,6 +8,12 @@ import { routeDescriptions, RoutePathType } from "./routeDescriptions";
 import Nf2tTable from "../components/Nf2tTable";
 import { useNf2tSnackbar } from "../hooks/useNf2tSnackbar";
 import { useNf2tTable } from "../hooks/useNf2tTable";
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
+import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -18,6 +24,30 @@ const linkStyles: React.CSSProperties = {
     textDecoration: "inherit",
 }
 
+function ApplicationIcon({path}: {path: RoutePathType}) {
+    if(path === "/package") {
+        return <ArchiveIcon />
+    }
+
+    if(path === "/unpackageBulk") {
+        return <UnarchiveIcon />
+    }
+
+    if(path === "/narReader") {
+        return <AutoStoriesIcon />
+    }
+
+    if(path === "/source") {
+        return <GitHubIcon />
+    }
+
+    if(path === "/settings") {
+        return <SettingsIcon />
+    }
+
+    return <PlayCircleIcon />
+}
+
 export default function Nf2tHome() {
     const snackbarProps = useNf2tSnackbar();
 
@@ -26,6 +56,11 @@ export default function Nf2tHome() {
         canEditColumn: false,
         snackbarProps: snackbarProps,
         columns: [
+            {
+                columnName: "",
+                bodyRow: ({row}) => <Link style={linkStyles} to={routeDescriptions[row].to}><ApplicationIcon path={row}/></Link>,
+                rowToString: (row) => routeDescriptions[row].name,
+            },
             { 
                 columnName: "Tool", 
                 compareFn: (a, b) => routeDescriptions[b].name.localeCompare(routeDescriptions[a].name),

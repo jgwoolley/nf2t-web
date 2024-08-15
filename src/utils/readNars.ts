@@ -18,12 +18,33 @@ export type NarAttribute = z.infer<typeof NarAttributeSchema>;
 export const NarAttributesSchema = z.array(NarAttributeSchema);
 export type NarAttributes = z.infer<typeof NarAttributesSchema>;
 
+export const NarExtensionRelationship = z.object({
+    name: z.string(),
+    description: z.string(),
+    autoTerminated: z.boolean(),
+});
+
+export const NarExtensionProperty = z.object({
+    name: z.string(),
+    displayName: z.string(),
+    description: z.string(),
+    required: z.boolean().optional(),
+    sensitive: z.boolean().optional(),
+    expressionLanguageSupported: z.boolean().optional(),
+    expressionLanguageScope: z.string().optional(),
+    dynamicallyModifiesClasspath: z.boolean().optional(),
+    dynamic: z.boolean().optional(),
+});
+
 export const NarExtensionSchema = z.object({
     narId: z.string(),
     name: z.string(),
     type: z.string(),
     description: z.string().optional(),
     tags: z.array(z.string()),
+    relationships: z.array(NarExtensionRelationship),
+    properties: z.array(NarExtensionProperty),
+    // These might be properties of the Property
     required: z.boolean().optional(),
     sensitive: z.boolean().optional(),
     expressionLanguageSupported: z.boolean().optional(),
@@ -139,6 +160,8 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
             writesAttributes: [],
             readsAttributes: [],
             tags: [],
+            properties: [],
+            relationships: [],
             required: querySelectorBoolean(extensionElement, "required"),
             sensitive: querySelectorBoolean(extensionElement, "sensitive"),
             expressionLanguageSupported: querySelectorBoolean(extensionElement, "expressionLanguageSupported"),
@@ -155,6 +178,30 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
         for(const tagElement of extensionElement.querySelectorAll("tags > tag")) {
             if(tagElement.textContent) {
                 extensionResult.data.tags.push(tagElement.textContent);
+            }
+        }
+
+        for(const propertyElement of extensionElement.querySelectorAll("properties > property")) {
+            if(propertyElement.textContent) {
+                const raw = await NarExtensionProperty.parseAsync({
+                    name: querySelectorString(propertyElement, "name"),
+                    description: querySelectorString(propertyElement, "description"),
+                    displayName: querySelectorString(propertyElement, "displayName"),
+                })
+
+                extensionResult.data.properties.push(raw);
+            }
+        }
+
+        for(const relationshipElement of extensionElement.querySelectorAll("relationships > relationship")) {
+            if(relationshipElement.textContent) {
+                const raw = await NarExtensionRelationship.parseAsync({
+                    name: querySelectorString(relationshipElement, "name"),
+                    description: querySelectorString(relationshipElement, "description"),
+                    autoTerminated: querySelectorBoolean(relationshipElement, "autoTerminated"),
+                })
+
+                extensionResult.data.relationships.push(raw);
             }
         }
 
@@ -192,7 +239,7 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
 
 export default async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters) {
     const length = files.length;
-
+    setCurrentProgress(0, length);
     for (let index = 0; index < length; index++) {
         setCurrentProgress(index, length);
         const file = files[index];

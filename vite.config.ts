@@ -52,7 +52,6 @@ export default defineConfig({
     react(),
     generateFile([
       buildinfo,
-      // await generateNarJson(),
     ]),
   ],
 })
