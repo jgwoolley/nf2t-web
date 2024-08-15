@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { Button, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import Nf2tLinearProgress, { useNf2tLinearProgress } from "../../components/Nf2tLinearProgress";
@@ -8,8 +8,11 @@ import Spacing from "../../components/Spacing";
 import { RoutePathType, routeDescriptions } from "../routeDescriptions";
 import { convertBytes } from "../../utils/convertBytes";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileUploadOutlined } from "@mui/icons-material";
+import { useNf2tTable } from "../../hooks/useNf2tTable";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import Nf2tTable from "../../components/Nf2tTable";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -72,6 +75,61 @@ export default function NarReader() {
         navigator.storage.estimate().then(estimate => setEstimate(estimate));
     }, []);
 
+    const narNameExamples = useQuery({
+        queryKey: ["narExamples"],
+        queryFn: async () => {
+            return fetch("./nars.txt")
+                .then(response => response.text())
+                .then(text => text.split("\n"));
+        },
+    });
+
+    const filteredNarNameExamples = useMemo(() =>{
+        if(!narNameExamples.data) {
+            return [];
+        }
+        if(!context.queryResults.data) {
+            return narNameExamples.data;
+        }
+        const parsedNames = new Set<string>();
+        for(const nar of context.queryResults.data.nars) {
+            parsedNames.add(nar.name);
+        }
+
+        return narNameExamples.data.filter( name => !parsedNames.has(name));
+        
+    },[context.queryResults.data, narNameExamples])
+
+    const tableProps = useNf2tTable({
+        childProps: undefined,
+        rows: filteredNarNameExamples,
+        snackbarProps: snackbarProps,
+        columns: [
+            {
+                columnName: "Nars",
+                bodyRow: ({row}) => row,
+                rowToString: (row) => row,
+            },
+            {
+                columnName: "Downloads",
+                bodyRow: ({row}) => <Button disabled={context.narsParse.isPending} onClick={async () => {
+                    const file = await fetch(`/nars/${row}`).then(async (response) => {
+                        const blob = await response.blob()
+                        return new File([blob], row);
+                    });
+
+                    context.narsParse.mutate({
+                        queryClient,
+                        files: [file],
+                        setCurrentProgress: progressBar.updateCurrent,
+                    });
+                }}><FileDownloadIcon/></Button>,
+                rowToString: (row) => row,
+            },
+        ],
+        canEditColumn: false,
+    });
+
     const narsLength = context.queryResults.data?.nars.length || 0;
     const extensionsLength = context.queryResults.data?.extensions.length || 0;
     const attributesLength = context.queryResults.data?.attributes.length || 0;
@@ -96,61 +154,12 @@ export default function NarReader() {
                     name="[licenseFile]"
                 />
             </IconButton>
-
-            {estimate && (
+            {progressBar.totalProgress && (
                 <>
-                    <h6>Storage Usage Estimate</h6>
-                    <p>usage: {convertBytes(estimate.usage)}</p>
-                    <p>quota: {convertBytes(estimate.quota)} ({estimate.usage && estimate.quota ? Math.round(estimate.usage / estimate.quota * 10000) / 100 : 0}%)</p>
+                    <Spacing />
+                    <Nf2tLinearProgress {...progressBar} />
                 </>
             )}
-
-            <h6>Download Examples</h6>
-            <Button variant="outlined" onClick={async () => {
-                const files = await fetch("./nars.txt")
-                    .then(response => response.text())
-                    .then(async (text) => {
-                        const files: File[] = [];
-                        const lines = text.split("\n");
-                        const length = 5; //lines.length;
-
-                        progressBar.updateCurrent(0, length);
-                        for (let index = 0; index < length; index++) {
-                            const line = lines[index];
-                            progressBar.updateCurrent(index, length);
-                            const file = await fetch(`/nars/${line}`).then(async (response) => {
-                                const blob = await response.blob()
-                                return new File([blob], line);
-                            })
-                            files.push(file);
-                        }
-                        return files;
-                    }).catch((e) => {
-                        snackbarProps.submitSnackbarMessage("Failed to parse examples.", "error", e)
-                        const files: File[] = [];
-                        return files;
-                    });
-
-                if (!files.length) {
-                    return;
-                }
-                context.narsParse.mutate({
-                    queryClient,
-                    files: files,
-                    setCurrentProgress: progressBar.updateCurrent,
-                });
-
-                progressBar.updateCurrent(files.length, files.length);
-            }}>Download</Button>
-
-            <h6>Clear provided Nar files.</h6>
-            <Button variant="outlined" onClick={() => {
-                context.narsDeleteAll.mutate({ queryClient });
-                progressBar.updateCurrent(undefined, undefined);
-            }}>Clear</Button>
-
-            <Spacing />
-            <Nf2tLinearProgress {...progressBar} />
 
             <h5>Results</h5>
             <p>The following links are available with more information.</p>
@@ -169,7 +178,28 @@ export default function NarReader() {
                     <Nf2tLinkRow to="/tagList" length={tagsLength} />
                 </TableBody>
             </Table>
+
+            <h5>Download Examples</h5>
+            <p>Below are a bunch of example Nars to download. The reason you can't download them all at once is the site freezes really bad.</p>
+            <Nf2tTable {...tableProps}/>
+
             <Spacing />
+
+            <h5>Clear provided Nar files.</h5>
+            <Button variant="outlined" onClick={() => {
+                context.narsDeleteAll.mutate({ queryClient });
+                progressBar.updateCurrent(undefined, undefined);
+            }}>Clear</Button>
+            <Spacing />
+
+            {estimate && (
+                <>
+                    <h5>Storage Usage Estimate</h5>
+                    <p>usage: {convertBytes(estimate.usage)}</p>
+                    <p>quota: {convertBytes(estimate.quota)} ({estimate.usage && estimate.quota ? Math.round(estimate.usage / estimate.quota * 10000) / 100 : 0}%)</p>
+                    <Spacing />
+                </>
+            )}
         </>
     )
 }

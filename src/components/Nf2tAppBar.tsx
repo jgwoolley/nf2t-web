@@ -32,7 +32,7 @@ function Nf2tSettingsMenu() {
 
     return (
         <>
-            <Tooltip title="More options.">
+            <Tooltip title="Menu options.">
                 <MenuItem
                     id="basic-button"
                     aria-controls={open ? 'basic-menu' : undefined}
@@ -40,7 +40,7 @@ function Nf2tSettingsMenu() {
                     aria-expanded={open ? 'true' : undefined}
                     onClick={handleClick}
                 >
-                    More
+                    Menu
                 </MenuItem>
             </Tooltip>
             <Menu
@@ -53,6 +53,8 @@ function Nf2tSettingsMenu() {
                 }}
             >
                 <Nf2tMenuItem to="/" />
+                <Nf2tMenuItem to="/unpackageBulk" />
+                <Nf2tMenuItem to="/package" />
                 <Nf2tMenuItem to="/narReader" />
                 <Nf2tMenuItem to="/source" />
                 <Nf2tMenuItem to="/settings" />
@@ -77,9 +79,6 @@ export function NifiAppBar() {
                     </Tooltip>
                     <div style={{ flex: 1 }} />
                     <Stack direction="row">
-                        {/* <Nf2tMenuItem to="/unpackage" /> */}
-                        <Nf2tMenuItem to="/unpackageBulk" />
-                        <Nf2tMenuItem to="/package" />
                         <Nf2tSettingsMenu />
                     </Stack>
                 </Toolbar>
