@@ -143,13 +143,13 @@ export default function NarReader() {
         columns: [
             {
                 columnName: "Nars",
-                bodyRow: ({ row }) => <ExternalLink href={`/nars/${row}`}>{row}</ExternalLink>,
+                bodyRow: ({ row }) => <ExternalLink href={`./nars/${row}`}>{row}</ExternalLink>,
                 rowToString: (row) => row,
             },
             {
                 columnName: "Add",
                 bodyRow: ({ row }) => <Button variant="outlined" disabled={context.narsParse.isPending} onClick={async () => {
-                    const file = await fetch(`/nars/${row}`).then(async (response) => {
+                    const file = await fetch(`./nars/${row}`).then(async (response) => {
                         const blob = await response.blob()
                         return new File([blob], row);
                     });
