@@ -64,7 +64,7 @@ export default function RouteComponent() {
         <>
             <Nf2tHeader to={routeId} />
             <p><Link to="/narReader">Go back to NarReader</Link>.</p>
-            {tag && (<p><Link to="/extensionList">Click here to clear tag filter</Link>.</p>)}
+            {tag && (<p>Tag Filter selected: <b>{tag}</b>. <Link to="/extensionList">Click here to clear tag filter</Link>.</p>)}
             <Nf2tTable {...tableProps} />
         </>
     )

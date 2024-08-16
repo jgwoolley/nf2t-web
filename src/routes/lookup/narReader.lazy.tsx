@@ -1,7 +1,8 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { Button, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
-import Nf2tLinearProgress, { useNf2tLinearProgress } from "../../components/Nf2tLinearProgress";
+import Nf2tLinearProgress from "../../components/Nf2tLinearProgress";
+import useNf2tLinearProgress from "../../hooks/useNf2tLinearProgress";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Link, createLazyRoute } from "@tanstack/react-router";
 import Spacing from "../../components/Spacing";
@@ -11,8 +12,14 @@ import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FileUploadOutlined } from "@mui/icons-material";
 import { useNf2tTable } from "../../hooks/useNf2tTable";
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Nf2tTable from "../../components/Nf2tTable";
+import AddIcon from '@mui/icons-material/Add';
+import ExternalLink from "../../components/ExternalLink";
+import Nf2tSnackbar from "../../components/Nf2tSnackbar";
+import ExtensionIcon from '@mui/icons-material/Extension';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import ArchiveIcon from '@mui/icons-material/Archive';
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -23,15 +30,34 @@ export interface Nf2tLinkRowProps {
     length: number,
 }
 
+function Nf2tLinkRowIcon({ to }: Nf2tLinkRowProps) {
+    if(to === "/narList") {
+        return <ArchiveIcon />
+    }
+    else if(to === "/extensionList") {
+        return <ExtensionIcon />
+    }
+    else if(to === "/attributeList") {
+        return <AddIcon />
+    }
+    else if(to === "/tagList") {
+        return <LocalOfferIcon />
+    }
+
+    return <WaterDropIcon />
+}
+
+
 function Nf2tLinkRow({ to, length }: Nf2tLinkRowProps) {
     const props = routeDescriptions[to]
 
     return (
         <TableRow>
             <TableCell>
-                <Link to={to}>
-                    {props.name}
-                </Link>
+                <Nf2tLinkRowIcon to={to} length={length}/>
+            </TableCell>
+            <TableCell>
+                <Link to={to}>{props.name}</Link>
             </TableCell>
             <TableCell>
                 {props.shortDescription}
@@ -65,6 +91,16 @@ export default function NarReader() {
                 queryClient,
                 files: Array.from(files),
                 setCurrentProgress: progressBar.updateCurrent,
+            }, {
+                onSuccess: (data) => {
+                    console.log(data);
+                    progressBar.updateCurrent(undefined, undefined);
+                    snackbarProps.submitSnackbarMessage("Uploaded All Nar(s)", "success");
+                },
+                onError: (e) => {
+                    progressBar.updateCurrent(undefined, undefined);
+                    snackbarProps.submitSnackbarMessage("Failed to Uploaded All Nar(s)", "error", e);
+                },
             });
 
             progressBar.updateCurrent(files.length, files.length);
@@ -80,25 +116,25 @@ export default function NarReader() {
         queryFn: async () => {
             return fetch("./nars.txt")
                 .then(response => response.text())
-                .then(text => text.split("\n"));
+                .then(text => text.split("\n").filter( x=> x.length > 0));
         },
     });
 
-    const filteredNarNameExamples = useMemo(() =>{
-        if(!narNameExamples.data) {
+    const filteredNarNameExamples = useMemo(() => {
+        if (!narNameExamples.data) {
             return [];
         }
-        if(!context.queryResults.data) {
+        if (!context.queryResults.data) {
             return narNameExamples.data;
         }
         const parsedNames = new Set<string>();
-        for(const nar of context.queryResults.data.nars) {
+        for (const nar of context.queryResults.data.nars) {
             parsedNames.add(nar.name);
         }
 
-        return narNameExamples.data.filter( name => !parsedNames.has(name));
-        
-    },[context.queryResults.data, narNameExamples])
+        return narNameExamples.data.filter(name => !parsedNames.has(name));
+
+    }, [context.queryResults.data, narNameExamples])
 
     const tableProps = useNf2tTable({
         childProps: undefined,
@@ -107,12 +143,12 @@ export default function NarReader() {
         columns: [
             {
                 columnName: "Nars",
-                bodyRow: ({row}) => row,
+                bodyRow: ({ row }) => <ExternalLink href={`/nars/${row}`}>{row}</ExternalLink>,
                 rowToString: (row) => row,
             },
             {
-                columnName: "Downloads",
-                bodyRow: ({row}) => <Button disabled={context.narsParse.isPending} onClick={async () => {
+                columnName: "Add",
+                bodyRow: ({ row }) => <Button variant="outlined" disabled={context.narsParse.isPending} onClick={async () => {
                     const file = await fetch(`/nars/${row}`).then(async (response) => {
                         const blob = await response.blob()
                         return new File([blob], row);
@@ -122,8 +158,17 @@ export default function NarReader() {
                         queryClient,
                         files: [file],
                         setCurrentProgress: progressBar.updateCurrent,
+                    }, {
+                        onSuccess: (data) => {
+                            console.log(data);
+                            snackbarProps.submitSnackbarMessage("Added Example Nar", "success");
+                        },
+                        onError: (e) => {
+                            snackbarProps.submitSnackbarMessage("Failed to add Example Nar", "error", e);
+                        },
                     });
-                }}><FileDownloadIcon/></Button>,
+
+                }}><AddIcon /></Button>,
                 rowToString: (row) => row,
             },
         ],
@@ -154,7 +199,7 @@ export default function NarReader() {
                     name="[licenseFile]"
                 />
             </IconButton>
-            {progressBar.totalProgress && (
+            {progressBar.totalProgress !==0 && (
                 <>
                     <Spacing />
                     <Nf2tLinearProgress {...progressBar} />
@@ -166,6 +211,7 @@ export default function NarReader() {
             <Table>
                 <TableHead>
                     <TableRow>
+                        <TableCell></TableCell>
                         <TableCell>Results</TableCell>
                         <TableCell>Description</TableCell>
                         <TableCell>Length</TableCell>
@@ -181,14 +227,24 @@ export default function NarReader() {
 
             <h5>Download Examples</h5>
             <p>Below are a bunch of example Nars to download. The reason you can't download them all at once is the site freezes really bad.</p>
-            <Nf2tTable {...tableProps}/>
+            <Nf2tTable {...tableProps} />
 
             <Spacing />
 
             <h5>Clear provided Nar files.</h5>
             <Button variant="outlined" onClick={() => {
-                context.narsDeleteAll.mutate({ queryClient });
-                progressBar.updateCurrent(undefined, undefined);
+                context.narsDeleteAll.mutate({ queryClient }, {
+                    onSuccess: (data) => {
+                        console.log(data);
+                        progressBar.updateCurrent(undefined, undefined);
+                        snackbarProps.submitSnackbarMessage("Deleted All Nar(s)", "success");
+                    },
+                    onError: (e) => {
+                        progressBar.updateCurrent(undefined, undefined);
+                        snackbarProps.submitSnackbarMessage("Failed to Deleted All Nar(s)", "error", e);
+                    },
+                });
+
             }}>Clear</Button>
             <Spacing />
 
@@ -200,6 +256,8 @@ export default function NarReader() {
                     <Spacing />
                 </>
             )}
+
+            <Nf2tSnackbar {...snackbarProps} />
         </>
     )
 }

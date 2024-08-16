@@ -31,6 +31,7 @@ export default function LookupAttribute() {
     return (
         <>
             <Nf2tHeader to="/attributesLookup" />
+            <Link to="/narReader">Navigate here to parse additional Nars.</Link>
 
             {(nf2tAttributeDescription) && (
                 <>
@@ -62,9 +63,9 @@ export default function LookupAttribute() {
 
             <h5>Attributes from Nars</h5>
 
-            {attributes.length > 0 ? (
+            {(attributes.length) > 0 ? (
                 <>
-                    <p>The {name} attribute was found on the following Nifi Processors. <Link to="/narReader">Navigate to other attributes.</Link></p>
+                    <p>The {name} attribute was found on the following Nifi Processors.</p>
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
@@ -97,7 +98,7 @@ export default function LookupAttribute() {
                     </TableContainer>
                 </>
             ) : (
-                <p>Did not find attribute "{name}" amoung the already parsed Nifi processors. <Link to="/narReader">Navigate here to parse additional Nars.</Link></p>
+                <p style={{color: "red"}}>Did not find attribute "{name}" amoung the already parsed Nifi processors.</p>
             )}
         </>
     )

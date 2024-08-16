@@ -79,6 +79,26 @@ export default function LookupNar() {
         return nars[0];
     }, [name, queryResults.data]);
 
+    const propertiesTableProps = useNf2tTable({
+        childProps: undefined,
+        rows: nar ? Object.entries(nar.manifest) : [],
+        snackbarProps: snackbarProps,
+        columns: [
+            {
+                columnName: "Key",
+                bodyRow: ({row}) => row[0],
+                rowToString: (row) => row[0],
+            },
+            {
+                columnName: "Value",
+                bodyRow: ({row}) => row[1],
+                rowToString: (row) => row[1],
+            },
+        ],
+        canEditColumn: false,
+    });
+
+
     return (
         <>
             <Nf2tHeader to="/narLookup" />
@@ -137,6 +157,9 @@ export default function LookupNar() {
             <h4>Nar Extensions</h4>
 
             <Nf2tTable {...tableProps} />
+
+            <h4>Nar Manifest Properties</h4>
+            <Nf2tTable {...propertiesTableProps} />
         </>
     )
 }

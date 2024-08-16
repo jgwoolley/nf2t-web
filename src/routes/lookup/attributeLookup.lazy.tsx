@@ -3,6 +3,7 @@ import Nf2tHeader from "../../components/Nf2tHeader";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
+import { Nar, NarAttribute, NarExtension } from "../../utils/readNars";
 
 //TODO: Do this more often?
 const routeId = "/attributeLookup" as const;
@@ -13,91 +14,105 @@ export const Route = createLazyRoute(routeId)({
     component: LookupAttribute,
 })
 
+type LookupAttributeResult = {
+    attribute: NarAttribute | null,
+    extension: NarExtension | null,
+    nar: Nar | null,
+}
+
 export default function LookupAttribute() {
     const { id } = route.useSearch();
     const { queryResults } = useNf2tContext();
 
-    const queryResult = useMemo(() => {
+    const { attribute, extension, nar }: LookupAttributeResult = useMemo(() => {
+        const result: LookupAttributeResult = {
+            attribute: null,
+            extension: null,
+            nar: null,
+        }
+
         if (!id) {
-            return null;
+            return result;
         }
 
         if (!queryResults.data) {
-            return null;
+            return result;
         }
 
         const attributeResults = queryResults.data.attributes.filter(x => x.id === id);
         if (attributeResults.length !== 1) {
-            return null;
+            return result;
         }
 
         const attribute = attributeResults[0];
+        result.attribute = attribute;
 
         const extensionResults = queryResults.data.extensions.filter(x => x.name === attribute.extensionId);
-        if (extensionResults.length !== 1) {
-            return null;
+        if (extensionResults.length === 1) {
+            result.extension = extensionResults[0];
         }
 
-        const extension = extensionResults[0];
-
-        const narResults = queryResults.data.extensions.filter(x => x.name === attribute.narId);
-        if (narResults.length !== 1) {
-            return null;
+        const narResults = queryResults.data.nars.filter(x => x.name === attribute.narId);
+        if (narResults.length === 1) {
+            result.nar = narResults[0];
         }
 
-        const nar = narResults[0];
-
-        return {
-            attribute: attribute,
-            extension: extension,
-            nar: nar,
-        }
+        return result;
 
     }, [queryResults.data, id]);
 
     return (
         <>
             <Nf2tHeader to={routeId} />
-            {/* <p>The {extension?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p> */}
+            <p><Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
 
             <h4>Nar Extension Information</h4>
+            {attribute == undefined && <p style={{color: "red"}}>Could not lookup attribute.</p>}
+            {extension == undefined && <p style={{color: "red"}}>Could not lookup extension.</p>}
+            {nar == undefined && <p style={{color: "red"}}>Could not lookup nar.</p>}
 
-            {queryResult ? (
-                <>
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableBody>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableBody>
+                        {attribute && (
+                            <>
                                 <TableRow>
                                     <TableCell>name</TableCell>
-                                    <TableCell>{queryResult?.attribute.name}</TableCell>
+                                    <TableCell>{attribute.name}</TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell>type</TableCell>
-                                    <TableCell>{queryResult?.attribute.type}</TableCell>
+                                    <TableCell>{attribute?.type}</TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell>description</TableCell>
-                                    <TableCell>{queryResult?.attribute.description}</TableCell>
+                                    <TableCell>{attribute?.description}</TableCell>
                                 </TableRow>
-                                <TableRow>
-                                    <TableCell>Nar</TableCell>
-                                    <TableCell><Link search={{ name: queryResult?.nar.name }} to="/narLookup">{queryResult?.nar.name}</Link></TableCell>
-                                </TableRow>
+                            </>
+                        )}
+
+                        {nar && (
+                            <TableRow>
+                                <TableCell>Nar</TableCell>
+                                <TableCell>{nar ? <Link search={{ name: nar.name }} to="/narLookup">{nar.name}</Link> : "Could not find"} </TableCell>
+                            </TableRow>
+                        )}
+
+                        {(extension && attribute) && (
+                            <>
                                 <TableRow>
                                     <TableCell>Extension</TableCell>
-                                    <TableCell><Link search={{ name: queryResult?.attribute.extensionId }} to="/extensionLookup">{queryResult?.extension.name}</Link></TableCell>
+                                    <TableCell><Link search={{ name: attribute.extensionId }} to="/extensionLookup">{extension.name}</Link></TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell>More examples</TableCell>
-                                    <TableCell><Link search={{ name: queryResult?.attribute.id || "" }} to="/attributesLookup">{queryResult?.attribute.name}</Link></TableCell>
+                                    <TableCell><Link search={{ name: attribute.name }} to="/attributesLookup">{attribute.name}</Link></TableCell>
                                 </TableRow>
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                </>
-            ) : (
-                <p style={{color: "red"}}>Unable to find any information for attribute with id: {id}.</p>
-            )}
+                            </>
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </>
     )
 }

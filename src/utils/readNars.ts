@@ -27,7 +27,7 @@ export const NarExtensionRelationship = z.object({
 export const NarExtensionProperty = z.object({
     name: z.string(),
     displayName: z.string(),
-    description: z.string(),
+    description: z.string().optional(),
     required: z.boolean().optional(),
     sensitive: z.boolean().optional(),
     expressionLanguageSupported: z.boolean().optional(),
@@ -237,11 +237,26 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
     return narResult;
 }
 
-export default async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters) {
-    const length = files.length;
-    setCurrentProgress(0, length);
-    for (let index = 0; index < length; index++) {
-        setCurrentProgress(index, length);
+export type ReadNarsResult = {
+    readonly filesLength: number
+    filesCount: number
+    narCount: number
+    narSuccessCount: number
+    narErrorCount: number
+}
+
+export default async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters): Promise<ReadNarsResult> {
+    const result: ReadNarsResult = {
+        filesLength: files.length,
+        filesCount: 0,
+        narCount: 0,
+        narSuccessCount: 0,
+        narErrorCount: 0,
+    }
+    setCurrentProgress(0, result.filesLength);
+    for (let index = 0; index < result.filesLength; index++) {
+        result.filesCount += 1;
+        setCurrentProgress(index, result.filesLength);
         const file = files[index];
         if (file == null) {
             continue;
@@ -249,6 +264,7 @@ export default async function readNars({files, setCurrentProgress, parseNar, par
         if (!file.name.endsWith(".nar")) {
             continue;
         }
+        result.narCount += 1;
 
         await JSZip.loadAsync(file).then(async (zipFile) => {
             //TODO: Actually use manifestFile
@@ -261,12 +277,14 @@ export default async function readNars({files, setCurrentProgress, parseNar, par
             }).then(Object.fromEntries).then(ManifestSchema.safeParseAsync);
 
             if(!manifestResult.success) {
+                result.narErrorCount +=1;
                 console.error(manifestResult.error);
                 return null;
             }
 
             const extensionManifestFile = zipFile.files["META-INF/docs/extension-manifest.xml"];
             if (extensionManifestFile == undefined) {
+                result.narErrorCount +=1;
                 return null;
             }
 
@@ -281,8 +299,12 @@ export default async function readNars({files, setCurrentProgress, parseNar, par
                     extensionManifest: extensionManifestFile,
                 });
             })
+        }).catch(() => {
+            result.narErrorCount +=1;
         });
     }
 
     setCurrentProgress(length, length);
+
+    return result;
 }

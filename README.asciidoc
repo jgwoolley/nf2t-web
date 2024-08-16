@@ -10,8 +10,12 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 - Git
 
 == TODO
+- Button based filters on tables in Group vs selector
+- Upload to the tool time?
+- Upload buttons without persistant file state instead of file input?
+- Attributes / Attributes name confusion. Unique vs non-Unique. use that language.
 - Pressing NAR buttons doesn't always work.
-- FlowFile Tools - Attribute Item is broken
+- FlowFile Tools - Attribute Item is broken (confirm fix worked)
 - Downloading the example flow files one by one isn't tha fun
 - Is there an alternative to renderToString??? https://react.dev/reference/react-dom/server/renderToString#removing-rendertostring-from-the-client-code
 - Lookup all attributes on https://github.com/apache/nifi/blob/main/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/GetFile.java
