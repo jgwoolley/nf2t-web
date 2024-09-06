@@ -108,7 +108,9 @@ export default function NarReader() {
     }
 
     useEffect(() => {
-        navigator.storage.estimate().then(estimate => setEstimate(estimate));
+        if(navigator?.storage !== undefined) {
+            navigator.storage.estimate().then(estimate => setEstimate(estimate));
+        }
     }, []);
 
     const narNameExamples = useQuery({
