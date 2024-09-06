@@ -149,19 +149,34 @@ export default function NarReader() {
             {
                 columnName: "Add",
                 bodyRow: ({ row }) => <Button variant="outlined" disabled={context.narsParse.isPending} onClick={async () => {
-                    const file = await fetch(`./nars/${row}`).then(async (response) => {
+                    const url =`./nars/${row}`;                    
+                    const file = await fetch(url).then(async (response) => {
+                        if (!response.ok) {
+                            throw response;
+                        }
                         const blob = await response.blob()
                         return new File([blob], row);
+                    }).catch((e) => {
+                        snackbarProps.submitSnackbarMessage("Failed to process Example Nar", "error", e);
+                        return null;
                     });
+
+                    if(file == null) {
+                        return;
+                    }
 
                     context.narsParse.mutate({
                         queryClient,
                         files: [file],
-                        setCurrentProgress: progressBar.updateCurrent,
+                        setCurrentProgress: () => {},
                     }, {
                         onSuccess: (data) => {
-                            console.log(data);
-                            snackbarProps.submitSnackbarMessage("Added Example Nar", "success");
+                            if(data.narErrorCount > 0) {
+                                snackbarProps.submitSnackbarMessage("Failed to add Example Nar", "error", data);
+                            } else {
+                                snackbarProps.submitSnackbarMessage("Added Example Nar", "success", data);
+                            }
+
                         },
                         onError: (e) => {
                             snackbarProps.submitSnackbarMessage("Failed to add Example Nar", "error", e);

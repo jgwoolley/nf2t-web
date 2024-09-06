@@ -10,25 +10,5 @@ https://jgwoolley.github.io/Nifi-Flow-File-Helper/
 - Git
 
 == TODO
-- Button based filters on tables in Group vs selector
-- Upload to the tool time?
-- Upload buttons without persistant file state instead of file input?
-- Attributes / Attributes name confusion. Unique vs non-Unique. use that language.
-- Pressing NAR buttons doesn't always work.
-- FlowFile Tools - Attribute Item is broken (confirm fix worked)
-- Downloading the example flow files one by one isn't tha fun
-- Is there an alternative to renderToString??? https://react.dev/reference/react-dom/server/renderToString#removing-rendertostring-from-the-client-code
-- Lookup all attributes on https://github.com/apache/nifi/blob/main/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/GetFile.java
-- Fix issue with lazy loaded routes, they can't export anything else!! no searchParam declerations
-- https://code.visualstudio.com/api/extension-guides/custom-editors
-- Add download all button that works without showDirectoryPicker API
-- Remove React Router Debug menu
-- Convert home -> homeRoute (as well as lazy loaders)...
-- Download FlowFile still works after clear. Something to do with method setState.
-- See if its possible to add nars to a persistant localstorage...
-- Build Info in NextPrev doesn't work... Honestly the RouteDescription thing may be too complicated...
-- Use regular manifest in readNar but also seperate extensionManifest / regularManifest / javascriptFile attributes in zod object...
-- Make sure PWA works on Chrome.
-- See if its possible to do the title / descriptions different for each route.: https://tanstack.com/router/latest.
-- Update name of Source to Nf2tSource, any anything else that looks generic.
-- Make a better Nf2t logo. Possibly the MUI Icon?
+
+include::./TODO.asciidoc[]

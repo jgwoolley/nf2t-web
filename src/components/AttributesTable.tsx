@@ -36,7 +36,10 @@ function AttributeValueRow({childProps, row, filteredRowIndex, childProps: {rows
     const value = useMemo(() => {
         const [key, value] = row;
         let result: JSX.Element = (<>{value}</>);
-        if(key === "lastModified") {
+        if(key === "uploadTime") {
+            result = (<>{convertDate(parseInt(value))}</>);
+        }
+        else if(key === "lastModified") {
             result = (<>{convertDate(parseInt(value))}</>);
         } else if(key === "size") {
             result = (<>{convertBytes(parseInt(value))}</>);

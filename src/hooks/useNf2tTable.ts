@@ -109,8 +109,8 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
             snackbarProps.submitSnackbarMessage("No columns for table configured", "error")
             return;
         }
-        const keys = columns.keys();
-        const newFilteredColumns: Nf2tTableColumn[] = Array.from(keys).map((_value, columnIndex) => {
+        const entries = columns.entries();
+        const newFilteredColumns: Nf2tTableColumn[] = Array.from(entries).map(([columnIndex]) => {
             const newColumn: Nf2tTableColumn = {
                 columnIndex: columnIndex,
                 sortDirection: Nf2tTableColumnSortDirectionDefault,

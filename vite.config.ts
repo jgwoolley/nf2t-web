@@ -9,7 +9,7 @@ const buildinfo = generateBuildinfo();
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: buildinfo.data.base,
+  // base: buildinfo.data.base,
   build: {
     rollupOptions: {
       input: fileURLToPath(new URL("./index.html", import.meta.url)),

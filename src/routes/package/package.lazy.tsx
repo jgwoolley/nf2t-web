@@ -118,6 +118,13 @@ async function generateDefaults(file: File, rows: FlowfileAttributeRowSchema[]) 
         ]);
     }
 
+    if (rows.filter((x) => x[0] === "uploadTime").length == 0) {
+        rows.push([
+            "uploadTime",
+            Math.floor(new Date().getTime()).toString(),
+        ]);
+    }
+
     if (rows.filter((x) => x[0] === "size").length == 0) {
         rows.push([
             "size",

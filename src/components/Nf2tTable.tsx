@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField } from "@mui/material";
+import { Autocomplete, Button, ButtonGroup, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, TextField } from "@mui/material";
 import { useEffect, useMemo } from "react";
 import Nf2tSnackbar from "./Nf2tSnackbar";
 import { Nf2tOnClickColumn, Nf2tTableColumn, Nf2tTableColumnEmptyFilterTypeDefault, Nf2tTableColumnHeadCellProps, Nf2tTableColumnSortDirectionDefault, Nf2tTableColumnSpec, Nf2tTableProps } from "../hooks/useNf2tTable";
@@ -9,17 +9,18 @@ function isColumnDefault(filteredColumn: Nf2tTableColumn) {
 
 function Nf2tTableColumnHeadCell<R, C>({ filteredColumns, filteredColumnIndex, columns, columnIndex, handleClickOpen, onClickColumn }: Nf2tTableColumnHeadCellProps<R, C>) {
     const filteredColumn = filteredColumns[filteredColumnIndex];
-    if(filteredColumn == undefined) {
+    if (filteredColumn == undefined) {
         return null;
     }
 
     const column = columns[columnIndex];
-    if(column == undefined) {
+    if (column == undefined) {
         return null;
     }
 
     return (
         <TableCell
+            style={{ cursor: "pointer" }}
             sortDirection={filteredColumn.sortDirection === "ignored" ? false : filteredColumn.sortDirection}
             onClick={() => {
                 onClickColumn(columnIndex + 1);
@@ -52,13 +53,14 @@ interface Nf2tColumnEditDialogContentProps<R, C> {
     columnPage: number,
     onClickColumn: Nf2tOnClickColumn,
     canEditColumn: boolean,
+    filteredRows: R[],
 }
 
-function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filteredColumns, columns, setFilteredColumns, canEditColumn }: Nf2tColumnEditDialogContentProps<R, C>) {
+function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filteredColumns, columns, setFilteredColumns, canEditColumn, filteredRows }: Nf2tColumnEditDialogContentProps<R, C>) {
     const columnMemoResult = useMemo<Nf2tColumnEditDialogMemoType<R, C>>(() => {
         const filteredColumnIndex = columnPage - 1;
         if (filteredColumnIndex < 0 || filteredColumnIndex >= filteredColumns.length) {
-            const result : Nf2tColumnEditDialogMemoErrorType = {
+            const result: Nf2tColumnEditDialogMemoErrorType = {
                 errorMessage: "No column available. Please create a new column.",
             }
 
@@ -67,7 +69,7 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
         const filteredColumn = filteredColumns[filteredColumnIndex];
 
         if (filteredColumn.columnIndex == undefined) {
-            const result : Nf2tColumnEditDialogMemoErrorType = {
+            const result: Nf2tColumnEditDialogMemoErrorType = {
                 errorMessage: `columnIndex undefined for index ${filteredColumn.columnIndex}.`,
             };
 
@@ -75,7 +77,7 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
         }
         const column = columns[filteredColumn.columnIndex];
         if (column == undefined) {
-            const result : Nf2tColumnEditDialogMemoErrorType = {
+            const result: Nf2tColumnEditDialogMemoErrorType = {
                 errorMessage: `column undefined for index ${filteredColumn.columnIndex}.`,
             }
             return result;
@@ -91,6 +93,29 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
 
         return result;
     }, [columns, filteredColumns, columnPage]);
+
+    const uniqueValues = useMemo(() => {
+        const uniqueValues = new Map<string, number>();
+        if (columnMemoResult.errorMessage === undefined) {
+            for (const row of filteredRows) {
+                const value = columnMemoResult.column.rowToString(row);
+                uniqueValues.set(value, (uniqueValues.get(value) || 0) + 1)
+            }
+        }
+
+        return Array.from(uniqueValues.entries()).sort((a, b) => b[1] - a[1]);
+    }, [columnMemoResult, filteredRows]);
+
+    const { uniqueValuesMinCount, uniqueValuesMin } = useMemo(() => {
+        const results = uniqueValues.filter(x => x[0].length > 1 && x[1] > 1).slice(0, 5);
+
+        return {
+            uniqueValuesMinCount: results.reduce((accumulator, currentValue) => accumulator + currentValue[1], 0),
+            uniqueValuesMin: results,
+        };
+
+    }, [uniqueValues]);
+
 
     if (columnMemoResult.errorMessage !== undefined) {
         return columnMemoResult.errorMessage;
@@ -174,22 +199,34 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
                 <MenuItem value="empty">Empty</MenuItem>
             </TextField>
 
-            <TextField
+            <Autocomplete
+                freeSolo
+                autoSelect
+                disablePortal
                 disabled={column.hideFilter}
                 fullWidth
-                label="Regex Filter"
+                options={uniqueValues.map(x => x[0])}
                 value={filteredColumn.regexFilter}
-                variant="standard"
-                margin="dense"
-                onChange={(e) => {
-                    filteredColumn.regexFilter = e.target.value;
+                onChange={(_, newValue) => {
+                    if (newValue == null) {
+                        return;
+                    }
+                    filteredColumn.regexFilter = newValue;
                     setFilteredColumns([...filteredColumns]);
                 }}
+                renderInput={(params) => (
+                    <TextField {...params}
+                        label="Regex Filter"
+                        variant="standard"
+                        margin="dense"
+
+                    />
+                )}
             />
 
             <ButtonGroup >
                 <Button
-                    variant={isColumnDefault(filteredColumn)? "contained" : "outlined"}
+                    variant={isColumnDefault(filteredColumn) ? "contained" : "outlined"}
                     onClick={() => {
                         filteredColumn.regexFilter = "";
                         filteredColumn.sortDirection = "ignored";
@@ -198,7 +235,7 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
                     }}
                 >Clear</Button>
                 {canEditColumn && (
-                    <Button 
+                    <Button
                         disabled={column.hideFilter}
                         onClick={() => {
                             filteredColumns.splice(filteredColumnIndex, 1);
@@ -212,6 +249,41 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
             <Pagination count={filteredColumns.length} page={columnPage} onChange={(_, newPage) => {
                 onClickColumn(newPage);
             }} />
+
+            {(uniqueValuesMin.length > 0) && (
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Table Value</TableCell>
+                            <TableCell>Fraction</TableCell>
+                            <TableCell>Percent</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {uniqueValuesMin.map((x, index) => (
+                            <TableRow
+                                key={index}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => {
+                                    filteredColumn.regexFilter = x[0];
+                                    setFilteredColumns([...filteredColumns]);
+                                }}
+                            >
+                                <TableCell>{x[0]}</TableCell>
+                                <TableCell>{x[1]}/{filteredRows.length}</TableCell>
+                                <TableCell>{Math.round(x[1] * 100 / filteredRows.length)}%</TableCell>
+                            </TableRow>)
+                        )}
+                        {(filteredRows.length - uniqueValuesMinCount > 0) && (
+                            <TableRow>
+                                <TableCell>Other Values</TableCell>
+                                <TableCell>{filteredRows.length - uniqueValuesMinCount}/{filteredRows.length}</TableCell>
+                                <TableCell>{Math.round(((filteredRows.length - uniqueValuesMinCount) / filteredRows.length) * 100)}%</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            )}
         </>
     )
 }
@@ -227,11 +299,10 @@ interface Nf2tColumnEditDialogProps<R, C> {
     canEditColumn: boolean,
     columnPage: number,
     onClickColumn: Nf2tOnClickColumn,
+    filteredRows: R[],
 }
 
-
-
-function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, columns, setFilteredColumns, restoreDefaultFilteredColumns, canEditColumn, onClickColumn, columnPage }: Nf2tColumnEditDialogProps<R, C>) {
+function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, columns, setFilteredColumns, restoreDefaultFilteredColumns, canEditColumn, onClickColumn, columnPage, filteredRows }: Nf2tColumnEditDialogProps<R, C>) {
     useEffect(() => {
         onClickColumn(1);
     }, [filteredColumns.length, columns.length, onClickColumn])
@@ -253,6 +324,7 @@ function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, column
             onClose={handleClose}
             aria-labelledby="alert-dialog-title"
             aria-describedby="alert-dialog-description"
+            fullWidth={true}
         >
             <DialogTitle id="alert-dialog-title">Edit Columns</DialogTitle>
             <DialogContent>
@@ -263,6 +335,7 @@ function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, column
                     columnPage={columnPage}
                     onClickColumn={onClickColumn}
                     canEditColumn={canEditColumn}
+                    filteredRows={filteredRows}
                 />
             </DialogContent>
             <DialogActions>
@@ -279,7 +352,7 @@ function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, column
     )
 }
 
-export default function Nf2tTable<R, C>({ childProps, columns, filteredColumns, filteredRows, canEditColumn, handleClickOpen, setFilteredColumns, onClickColumn, visibleRows, rowsPerPage, rowPage, handleChangePage, handleChangeRowsPerPage, handleClose, restoreDefaultFilteredColumns, columnPage, snackbarProps, open}: Nf2tTableProps<R, C>) {
+export default function Nf2tTable<R, C>({ childProps, columns, filteredColumns, filteredRows, canEditColumn, handleClickOpen, setFilteredColumns, onClickColumn, visibleRows, rowsPerPage, rowPage, handleChangePage, handleChangeRowsPerPage, handleClose, restoreDefaultFilteredColumns, columnPage, snackbarProps, open }: Nf2tTableProps<R, C>) {
 
     if (filteredColumns.length === 0) {
         return (
@@ -318,7 +391,7 @@ export default function Nf2tTable<R, C>({ childProps, columns, filteredColumns, 
                             <TableRow key={filteredRowIndex}>
                                 {filteredColumns.map((filteredColumn, filteredColumnIndex) => {
                                     const column = columns[filteredColumn.columnIndex];
-                                                                        
+
                                     return (
                                         <TableCell key={filteredColumnIndex}>
                                             <column.bodyRow
@@ -338,16 +411,16 @@ export default function Nf2tTable<R, C>({ childProps, columns, filteredColumns, 
                         ))}
                     </TableBody>
                 </Table>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={filteredRows.length}
-                    rowsPerPage={rowsPerPage} 
-                    page={rowPage}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
             </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={filteredRows.length}
+                rowsPerPage={rowsPerPage}
+                page={rowPage}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
             <Nf2tColumnEditDialog
                 open={open}
                 handleClose={handleClose}
@@ -358,6 +431,7 @@ export default function Nf2tTable<R, C>({ childProps, columns, filteredColumns, 
                 canEditColumn={canEditColumn}
                 columnPage={columnPage}
                 onClickColumn={onClickColumn}
+                filteredRows={filteredRows}
             />
             <Nf2tSnackbar {...snackbarProps} />
         </>

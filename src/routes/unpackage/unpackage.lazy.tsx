@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, TextField } from '@mui/material';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useMemo, useState } from 'react';
 import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import AttributesTable from '../../components/AttributesTable';
 import { FlowfileAttributeRowSchema } from '../../utils/schemas';
@@ -11,29 +11,15 @@ import Nf2tSnackbar from "../../components/Nf2tSnackbar";
 import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 
 import { Download, SyncProblem } from '@mui/icons-material';
-import { createLazyRoute } from '@tanstack/react-router';
+import { Link, createLazyRoute } from '@tanstack/react-router';
+import Nf2tTable from '../../components/Nf2tTable';
+import { useNf2tTable } from '../../hooks/useNf2tTable';
+import { useNf2tContext } from '../../hooks/useNf2tContext';
+import { findFilename, findMimetype } from '../../hooks/useUnpackage';
 
 export const Route = createLazyRoute("/unpackage")({
     component: UnpackageFlowFile,
 })
-
-export function findFilename(rows: FlowfileAttributeRowSchema[]) {
-    const filteredRows = rows.filter((x) => x[0] === "filename");
-    if (filteredRows.length == 1) {
-        return filteredRows[0][1];
-    } else {
-        return new Date().toString() + ".bin";
-    }
-}
-
-export function findMimetype(rows: FlowfileAttributeRowSchema[]) {
-    const filteredRows = rows.filter((x) => x[0] === "mime.type");
-    if (filteredRows.length == 1) {
-        return filteredRows[0][1];
-    } else {
-        return "application/octet-stream";
-    }
-}
 
 type DownloadContentType = (() => void);
 
@@ -57,6 +43,7 @@ export default function UnpackageFlowFile() {
     const snackbarResults = useNf2tSnackbar();
     const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
     const [downloadContent, setDownloadContent] = useState<DownloadContentType>();
+    const { queryResults } = useNf2tContext();
 
     const onUpload = (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -108,6 +95,66 @@ export default function UnpackageFlowFile() {
         reader.readAsArrayBuffer(file);
     }
 
+    const evaluatedProcessors = useMemo(() => {
+        if(!queryResults.data) {
+            return [];
+        }
+
+        const flowFileAttributes = new Set<string>();
+        for(const row of rows) {
+            flowFileAttributes.add(row[0]);
+        }
+
+        const results = new Map<string, [number, number]>();
+
+        for(const attribute of queryResults.data.attributes) {
+            let result = results.get(attribute.extensionId);
+            if(result == undefined) {
+                result = [0, 0];
+                results.set(attribute.extensionId, result);
+            }
+
+            result[0] +=1;
+
+            if(attribute.type === "writes") {
+                for(const localAttribute of flowFileAttributes) {
+                    if(attribute.name === localAttribute) {
+                        result[1] +=1;
+                    }
+                }
+            }
+        }
+
+        return Array.from(results.entries()).filter( x => x[1][1] > 0).map( x => {
+            return {
+                extensionId: x[0],
+                total: x[1][0],
+                sameCount: x[1][1],
+                matchPercent: (x[1][1]) / (x[1][0]),
+            }
+        });
+    }, [rows, queryResults.data]);
+
+    const tableProps = useNf2tTable({
+        childProps: undefined,
+        snackbarProps: snackbarResults,
+        rows: evaluatedProcessors,
+        columns: [
+            {
+                columnName: 'ExtensionId',
+                bodyRow:({row}) => <Link to="/extensionLookup" search={{name: row.extensionId}}>{row.extensionId}</Link>,
+                rowToString: (row) => row.extensionId,
+            },
+            {
+                columnName: 'Count',
+                bodyRow:({row}) => <>{Math.round(row.matchPercent * 100)}% ({row.sameCount}/{row.total})</>,
+                rowToString: (row) => row.matchPercent.toString(),
+                compareFn: (a, b) => a.matchPercent - b.matchPercent,
+            },
+    ],
+        canEditColumn: false,
+    });
+
     return (
         <>
             <Nf2tHeader to="/unpackage" />
@@ -128,7 +175,6 @@ export default function UnpackageFlowFile() {
             </>)
             }
 
-
             <Spacing />
             <h5>2. Unpackaged FlowFile Attributes</h5>
             <p>Download FlowFile Attributes.</p>
@@ -146,6 +192,11 @@ export default function UnpackageFlowFile() {
                 />
                 <ContentDownloadButton {...snackbarResults} downloadContent={downloadContent} />
             </ButtonGroup>
+
+            <h5>Possible Processors</h5>
+            <p>These are processors which might have updated this FlowFile.</p>
+            <Nf2tTable {...tableProps} />
+
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />
         </>

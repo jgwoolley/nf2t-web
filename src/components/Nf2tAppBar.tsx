@@ -1,8 +1,8 @@
-import { AppBar, Container,  Menu, MenuItem, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
-import { Link } from "@tanstack/react-router";
+import { AppBar, Container, Menu, MenuItem, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
+import { Link, useRouter } from "@tanstack/react-router";
 import ExternalLink from "./ExternalLink";
 import { useState } from "react";
-import { routeDescriptions, RoutePathType} from "../routes/routeDescriptions";
+import { routeDescriptions, RoutePathType } from "../routes/routeDescriptions";
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 
 const linkStyles: React.CSSProperties = {
@@ -15,12 +15,16 @@ function Nf2tMenuItem({ to }: { to: RoutePathType }) {
 
     return (
         <Tooltip title={route.shortDescription}>
-            <MenuItem><Link style={{ ...linkStyles }} to={route.to}>{route.shortName || route.name}</Link></MenuItem>
+            <MenuItem>
+                <Link style={{ ...linkStyles }} to={route.to}>{route.shortName || route.name}</Link>
+            </MenuItem>
         </Tooltip>
     )
 }
 
 function Nf2tSettingsMenu() {
+    const router = useRouter();
+
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLLIElement>) => {
@@ -61,6 +65,7 @@ function Nf2tSettingsMenu() {
                 <Tooltip title="External Apache Nifi Documentation.">
                     <MenuItem><ExternalLink style={{ ...linkStyles }} href="https://nifi.apache.org/docs.html">Nifi Docs</ExternalLink></MenuItem>
                 </Tooltip>
+                <MenuItem onClick={() => router.history.back()}>Back</MenuItem>
             </Menu>
         </>
     )
@@ -73,7 +78,7 @@ export function NifiAppBar() {
                 <Toolbar disableGutters >
                     <Tooltip title={routeDescriptions["/"].shortDescription}>
                         <>
-                            <WaterDropIcon />
+                            <WaterDropIcon sx={{mr: 1}}/>
                             <Typography variant="h6" color="inherit" component="div"><Link style={{ color: "inherit", textDecoration: "inherit" }} to="/">Nifi FlowFile Tools (Nf2t)</Link></Typography>
                         </>
                     </Tooltip>
