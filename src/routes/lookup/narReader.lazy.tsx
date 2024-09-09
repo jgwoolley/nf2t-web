@@ -151,7 +151,7 @@ export default function NarReader() {
             {
                 columnName: "Add",
                 bodyRow: ({ row }) => <Button variant="outlined" disabled={context.narsParse.isPending} onClick={async () => {
-                    const url =`./nars/${row}`;                    
+                    const url =`/nars/${row}`;                    
                     const file = await fetch(url).then(async (response) => {
                         if (!response.ok) {
                             throw response;
@@ -164,6 +164,7 @@ export default function NarReader() {
                     });
 
                     if(file == null) {
+                        snackbarProps.submitSnackbarMessage("Failed to process Example Nar", "error");
                         return;
                     }
 

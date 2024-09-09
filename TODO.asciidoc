@@ -1,4 +1,4 @@
-
+* Nar downloads no longer work ... because the router takes over the .nar link
 * Make sure the tools work as closely as possible to the standard nifi processors:
 ** link:https://github.com/apache/nifi/blob/5f0cbed5a6a68e995dac8ba10695be6e432620c5/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/PackageFlowFile.java#L40[PackageFlowFile.java]
 ** link:https://github.com/apache/nifi/blob/main/nifi-commons/nifi-utils/src/main/java/org/apache/nifi/flowfile/attributes/StandardFlowFileMediaType.java#L33[StandardFlowFileMediaType.java]

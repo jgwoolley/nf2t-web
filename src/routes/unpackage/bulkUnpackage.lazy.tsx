@@ -1,5 +1,5 @@
-import { Box, Button, ButtonGroup, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
-import { ChangeEvent, useMemo, useState } from 'react';
+import { Box, Button, ButtonGroup, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
+import { ChangeEvent, useCallback, useMemo, useState } from 'react';
 import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import Spacing from '../../components/Spacing';
 import { downloadFile } from '../../utils/downloadFile';
@@ -13,6 +13,8 @@ import { createLazyRoute } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import downloadAllUnpackaged, { BulkUnpackageRow, findFilename, findMimetype } from '../../utils/downloadAllUnpackaged';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
+import { useNf2tContext } from '../../hooks/useNf2tContext';
+import { FileUploadOutlined } from '@mui/icons-material';
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: UnPackageNifi,
@@ -128,8 +130,31 @@ export function UnPackageNifi() {
     const { submitSnackbarMessage } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
-    const [attributes, setAttributes] = useState<string[]>();
-    const [rows, setRows] = useState<BulkUnpackageRow[]>([]);
+    const {unpackagedRows: rows, setUnpackagedRows: setRows} = useNf2tContext();
+
+    const attributes: string[] = useMemo(() => {
+        if(rows.length <= 0) {
+            return [];
+        }
+
+        const results = new Set<string>();
+        for(const row of rows) {
+            for(const attribute of Object.entries(row.attributes)) {
+                results.add(attribute[0])
+            }
+        }
+
+        if (results.size <= 0) {
+            submitSnackbarMessage("Did not find any attributes in the given files.",
+                "error",
+                {
+                    uniqueAttributes: results.size,
+                    rows: rows,
+                });
+        }
+
+        return Array.from(results);
+    }, [rows, submitSnackbarMessage]);
 
     const columns: Nf2tTableColumnSpec<BulkUnpackageRow, undefined>[] = useMemo(() => {
         const results: Nf2tTableColumnSpec<BulkUnpackageRow, undefined>[] = [];
@@ -200,13 +225,13 @@ export function UnPackageNifi() {
         ignoreNoColumnsError: true,
     });
 
-    const resetProgress = () => {
+    const resetProgress = useCallback(() => {
         tableProps.restoreDefaultFilteredColumns();
         setTotal(defaultTotal);
         setCurrent(defaultCurrent);
-    }
-
-    const onUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    }, [tableProps])
+    
+    const onUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         try {
             resetProgress();
             const files = e.target.files;
@@ -217,8 +242,7 @@ export function UnPackageNifi() {
             setCurrent(0);
             setTotal(files.length);
 
-            const uniqueAttributes = new Set<string>();
-            const rows: BulkUnpackageRow[] = [];
+            const newRows: BulkUnpackageRow[] = [];
             console.log(`Starting to process ${files.length} file(s).`)
 
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
@@ -241,8 +265,7 @@ export function UnPackageNifi() {
                                 resolve(2);
                                 return;
                             }
-                            Object.entries(result.attributes).forEach(attribute => uniqueAttributes.add(attribute[0]));
-                            rows.push({
+                            newRows.push({
                                 attributes: result.attributes,
                                 file: file,
                             });
@@ -259,62 +282,46 @@ export function UnPackageNifi() {
 
             setCurrent(files.length);
             setTotal(files.length);
-
-            if (uniqueAttributes.size <= 0) {
-                submitSnackbarMessage("Did not find any attributes in the given files.",
-                    "error",
-                    {
-                        uniqueAttributes: uniqueAttributes.size,
-                        files: files.length,
-                    });
-                return;
-            }
-
-            const attributes = Array.from(uniqueAttributes);
-            setAttributes(attributes);
-
-            if (attributes.length <= 0) {
-                submitSnackbarMessage("Did not find any attributes in the given files.",
-                    "error",
-                    {
-                        uniqueAttributes: uniqueAttributes.size,
-                        attributes: attributes.length,
-                        files: files.length,
-                    });
-                return;
-            }
-            setRows([...rows]);
+            setRows([...newRows]);
         } catch (error) {
             submitSnackbarMessage("Unknown error.", "error", error);
         }
-    }
-
-    const clearFlowFiles = () => {
+    }, [resetProgress, setRows, submitSnackbarMessage])
+    
+    const clearFlowFiles = useCallback(() => {
         setRows([]);
-        setAttributes([]);
-    }
+    }, [setRows]);
 
     return (
         <>
             <Nf2tHeader to="/unpackageBulk" />
             <h5>1. Packaged FlowFiles</h5>
-            {rows.length <= 0 ? (<>
-                <p>Provide multiple FlowFiles.</p>
-                <TextField inputProps={{ multiple: true }} type="file" onChange={onUpload} />
-            </>) : (<>
-                <p>Clear provided FlowFiles.</p>
-                <Button variant="outlined" onClick={clearFlowFiles}>Clear</Button>
-            </>)}
 
+            <p>Upload FlowFiles.</p>
+            <IconButton component="label">
+                <FileUploadOutlined />
+                <input
+                    multiple={true}
+                    style={{ display: "none" }}
+                    type="file"
+                    hidden
+                    onChange={onUpload}
+                />
+            </IconButton>
+            <p>Clear provided FlowFiles.</p>
+            <Button variant="outlined" onClick={clearFlowFiles}>Clear</Button>
             <Spacing />
-            <h5>2. Download FlowFile Attributes CSV</h5>
-            <p>A CSV will be downloadable with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
-            {attributes ? (
+            <LinearProgressWithLabel current={current} total={total} />
+            <Spacing />
+
+            <h5>2. Review FlowFiles</h5>   
+            {(attributes.length > 0) && (
                <Nf2tTable {...tableProps} />
-            ) : (
-                <LinearProgressWithLabel current={current} total={total} />
             )}
             <Spacing />
+
+            <h5>3. Download FlowFile Attributes CSV</h5>
+            <p>A CSV will be downloadable with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
             <BulkUnpackageDownloadButtons {...snackbarResults} rows={rows} attributes={attributes} />
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />

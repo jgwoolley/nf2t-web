@@ -3,6 +3,7 @@ import useNarQuery from "../hooks/useQueryAllNf2tDB";
 import { useNarDeleteAll } from "../hooks/useClear";
 import useNarParse from "../hooks/useNarsParse";
 import { Nf2tContext, Nf2tContextType } from "../hooks/useNf2tContext";
+import { BulkUnpackageRow } from "../utils/downloadAllUnpackaged";
 
 export default function Nf2tContextProvider({children}: React.PropsWithChildren) {
     const queryResults = useNarQuery();
@@ -10,6 +11,8 @@ export default function Nf2tContextProvider({children}: React.PropsWithChildren)
     const narsParse = useNarParse();
     const [reactRouterDebug, setReactRouterDebug] = useState<boolean>(false);
     // const [colorMode, setColorMode] = useState<"light" | "dark">('light');
+
+    const [unpackagedRows, setUnpackagedRows] = useState<BulkUnpackageRow[]>([]);
 
     const nf2tContext: Nf2tContextType = {
         queryResults,
@@ -19,6 +22,8 @@ export default function Nf2tContextProvider({children}: React.PropsWithChildren)
         setReactRouterDebug, 
         // colorMode, 
         // setColorMode,
+        unpackagedRows,
+        setUnpackagedRows,
     };
 
 
