@@ -7,6 +7,7 @@
 ** Package could work as an array of files like Unpackager. All flowfiles could be grouped together.
 
 * Nf2t Table 
+** Tried to implement in NewNf2tTable @tanstack/react-table. Remove import if it doesn't work.
 ** tabs for columns
 ** tables don't work too well.
 ** Nf2t Table: regex filter does not work, only allowed to select full matches

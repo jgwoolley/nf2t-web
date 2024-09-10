@@ -1,5 +1,5 @@
 {
-  "name": "nifihelper",
+  "name": "@nf2t/webtools",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -23,6 +23,7 @@
     "@tanstack/react-query-devtools": "^5.51.21",
     "@tanstack/react-router": "^1.18.1",
     "@tanstack/router-devtools": "^1.18.1",
+    "@tanstack/react-table": "^8.20.5",
     "idb": "^8.0.0",
     "jsdom": "^24.1.1",
     "jszip": "^3.10.1",

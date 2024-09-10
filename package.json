@@ -1,5 +1,5 @@
 {
-    "name": "nf2t",
+    "name": "@nf2t/nf2t",
     "private": true,
     "version": "0.0.0",
     "scripts": {
