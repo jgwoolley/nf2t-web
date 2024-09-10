@@ -57,12 +57,12 @@ export default function Nf2tHome() {
         snackbarProps: snackbarProps,
         columns: [
             {
-                columnName: "",
+                columnName: "Tools",
                 bodyRow: ({row}) => <Link style={linkStyles} to={routeDescriptions[row].to}><ApplicationIcon path={row}/></Link>,
                 rowToString: (row) => routeDescriptions[row].name,
             },
             { 
-                columnName: "Tool", 
+                columnName: "", 
                 compareFn: (a, b) => routeDescriptions[b].name.localeCompare(routeDescriptions[a].name),
                 bodyRow: ({row}) => <Link style={linkStyles} to={routeDescriptions[row].to}>{routeDescriptions[row].name}</Link>,
                 rowToString: (row) => routeDescriptions[row].name,

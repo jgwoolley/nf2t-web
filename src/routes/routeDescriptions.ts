@@ -45,11 +45,15 @@ export type SourceReference = {
   prefix: string,
 }
 
+// https://github.com/apache/nifi/blob/main/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/UnpackContent.java
+
 const FlowFileUnpackagerV3Reference: SourceReference = {
   url: "https://github.com/apache/nifi/blob/main/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFileUnpackagerV3.java",
   name: "FlowFileUnpackagerV3.java",
   prefix: "Javascript Port of ",
 }
+
+// https://github.com/apache/nifi/blob/main/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/PackageFlowFile.java#L121
 
 const FlowFilePackagerV3Reference: SourceReference = {
   url: "https://github.com/apache/nifi/blob/main/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFilePackagerV3.java",

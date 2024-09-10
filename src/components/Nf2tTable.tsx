@@ -18,12 +18,14 @@ function Nf2tTableColumnHeadCell<R, C>({ filteredColumns, filteredColumnIndex, c
         return null;
     }
 
+    const columnPage = filteredColumnIndex + 1;
+
     return (
         <TableCell
             style={{ cursor: "pointer" }}
             sortDirection={filteredColumn.sortDirection === "ignored" ? false : filteredColumn.sortDirection}
             onClick={() => {
-                onClickColumn(columnIndex + 1);
+                onClickColumn(columnPage);
                 handleClickOpen();
             }}
         >

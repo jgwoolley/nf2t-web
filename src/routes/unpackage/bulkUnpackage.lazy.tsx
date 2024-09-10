@@ -17,7 +17,7 @@ import { useNf2tContext } from '../../hooks/useNf2tContext';
 import { FileUploadOutlined } from '@mui/icons-material';
 
 export const Route = createLazyRoute("/unpackageBulk")({
-    component: UnPackageNifi,
+    component: BulkUnPackageNifi,
 })
 
 const defaultTotal = -1;
@@ -125,7 +125,7 @@ export function BulkUnpackageDownloadButtons(props: BulkUnpackageDownloadButtons
     
 }
 
-export function UnPackageNifi() {
+export function BulkUnPackageNifi() {
     const snackbarResults = useNf2tSnackbar();
     const { submitSnackbarMessage } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
@@ -329,4 +329,4 @@ export function UnPackageNifi() {
     )
 }
 
-export default UnPackageNifi;
+export default BulkUnPackageNifi;

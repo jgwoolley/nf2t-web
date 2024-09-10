@@ -229,8 +229,8 @@ export default function NarReader() {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell></TableCell>
                         <TableCell>Results</TableCell>
+                        <TableCell></TableCell>
                         <TableCell>Description</TableCell>
                         <TableCell>Length</TableCell>
                     </TableRow>

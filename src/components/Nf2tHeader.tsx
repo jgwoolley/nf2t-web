@@ -1,17 +1,7 @@
 import { Typography } from "@mui/material";
-import { useEffect, useMemo } from "react";
 import ExternalLink from "./ExternalLink";
-import { RouteDescription, RoutePathType, routeDescriptions } from "../routes/routeDescriptions";
-
-export function useNf2tHeader({name, shortName}: RouteDescription) {
-    useEffect(() => {
-        document.title = `FlowFile Tools - ${shortName || name}`;
-    }, [shortName, name])
-
-    const headerTitle = useMemo(() => `FlowFile Tools - ${name}`, [name]);
-
-    return headerTitle;
-}
+import { RoutePathType, routeDescriptions } from "../routes/routeDescriptions";
+import useNf2tHeader from "../hooks/useNf2tHeader";
 
 export interface Nf2tHeaderProps {
     to: RoutePathType,

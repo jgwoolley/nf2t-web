@@ -41,6 +41,7 @@ export interface Nf2tTableParams<R, C> {
     canEditColumn: boolean,
     ignoreNoColumnsError?: boolean,
     maxColumns?: number,
+    minColumns?: number,
 }
 
 export type VisibleRow<R> = {
@@ -87,7 +88,7 @@ emptyFilterLut.set("empty", (value) => value.length === 0);
 emptyFilterLut.set("non-empty", (value) => value.length !== 0);
 emptyFilterLut.set("ignored", undefined);
 
-export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, canEditColumn, ignoreNoColumnsError, maxColumns: incomingMaxColumns}: Nf2tTableParams<R, C>): Nf2tTableProps<R, C> {    
+export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, canEditColumn, ignoreNoColumnsError, maxColumns: incomingMaxColumns, minColumns: incomingMinColumns}: Nf2tTableParams<R, C>): Nf2tTableProps<R, C> {    
     const [filteredColumns, setFilteredColumns] = useState<Nf2tTableColumn[]>([]);
     const [rowPage, setRowPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -98,15 +99,20 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
         setColumnPage(value);
     }, [setColumnPage]);
 
-    const maxColumns = incomingMaxColumns || 6;
-
     const restoreDefaultFilteredColumns = useCallback(() => {
-        if(columns.length == 0 || filteredColumns.length !== 0) {
+        const maxColumns = incomingMaxColumns || 6;
+        const minColumns = incomingMinColumns || 1;
+
+        if(columns.length == 0 || filteredColumns.length >= minColumns) {
+            return;
+        }
+
+        if(columns.length == 0) {
             return;
         }
 
         if (!ignoreNoColumnsError && columns.length <= 0) {
-            snackbarProps.submitSnackbarMessage("No columns for table configured", "error")
+            snackbarProps.submitSnackbarMessage("No columns for table configured", "error");
             return;
         }
         const entries = columns.entries();
@@ -121,17 +127,11 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
             return newColumn;
         });
 
-
         newFilteredColumns.splice(maxColumns);
         setFilteredColumns(newFilteredColumns);
-        console.log("reset columns.");
-    }, [columns, filteredColumns.length, ignoreNoColumnsError, maxColumns, snackbarProps])
+
+    }, [columns, filteredColumns.length, ignoreNoColumnsError, incomingMaxColumns, incomingMinColumns, snackbarProps])
     
-
-    useEffect(() => {
-        restoreDefaultFilteredColumns();
-    }, [restoreDefaultFilteredColumns]);
-
     useEffect(() => {
         restoreDefaultFilteredColumns();
     }, [columns, filteredColumns, restoreDefaultFilteredColumns]);
@@ -145,14 +145,14 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
     };
 
 
-    const handleChangePage = (_event: unknown, newPage: number) => {
+    const handleChangePage = useCallback((_event: unknown, newPage: number) => {
         setRowPage(newPage);
-    };
+    }, [setRowPage]);
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         onClickColumn(1);
-    };
+    }, [onClickColumn]);
 
     const filteredRows = useMemo(
         () => {
