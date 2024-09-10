@@ -8,7 +8,8 @@
         "build-extension": "npm run --prefix apps/webtools build-extension",
         "lint": "npm run --prefix apps/webtools lint",
         "preview": "npm run --prefix apps/webtools preview",
-        "fetch": "npm run --prefix apps/webtools fetch"
+        "fetch": "npm run --prefix apps/webtools fetch",
+        "downloadNars": "npm run --prefix apps/webtools downloadNars"
     },
     "workspaces": [
         "apps/webtools"

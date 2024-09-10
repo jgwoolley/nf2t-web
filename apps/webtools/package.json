@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "downloadNars": "bash downloadNars.sh",
     "dev": "vite",
     "build": "tsc && vite build",
     "build-extension": "tsc && vite build --config vite.config.extension.ts",

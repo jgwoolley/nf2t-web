@@ -30,8 +30,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Download Nars
-        run: bash downloadNars.sh
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
@@ -39,6 +37,8 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm install
+      - name: Download Nars
+        run: npm run downloadNars
       - name: Build
         run: npm run build
       - name: Setup Pages

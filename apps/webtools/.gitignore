@@ -24,6 +24,6 @@ dist-ssr
 *.sw?
 
 # Custom
-./downloads
-./public/nars
-./public/nars.txt
+downloads
+public/nars
+public/nars.txt
