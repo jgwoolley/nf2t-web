@@ -22,4 +22,5 @@ export const flowfileAttributeRow = z.array(z.string()).refine(
     }
 );
 
+// TODO: Deprecated
 export type FlowfileAttributeRowSchema = [string, string];

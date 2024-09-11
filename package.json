@@ -2,15 +2,6 @@
     "name": "@nf2t/nf2t",
     "private": true,
     "version": "0.0.0",
-    "scripts": {
-        "dev": "npm run --prefix apps/webtools dev",
-        "build": "npm run --prefix apps/webtools build",
-        "build-extension": "npm run --prefix apps/webtools build-extension",
-        "lint": "npm run --prefix apps/webtools lint",
-        "preview": "npm run --prefix apps/webtools preview",
-        "fetch": "npm run --prefix apps/webtools fetch",
-        "downloadNars": "npm run --prefix apps/webtools downloadNars"
-    },
     "workspaces": [
         "apps/webtools"
     ]

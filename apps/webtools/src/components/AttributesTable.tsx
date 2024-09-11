@@ -1,60 +1,74 @@
 import { FlowfileAttributeRowSchema } from '../utils/schemas';
-import { Button, ButtonGroup, TextField } from '@mui/material';
+import { AlertColor, Button, ButtonGroup, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
 import { Nf2tSnackbarProps, useNf2tSnackbar } from '../hooks/useNf2tSnackbar';
 import { Link } from '@tanstack/react-router';
 import { BodyRowComponentProps, Nf2tTableColumnSpec, useNf2tTable } from '../hooks/useNf2tTable';
 import Nf2tTable from './Nf2tTable';
-import { convertDate } from '../utils/convertDates';
 import { convertBytes } from '../utils/convertBytes';
 import ExternalLink from './ExternalLink';
+import { FlowFile } from '@nf2t/nifitools-js';
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
-    rows: FlowfileAttributeRowSchema[],
-    setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
+    flowFile: FlowFile | null,
+    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
     canEdit: boolean,
 }
 
 type AttributesTableChildProps = {
     editIndex: number,
     setEditIndex: React.Dispatch<React.SetStateAction<number>>,
-    rows: FlowfileAttributeRowSchema[],
-    setRows: React.Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
+    flowFile: FlowFile | null,
+    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
     deleteRow: (index: number) => void,
+    submitSnackbarMessage: (message: string, type: AlertColor, data?: unknown) => void,
 }
 
-function AttributeValueRow({childProps, row, filteredRowIndex, childProps: {rows, setRows}}: BodyRowComponentProps<FlowfileAttributeRowSchema, AttributesTableChildProps>) {
-    const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        row[1] = event.target.value;
-        setRows([...rows]);
-    }
-
-    const isEditing = filteredRowIndex === childProps.editIndex;
-    const value = useMemo(() => {
-        const [key, value] = row;
-        let result: JSX.Element = (<>{value}</>);
+function AttributeValue({row}: {row: FlowfileAttributeRowSchema}) {
+    const [key, value] = row;
+    try {
         if(key === "uploadTime") {
-            result = (<>{convertDate(parseInt(value))}</>);
+            return (<>{value}</>);
         }
         else if(key === "lastModified") {
-            result = (<>{convertDate(parseInt(value))}</>);
+            return (<>{value}</>);
         } else if(key === "size") {
-            result = (<>{convertBytes(parseInt(value))}</>);
+            return (<>{convertBytes(parseInt(value))}</>);
         } else if(key === "mime.type") {
-            result = (<ExternalLink href={`https://mimetype.io/${value}`}>{value}</ExternalLink>)
+            return (<ExternalLink href={`https://mimetype.io/${value}`}>{value}</ExternalLink>)
+        }
+    } catch(e) {
+        console.error(e);
+    }
+
+    return (<>{value}</>);
+
+}
+
+function AttributeValueRow({childProps, row, rowIndex, filteredRowIndex, childProps: {flowFile, setFlowFile, submitSnackbarMessage, }}: BodyRowComponentProps<FlowfileAttributeRowSchema, AttributesTableChildProps>) {
+    const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        if(flowFile == undefined) {
+            submitSnackbarMessage("No FlowFile provided", "error");
+            return;
         }
 
-        return result;
-    }, [row])
+        flowFile.attributes[rowIndex][1] = event.target.value;
+        setFlowFile({
+            content: flowFile.content,
+            attributes: [...flowFile.attributes],
+        })
+        console.log("test")
+    },[flowFile, rowIndex, setFlowFile, submitSnackbarMessage]);
 
+    const isEditing = filteredRowIndex === childProps.editIndex;
 
     return (isEditing) ? (
         <TextField onChange={onChange} value={row[1]} />
     ) : (
-        <>{value}</>
+        <AttributeValue row={row} />
     );
 }
 
@@ -77,21 +91,29 @@ function FunctionsRow({childProps, rowIndex, filteredRowIndex, childProps: {dele
 
 export function AttributesTable(props: AttributesTableProps) {
     const snackbarProps = useNf2tSnackbar();
-    const { rows, setRows, submitSnackbarMessage } = props;
-    const [editIndex, setEditIndex] = useState(-1);
+    const { flowFile, setFlowFile, submitSnackbarMessage } = props;
+    const [ editIndex, setEditIndex ] = useState(-1);
 
-    const deleteRow = (index: number) => {
-        const deletedRows = rows.splice(index, 1);
-        setRows([...rows]);
+    const deleteRow = useCallback((index: number) => {
+        if(flowFile == undefined) {
+            submitSnackbarMessage("No FlowFile", "error");
+            return;
+        }
+        const deletedRows = flowFile.attributes.splice(index, 1);
+        setFlowFile({
+            content: flowFile.content,
+            attributes: flowFile.attributes,
+        });
         submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x[0]).join(", ")}`, "info");
-    }
+    }, [flowFile, setFlowFile, submitSnackbarMessage]);
 
     const childProps: AttributesTableChildProps = {
-        rows,
-        setRows,
+        flowFile, 
+        setFlowFile,
         editIndex,
         setEditIndex,
         deleteRow,
+        submitSnackbarMessage,
     }
 
     const columns: Nf2tTableColumnSpec<FlowfileAttributeRowSchema, AttributesTableChildProps>[] = useMemo(() => {
@@ -131,7 +153,7 @@ export function AttributesTable(props: AttributesTableProps) {
         snackbarProps: snackbarProps,
         canEditColumn: false,
         columns: columns,
-        rows: rows,
+        rows: flowFile?.attributes || [],
     });
 
     return (

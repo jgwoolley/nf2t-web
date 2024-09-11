@@ -1,8 +1,6 @@
 import { Button, ButtonGroup, TextField } from '@mui/material';
 import { ChangeEvent, useMemo, useState } from 'react';
-import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import AttributesTable from '../../components/AttributesTable';
-import { FlowfileAttributeRowSchema } from '../../utils/schemas';
 import { downloadFile } from '../../utils/downloadFile';
 import Spacing from '../../components/Spacing';
 import AttributeDownload from '../../components/AttributeDownload';
@@ -15,7 +13,7 @@ import { Link, createLazyRoute } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
-import { findFilename, findMimetype } from '../../hooks/useUnpackage';
+import { findCoreAttributes, FlowFile, unpackageFlowFiles } from '@nf2t/nifitools-js';
 
 export const Route = createLazyRoute("/unpackage")({
     component: UnpackageFlowFile,
@@ -41,7 +39,8 @@ function ContentDownloadButton({ downloadContent, submitSnackbarMessage }: Conte
 
 export default function UnpackageFlowFile() {
     const snackbarResults = useNf2tSnackbar();
-    const [rows, setRows] = useState<FlowfileAttributeRowSchema[]>([]);
+
+    const [flowFile, setFlowFile] = useState<FlowFile | null>(null);
     const [downloadContent, setDownloadContent] = useState<DownloadContentType>();
     const { queryResults } = useNf2tContext();
 
@@ -66,24 +65,25 @@ export default function UnpackageFlowFile() {
                 return;
             }
             try {
-                const result = unpackageFlowFile(buffer);
+                const result = unpackageFlowFiles(buffer);
                 if (result == undefined) {
                     setDownloadContent(undefined);
                     return;
                 }
-                const { content } = result;
-                const attributes = Object.entries(result.attributes);
 
-                setRows(attributes);
+                //TODO: Only handles one FlowFile
+
+                const flowFile = result[0];
+
+                setFlowFile(flowFile);
 
                 setDownloadContent(() => () => {
-                    const filename = findFilename(attributes);
-                    const mimetype = findMimetype(attributes);
+                    const coreAttributes = findCoreAttributes(flowFile.attributes);
 
-                    const blob = new Blob([content], {
-                        type: mimetype,
-                    });
-                    downloadFile(blob, filename);
+                    //TODO: Logic a little wierd between CoreAttributes and content can be file and have name.
+                    const filename = coreAttributes.filename || "flowFile";
+
+                    downloadFile(new File([flowFile.content], filename));
                     snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
                 });
 
@@ -96,12 +96,12 @@ export default function UnpackageFlowFile() {
     }
 
     const evaluatedProcessors = useMemo(() => {
-        if(!queryResults.data) {
+        if(!queryResults.data || flowFile == undefined) {
             return [];
         }
 
         const flowFileAttributes = new Set<string>();
-        for(const row of rows) {
+        for(const row of flowFile.attributes) {
             flowFileAttributes.add(row[0]);
         }
 
@@ -133,7 +133,7 @@ export default function UnpackageFlowFile() {
                 matchPercent: (x[1][1]) / (x[1][0]),
             }
         });
-    }, [rows, queryResults.data]);
+    }, [flowFile, queryResults.data]);
 
     const tableProps = useNf2tTable({
         childProps: undefined,
@@ -159,7 +159,7 @@ export default function UnpackageFlowFile() {
         <>
             <Nf2tHeader to="/unpackage" />
             <h5>1. Packaged FlowFile</h5>
-            {Object.entries(rows).length <= 0 ? (
+            {flowFile ? (
                 <>
                     <p>Provide a Packaged FlowFile. The unpackaged FlowFile content will be available for download.</p>
                     <TextField type="file" onChange={onUpload} />
@@ -170,7 +170,7 @@ export default function UnpackageFlowFile() {
                 <Button variant="outlined" onClick={() => {
                     //TODO: Not working...
                     setDownloadContent(undefined);
-                    setRows([]);
+                    setFlowFile(null);
                 }}>Clear</Button>
             </>)
             }
@@ -180,15 +180,15 @@ export default function UnpackageFlowFile() {
             <p>Download FlowFile Attributes.</p>
             <AttributesTable
                 {...snackbarResults}
-                rows={rows}
-                setRows={setRows}
+                flowFile={flowFile}
+                setFlowFile={setFlowFile}
                 canEdit={false}
             />
             <Spacing />
             <ButtonGroup>
                 <AttributeDownload
                     {...snackbarResults}
-                    rows={rows}
+                    flowFile={flowFile}
                 />
                 <ContentDownloadButton {...snackbarResults} downloadContent={downloadContent} />
             </ButtonGroup>

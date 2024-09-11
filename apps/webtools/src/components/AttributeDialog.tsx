@@ -1,15 +1,14 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material";
-import { FlowfileAttributeRowSchema } from "../utils/schemas";
-import { Dispatch, } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { FlowFile } from "@nf2t/nifitools-js";
 
 export interface AttributeDialogProps {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    rows: FlowfileAttributeRowSchema[],
-    setRows: Dispatch<React.SetStateAction<FlowfileAttributeRowSchema[]>>,
+    flowFile: FlowFile | null,
+    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
 }
 
 const attributeDialogRow = z.object({
@@ -35,7 +34,14 @@ export function AttributeDialog(props: AttributeDialogProps) {
     };
 
     const onSubmit: SubmitHandler<AttributeDialogRowSchema> = (data) => {
-        props.setRows([...props.rows, [data.key, data.value]]);
+        const {flowFile} = props;
+        if(flowFile != undefined) {
+            props.setFlowFile({
+                content: flowFile.content,
+                attributes: [...flowFile.attributes, [data.key, data.value]],
+            })
+        }
+
         handleClose();
     }
 

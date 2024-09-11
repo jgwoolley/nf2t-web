@@ -1,6 +1,5 @@
 import { Box, Button, ButtonGroup, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
 import { ChangeEvent, useCallback, useMemo, useState } from 'react';
-import unpackageFlowFile from '../../utils/unpackageFlowFile';
 import Spacing from '../../components/Spacing';
 import { downloadFile } from '../../utils/downloadFile';
 import Nf2tHeader from '../../components/Nf2tHeader';
@@ -11,10 +10,11 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
 import { createLazyRoute } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
-import downloadAllUnpackaged, { BulkUnpackageRow, findFilename, findMimetype } from '../../utils/downloadAllUnpackaged';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
 import { FileUploadOutlined } from '@mui/icons-material';
+import { findCoreAttributes, FlowFile, unpackageFlowFiles } from '@nf2t/nifitools-js';
+import {downloadAllUnpackaged}  from '../../utils/downloadAllUnpackaged';
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: BulkUnPackageNifi,
@@ -46,7 +46,7 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
 }
 
 export interface BulkUnpackageDownloadButtonsProps extends Nf2tSnackbarProps {
-    rows: BulkUnpackageRow[],
+    rows: FlowFile[],
     attributes: string[] | undefined,
 }
 
@@ -61,8 +61,10 @@ export function BulkUnpackageDownloadReportButton({ submitSnackbarMessage, rows,
         content += "\n";
 
         for (const row of rows) {
+            const coreAttributes = findCoreAttributes(row.attributes);
+
             for (const attribute of attributes) {
-                content += JSON.stringify(row.attributes[attribute] || "")
+                content += JSON.stringify(coreAttributes[attribute] || "")
                 content += ","
             }
             content += "\n"
@@ -72,7 +74,7 @@ export function BulkUnpackageDownloadReportButton({ submitSnackbarMessage, rows,
             type: "text/csv",
         })
 
-        downloadFile(blob, "bulk.csv");
+        downloadFile(new File([blob], "bulk.csv"));
         submitSnackbarMessage("Downloaded bulk report.", "info");
     }
 
@@ -156,8 +158,8 @@ export function BulkUnPackageNifi() {
         return Array.from(results);
     }, [rows, submitSnackbarMessage]);
 
-    const columns: Nf2tTableColumnSpec<BulkUnpackageRow, undefined>[] = useMemo(() => {
-        const results: Nf2tTableColumnSpec<BulkUnpackageRow, undefined>[] = [];
+    const columns: Nf2tTableColumnSpec<FlowFile, undefined>[] = useMemo(() => {
+        const results: Nf2tTableColumnSpec<FlowFile, undefined>[] = [];
         if(attributes == undefined) {
             return results;
         }
@@ -171,11 +173,12 @@ export function BulkUnPackageNifi() {
                             startIcon={<CloudDownloadIcon />}
                             variant="outlined"
                             onClick={() => {
-                                  
+                                const coreAttributes = findCoreAttributes(row.attributes);
+
                                 const blob = new Blob([JSON.stringify(row.attributes)], {
                                     type: "application/json",
                                 });
-                                downloadFile(blob, (row.attributes["filename"] || "attributes") + ".json");
+                                downloadFile(new File([blob], (coreAttributes.filename || "attributes") + ".json"));
                                 snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
 
                             }}
@@ -183,18 +186,8 @@ export function BulkUnPackageNifi() {
                         <Button 
                             startIcon={<CloudDownloadIcon />}
                             onClick={async () => {
-                                const filename = findFilename(row);
-                                const mimetype = findMimetype(row);
-            
-                                const results = unpackageFlowFile(await row.file.arrayBuffer());
-                                if(results == undefined) {
-                                    return;
-                                }
-
-                                const blob = new Blob([results.content], {
-                                    type: mimetype,
-                                });
-                                downloadFile(blob, filename);
+                                const coreAttributes = findCoreAttributes(row.attributes);
+                                downloadFile(new File([row.content], coreAttributes.filename || "content"));
                                 snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
                             }}
                             variant="outlined"
@@ -208,15 +201,23 @@ export function BulkUnPackageNifi() {
         for(const attribute of attributes) {
             results.push({
                 columnName: attribute,
-                bodyRow: ({row}) => row.attributes[attribute] || "",
-                rowToString: (row: BulkUnpackageRow) => row.attributes[attribute] || "",
+                bodyRow: ({row}) => {
+                    // TODO: This is slow...
+                    const coreAttributes = findCoreAttributes(row.attributes);
+                    return coreAttributes[attribute] || "";
+                },
+                rowToString: (row: FlowFile) => {
+                    // TODO: This is slow...
+                    const coreAttributes = findCoreAttributes(row.attributes);
+                    return coreAttributes[attribute] || "";
+                },
             });
         }
 
         return results;
     }, [attributes, snackbarResults]);
 
-    const tableProps = useNf2tTable<BulkUnpackageRow, undefined>({
+    const tableProps = useNf2tTable<FlowFile, undefined>({
         childProps: undefined,
         snackbarProps: snackbarResults,
         canEditColumn: true,
@@ -242,7 +243,7 @@ export function BulkUnPackageNifi() {
             setCurrent(0);
             setTotal(files.length);
 
-            const newRows: BulkUnpackageRow[] = [];
+            const newRows: FlowFile[] = [];
             console.log(`Starting to process ${files.length} file(s).`)
 
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
@@ -259,16 +260,8 @@ export function BulkUnPackageNifi() {
                             return;
                         }
                         try {
-                            const result = unpackageFlowFile(buffer);
-                            if (result == undefined) {
-                                console.error("Recieved no result from unpackageFlowFile.");
-                                resolve(2);
-                                return;
-                            }
-                            newRows.push({
-                                attributes: result.attributes,
-                                file: file,
-                            });
+                            const result = unpackageFlowFiles(buffer);
+                            newRows.push(...result);
                         } catch (e) {
                             console.error(e);
                             resolve(3);

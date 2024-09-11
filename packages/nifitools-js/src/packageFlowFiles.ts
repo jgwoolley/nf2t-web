@@ -1,7 +1,4 @@
-import { FlowfileAttributeRowSchema, } from "./schemas";
-
-const MAGIC_HEADER = 'NiFiFF3';
-const MAX_VALUE_2_BYTES = 65535;
+import { FlowFile, MAGIC_HEADER, MAX_VALUE_2_BYTES, FLOWFILE_MEDIA_TYPES, findCoreAttributes, FLOWFILE_EXTENSION } from "./schemas";
 
 /**
  * 
@@ -59,47 +56,57 @@ function writeLong(bytes: number[], val: number) {
         byteHelper(val, 6),
         byteHelper(val, 7),
     ];
-    // console.log(new_bytes);
-    // console.log(bytes);
     for(const x of new_bytes.entries()) {
         bytes.push(x[1]);
     }
-    // console.log(bytes);
 }
 
-function findFilename(attributes: FlowfileAttributeRowSchema[], file: File) {    
-    for(let index = 0; index < attributes.length; index++) {
-        const attribute = attributes[index];
-        if(attribute[0] === "filename") {
-            return attribute[1];
+export type PackageFlowFilesOptions = {
+    addNf2tAttributes?: boolean,
+}
+
+/**
+ * 
+ * @param attributes 
+ * @param file 
+ * @returns 
+ * 
+ * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFilePackagerV3.java
+ */
+export function packageFlowFiles(flowFiles: FlowFile[]): File {
+    let filename : string | null = null;
+    const blobParts: BlobPart[] = [];
+
+    for(const flowFile of flowFiles) {
+        const coreAttributes = findCoreAttributes(flowFile.attributes);
+        if(filename == undefined && coreAttributes.filename) {
+            filename = coreAttributes.filename;
         }
+
+        const bytes: number[] = [];
+
+        pushUTF8(bytes, MAGIC_HEADER);
+
+        writeFieldLength(bytes, flowFile.attributes.length);
+        for(let i=0; i < flowFile.attributes.length; i++) {
+            const row = flowFile.attributes[i];
+            writeString(bytes, row[0]);
+            writeString(bytes, row[1]);
+        }
+        writeLong(bytes, flowFile.content.size);
+        blobParts.push(new Uint8Array(bytes));
+        blobParts.push(flowFile.content);
     }
 
-    return file.name;
-}
-
-export function packageFlowFile(attributes: FlowfileAttributeRowSchema[], file: File) {
-    const filename = findFilename(attributes, file);
-    const bytes: number[] = [];
-
-    pushUTF8(bytes, MAGIC_HEADER);
-
-    writeFieldLength(bytes, attributes.length);
-    for(let i=0; i < attributes.length; i++) {
-        const row = attributes[i];
-        writeString(bytes, row[0]);
-        writeString(bytes, row[1]);
+    if(filename == undefined) {
+        filename = "flowFiles";
     }
-    writeLong(bytes, file.size);
 
-    const blob = new Blob([new Uint8Array(bytes), file], {
-        type: "application/octet-stream",
+    const blob = new File(blobParts, filename + FLOWFILE_EXTENSION, {
+        type: FLOWFILE_MEDIA_TYPES[3],
     })
     
-    return {
-        filename: filename + ".pkg",
-        blob: blob,
-    }
+    return blob;
 }
 
-export default packageFlowFile;
+export default packageFlowFiles;

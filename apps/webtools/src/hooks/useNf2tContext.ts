@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { UseNarDeleteAll } from "../hooks/useClear";
 import { UseNarsParseResult } from "../hooks/useNarsParse";
 import { UseQueryAllNf2tDBResult } from "./useQueryAllNf2tDB";
-import { BulkUnpackageRow } from "../utils/downloadAllUnpackaged";
+import { FlowFile } from "@nf2t/nifitools-js";
 
 export type Nf2tContextType = {
     queryResults: UseQueryAllNf2tDBResult,
@@ -14,8 +14,8 @@ export type Nf2tContextType = {
     // colorMode: "light" | "dark",
     // setColorMode: React.Dispatch<React.SetStateAction<"light" | "dark">>,
 
-    unpackagedRows: BulkUnpackageRow[]
-    setUnpackagedRows: React.Dispatch<React.SetStateAction<BulkUnpackageRow[]>>,
+    unpackagedRows: FlowFile[]
+    setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFile[]>>,
 }
 
 export const Nf2tContext = createContext<Nf2tContextType | null>(null);

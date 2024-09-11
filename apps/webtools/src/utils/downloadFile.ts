@@ -3,17 +3,16 @@
  * 
  * @see https://stackoverflow.com/questions/50694881/how-to-download-file-in-react-js
  * 
- * @param blob 
- * @param filename 
+ * @param file 
  */
-export function downloadFile(blob: Blob, filename: string) {
-      const url = window.URL.createObjectURL(blob);
+export function downloadFile(file: File) {
+      const url = window.URL.createObjectURL(file);
 
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute(
           'download',
-          filename,
+          file.name,
       );
 
       // Append to html link element page
