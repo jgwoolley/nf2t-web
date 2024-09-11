@@ -3,7 +3,8 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": ["es2022"],
+    // TODO: Shoudln't have to add DOM just to get Blob to import...
+    "lib": ["es2022", "DOM"],
     "skipLibCheck": true,
 
     /* Bundler mode */
