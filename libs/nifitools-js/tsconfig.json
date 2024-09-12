@@ -3,7 +3,7 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    // TODO: Shoudln't have to add DOM just to get Blob to import...
+    // TODO: Added DOM, because some imports weren't working on GitHub Actions (Blob, AlgorithmIdentifier, etc)
     "lib": ["es2022", "DOM"],
     "skipLibCheck": true,
 

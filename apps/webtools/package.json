@@ -25,6 +25,7 @@
     "@tanstack/router-devtools": "^1.18.1",
     "@tanstack/react-table": "^8.20.5",
     "@nf2t/nifitools-js": "workspace:*",
+    "@nf2t/cicdtools": "workspace:*",
     "idb": "^8.0.0",
     "jsdom": "^24.1.1",
     "jszip": "^3.10.1",

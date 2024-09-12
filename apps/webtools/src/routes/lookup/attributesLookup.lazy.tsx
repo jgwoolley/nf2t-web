@@ -4,8 +4,7 @@ import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import ExternalLink from "../../components/ExternalLink";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
-import { nf2tAttributes } from "../../utils/nf2tAttributes";
-import { coreAttributes } from "../../utils/coreAttributes";
+import { getNf2tAttribute, getCoreAttribute } from "@nf2t/nifitools-js";
 
 const route = getRouteApi("/attributesLookup");
 
@@ -25,9 +24,9 @@ export default function LookupAttribute() {
         return queryResults.data.attributes.filter(x => x.name === name);
     }, [queryResults.data, name]);
 
-    const nf2tAttributeDescription = name ? nf2tAttributes.get(name) : null;
-    const coreAttributeDescription = name ? coreAttributes.get(name) : null;
-
+    const nf2tAttributeDescription = name == undefined ? null : getNf2tAttribute(name)?.description;
+    const coreAttributeDescription = name == undefined ? null : getCoreAttribute(name)?.description;
+        
     return (
         <>
             <Nf2tHeader to="/attributesLookup" />

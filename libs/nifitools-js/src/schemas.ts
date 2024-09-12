@@ -120,8 +120,24 @@ export function isCoreAttribute(key: string): key is CoreAttributeNames {
     return key in CORE_ATTRIBUTES;
 }
 
+export function getCoreAttribute(key: string): AttributeSpecification<CoreAttributeNames> | null {
+    if(isCoreAttribute(key)) {
+        return CORE_ATTRIBUTES[key];
+    }
+
+    return null;
+}
+
 export function isNf2tAttribute(key: string): key is Nf2tAttributeNames {
     return key in NF2T_ATTRIBUTES;
+}
+
+export function getNf2tAttribute(key: string): AttributeSpecification<Nf2tAttributeNames> | null {
+    if(isNf2tAttribute(key)) {
+        return NF2T_ATTRIBUTES[key];
+    }
+
+    return null;
 }
 
 export type CoreFlowFileAttributes = Partial<Record<CoreAttributeNames, string> & Record<Nf2tAttributeNames, string> & Record<string, string>>;

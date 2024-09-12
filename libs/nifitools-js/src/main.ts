@@ -9,7 +9,9 @@ export {
     FLOWFILE_ATTRIBUTES_EXTENSION,
     MAGIC_HEADER,
     isCoreAttribute,
+    getCoreAttribute,
     isNf2tAttribute,
+    getNf2tAttribute,
     findCoreAttributes,
 } from "./schemas";
 
