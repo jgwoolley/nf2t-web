@@ -1,4 +1,3 @@
-import { arrayBuffer } from "stream/consumers";
 import packageFlowFiles from "./packageFlowFiles";
 import { FlowFile } from "./schemas";
 import unpackageFlowFiles from "./unpackageFlowFiles";
@@ -10,7 +9,7 @@ for(let index = 0; index < 2; index++) {
     originalFlowFiles.push({
         attributes: [["test", `test${index}`]], 
         content: new File(["test3"], "test3", {
-            type: "text/plain"
+            type: "text/plain",
         })
     });
 }
