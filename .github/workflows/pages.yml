@@ -41,10 +41,12 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Test nifitools-js
-        run: pnpm run --filter @nf2t/nifitools-js test
+      - name: Test flowfiletools-js
+        run: pnpm run --filter @nf2t/flowfiletools-js test
+      - name: Build flowfiletools-js
+        run: pnpm run --filter @nf2t/flowfiletools-js build    
       - name: Build nifitools-js
-        run: pnpm run --filter @nf2t/nifitools-js build      
+        run: pnpm run --filter @nf2t/nifitools-js build    
       - name: Download Nars
         run: pnpm run --filter @nf2t/webtools downloadNars
       - name: Build @nf2t/webtools

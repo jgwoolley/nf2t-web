@@ -1,5 +1,5 @@
 {
-  "name": "@nf2t/nifitools-js",
+  "name": "@nf2t/flowfiletools-js",
   "private": true,
   "version": "0.0.0",
   "type": "module",
