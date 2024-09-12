@@ -1,14 +1,20 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import generateFile from 'vite-plugin-generate-file'
-import generateBuildinfo from "./scripts/generateBuildInfo"
-import { fileURLToPath } from 'url'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import generateFile, { GenerateFile } from 'vite-plugin-generate-file';
+import { generateBuildinfo } from './scripts/generateBuildInfo';
+import { fileURLToPath } from 'url';
 
-const buildinfo = generateBuildinfo();
+const buildInfo = generateBuildinfo();
+
+const buildInfoOptions: GenerateFile = {
+  type: 'json',
+  output: './buildinfo.json',
+  data: buildInfo,
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: buildinfo.data.base,
+  base: buildInfo.base,
   build: {
     rollupOptions: {
       input: fileURLToPath(new URL("./src/extensions.ts", import.meta.url)),
@@ -17,8 +23,7 @@ export default defineConfig({
   plugins: [
     react(),
     generateFile([
-      buildinfo,
-      // await generateNarJson(),
+      buildInfoOptions,
     ]),
   ],
 })

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import generateFile, { GenerateFile } from 'vite-plugin-generate-file';
 import { VitePWA } from 'vite-plugin-pwa';
-import { generateBuildinfo } from "@nf2t/cicdtools";
+import { generateBuildinfo } from './scripts/generateBuildInfo';
 import { fileURLToPath } from 'url';
 
 const buildInfo = generateBuildinfo();

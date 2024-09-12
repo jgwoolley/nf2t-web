@@ -8,18 +8,6 @@ importers:
 
   .: {}
 
-  apps/cicdtools:
-    devDependencies:
-      '@types/node':
-        specifier: ^22.0.2
-        version: 22.5.4
-      tsup:
-        specifier: ^8.2.4
-        version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@22.5.4))(jiti@1.21.6)(postcss@8.4.45)(tsx@4.19.1)(typescript@5.6.2)
-      typescript:
-        specifier: ^5.2.2
-        version: 5.6.2
-
   apps/webtools:
     dependencies:
       '@emotion/react':
@@ -40,9 +28,6 @@ importers:
       '@mui/x-data-grid':
         specifier: ^6.17.0
         version: 6.20.4(@mui/material@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@nf2t/cicdtools':
-        specifier: workspace:*
-        version: link:../cicdtools
       '@nf2t/nifitools-js':
         specifier: workspace:*
         version: link:../../libs/nifitools-js
