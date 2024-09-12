@@ -1,0 +1,21 @@
+{
+  "name": "@nf2t/nifitools-js",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "test": "tsx src/tests.ts"
+  },
+  "dependencies": {
+    "@nf2t/flowfiletools-js": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.2",
+    "typescript": "^5.2.2",
+    "tsup": "^8.2.4",
+    "tsx": "^4.19.1"
+  }
+}
