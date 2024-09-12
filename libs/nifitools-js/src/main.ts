@@ -27,3 +27,31 @@ export type {
     FlowFile,
     CoreFlowFileAttributes,
 } from "@nf2t/flowfiletools-js";
+
+export {
+    NarAttributeTypeSchema,
+    NarAttributeSchema,
+    NarAttributesSchema, 
+    NarExtensionRelationship ,
+    NarExtensionProperty ,
+    NarExtensionSchema,
+    NarExtensionsSchema ,
+    ManifestSchema ,
+    NarSchema,
+    NarsSchema ,
+    readNars,
+} from "./readNars";
+
+export type {
+    NarAttributeType,
+    NarAttribute,
+    NarAttributes,
+    NarExtension ,
+    NarExtensions ,
+    Manifest ,
+    Nar ,
+    Nars,
+    IncomingFiles ,
+    ReadNarsParameters ,
+    ReadNarsResult ,
+} from "./readNars";

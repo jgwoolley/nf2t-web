@@ -10,12 +10,14 @@
     "test": "tsx src/tests.ts"
   },
   "dependencies": {
-    "@nf2t/flowfiletools-js": "workspace:*"
+    "@nf2t/flowfiletools-js": "workspace:*",
+    "jszip": "^3.10.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/node": "^22.0.2",
-    "typescript": "^5.2.2",
     "tsup": "^8.2.4",
-    "tsx": "^4.19.1"
+    "tsx": "^4.19.1",
+    "typescript": "^5.2.2"
   }
 }

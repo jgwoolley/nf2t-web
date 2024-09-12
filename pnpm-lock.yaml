@@ -143,6 +143,12 @@ importers:
       '@nf2t/flowfiletools-js':
         specifier: workspace:*
         version: link:../flowfiletools-js
+      jszip:
+        specifier: ^3.10.1
+        version: 3.10.1
+      zod:
+        specifier: ^3.22.4
+        version: 3.23.8
     devDependencies:
       '@types/node':
         specifier: ^22.0.2

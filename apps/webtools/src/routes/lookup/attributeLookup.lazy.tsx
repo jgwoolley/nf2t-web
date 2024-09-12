@@ -3,7 +3,7 @@ import Nf2tHeader from "../../components/Nf2tHeader";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
-import { Nar, NarAttribute, NarExtension } from "../../utils/readNars";
+import { Nar, NarAttribute, NarExtension } from "@nf2t/nifitools-js";
 
 //TODO: Do this more often?
 const routeId = "/attributeLookup" as const;

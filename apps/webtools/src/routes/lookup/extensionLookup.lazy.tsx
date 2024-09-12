@@ -1,6 +1,6 @@
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
-import { NarAttributeType, NarAttributes, NarExtension } from "../../utils/readNars";
+import { NarAttributeType, NarAttributes, NarExtension } from "@nf2t/nifitools-js";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useMemo } from "react";

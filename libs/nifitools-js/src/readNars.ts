@@ -52,6 +52,7 @@ export const NarExtensionSchema = z.object({
     dynamicallyModifiesClasspath: z.boolean().optional(),
     dynamic: z.boolean().optional(),
 });
+
 export type NarExtension = z.infer<typeof NarExtensionSchema>;
 export const NarExtensionsSchema = z.array(NarExtensionSchema);
 export type NarExtensions = z.infer<typeof NarExtensionsSchema>;
@@ -245,7 +246,7 @@ export type ReadNarsResult = {
     narErrorCount: number
 }
 
-export default async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters): Promise<ReadNarsResult> {
+export async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters): Promise<ReadNarsResult> {
     const result: ReadNarsResult = {
         filesLength: files.length,
         filesCount: 0,
@@ -308,3 +309,5 @@ export default async function readNars({files, setCurrentProgress, parseNar, par
 
     return result;
 }
+
+export default readNars;

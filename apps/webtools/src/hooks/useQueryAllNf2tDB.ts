@@ -1,6 +1,6 @@
 import { DefaultError, UseQueryResult, useQuery } from '@tanstack/react-query';
 import { ATTRIBUTE_STORE, DB_NAME, EXTENSION_STORE, NAR_STORE, openNf2tNarDB } from './openNf2tNarDB';
-import { NarAttributes, NarAttributesSchema, NarExtensions, NarExtensionsSchema, Nars, NarsSchema } from '../utils/readNars';
+import { NarAttributes, NarAttributesSchema, NarExtensions, NarExtensionsSchema, Nars, NarsSchema } from '@nf2t/nifitools-js';
 
 export type UseQueryAllNf2tDBData = {
     nars: Nars,

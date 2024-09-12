@@ -1,6 +1,6 @@
 import { DefaultError, MutationFunction, QueryClient, UseMutationResult, useMutation } from '@tanstack/react-query';
 import { ATTRIBUTE_STORE, DB_NAME, EXTENSION_STORE, NAR_STORE, openNf2tNarDB } from './openNf2tNarDB';
-import readNars, { IncomingFiles, ReadNarsResult } from '../utils/readNars';
+import { readNars, IncomingFiles, ReadNarsResult } from '@nf2t/nifitools-js';
 
 export type UseNarsReadParameters = {
     queryClient: QueryClient,
