@@ -139,17 +139,16 @@ importers:
         version: 0.18.2(vite@4.5.3(@types/node@20.16.5)(terser@5.32.0))(workbox-build@7.1.1(@types/babel__core@7.20.5))(workbox-window@7.1.0)
 
   libs/nifitools-js:
-    dependencies:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.2
+        version: 22.5.4
       tsup:
         specifier: ^8.2.4
         version: 8.2.4(@microsoft/api-extractor@7.47.7(@types/node@22.5.4))(jiti@1.21.6)(postcss@8.4.45)(tsx@4.19.1)(typescript@5.6.2)
       tsx:
         specifier: ^4.19.1
         version: 4.19.1
-    devDependencies:
-      '@types/node':
-        specifier: ^22.0.2
-        version: 22.5.4
       typescript:
         specifier: ^5.2.2
         version: 5.6.2
@@ -3460,11 +3459,6 @@ packages:
       typescript:
         optional: true
 
-  tsx@4.19.0:
-    resolution: {integrity: sha512-bV30kM7bsLZKZIOCHeMNVMJ32/LuJzLVajkQI/qf92J2Qr08ueLQvW00PUZGiuLPP760UINwupgUj8qrSCPUKg==}
-    engines: {node: '>=18.0.0'}
-    hasBin: true
-
   tsx@4.19.1:
     resolution: {integrity: sha512-0flMz1lh74BR4wOvBjuh9olbnwqCPc35OOlfyzHba0Dc+QNUeWX/Gq2YTbnwcWPO3BMd8fkzRVrHcsR+a7z7rA==}
     engines: {node: '>=18.0.0'}
@@ -5264,7 +5258,7 @@ snapshots:
     dependencies:
       '@tanstack/virtual-file-routes': 1.56.0
       prettier: 3.3.3
-      tsx: 4.19.0
+      tsx: 4.19.1
       zod: 3.23.8
 
   '@tanstack/store@0.5.5': {}
@@ -7373,13 +7367,6 @@ snapshots:
       - supports-color
       - tsx
       - yaml
-
-  tsx@4.19.0:
-    dependencies:
-      esbuild: 0.23.1
-      get-tsconfig: 4.8.0
-    optionalDependencies:
-      fsevents: 2.3.3
 
   tsx@4.19.1:
     dependencies:

@@ -1,5 +1,7 @@
 = Nifi FlowFile Tools (NF2T)
 
+image::https://github.com/jgwoolley/Nifi-Flow-File-Helper/actions/workflows/pages.yml/badge.svg[]
+
 This is a simple react client app that will allow you to package and unpackage Apache Nifi Flow Files.
 
 Production Site: link:https://www.nf2t.net/#/[]
