@@ -1,3 +1,4 @@
+import { arrayBuffer } from "stream/consumers";
 import packageFlowFiles from "./packageFlowFiles";
 import { FlowFile } from "./schemas";
 import unpackageFlowFiles from "./unpackageFlowFiles";
@@ -30,14 +31,17 @@ console.log({
     packagedFile: packagedFile,
 });
 
-const unpackagedFlowFiles = unpackageFlowFiles(await packagedFile.arrayBuffer());
+packagedFile.arrayBuffer().then(async (arrayBuffer) => {
+    const unpackagedFlowFiles = unpackageFlowFiles(arrayBuffer);
+    for(const actualFlowFile of unpackagedFlowFiles) {
+        const text = Buffer.from(await actualFlowFile.content.arrayBuffer()).toString("utf-8");
+        console.log({
+            type: "actualFlowFile",
+            attributes: actualFlowFile.attributes,
+            content: actualFlowFile.content,
+            text: text,
+        });
+    }
+})
 
-for(const actualFlowFile of unpackagedFlowFiles) {
-    const text = Buffer.from(await actualFlowFile.content.arrayBuffer()).toString("utf-8");
-    console.log({
-        type: "actualFlowFile",
-        attributes: actualFlowFile.attributes,
-        content: actualFlowFile.content,
-        text: text,
-    });
-}
+
