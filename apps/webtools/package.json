@@ -2,7 +2,7 @@
   "name": "@nf2t/webtools",
   "private": true,
   "version": "0.0.0",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "downloadNars": "bash downloadNars.sh",
     "dev": "vite",
