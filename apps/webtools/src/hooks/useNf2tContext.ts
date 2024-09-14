@@ -4,6 +4,8 @@ import { UseNarsParseResult } from "../hooks/useNarsParse";
 import { UseQueryAllNf2tDBResult } from "./useQueryAllNf2tDB";
 import { FlowFile } from "@nf2t/nifitools-js";
 
+export type ColorMode = "dark" | "light" | "system";
+
 export type Nf2tContextType = {
     queryResults: UseQueryAllNf2tDBResult,
     narsDeleteAll: UseNarDeleteAll,
@@ -11,9 +13,8 @@ export type Nf2tContextType = {
     // attributes: NarAttributeLut,
     reactRouterDebug: boolean,
     setReactRouterDebug: React.Dispatch<React.SetStateAction<boolean>>,
-    // colorMode: "light" | "dark",
-    // setColorMode: React.Dispatch<React.SetStateAction<"light" | "dark">>,
-
+    colorMode: ColorMode,
+    setColorMode: React.Dispatch<React.SetStateAction<ColorMode>>,
     unpackagedRows: FlowFile[]
     setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFile[]>>,
 }

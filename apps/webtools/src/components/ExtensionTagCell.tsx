@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Fragment } from "react";
-
+import { Link as MuiLink } from "@mui/material";
 
 export default function ExtensionTagCell({ tags }: { tags?: string[] }) {
     if(!tags) {
@@ -9,7 +9,7 @@ export default function ExtensionTagCell({ tags }: { tags?: string[] }) {
 
     return (
         <>{tags.map((tag, index) => (
-            <Fragment key={index}><Link search={{ tag: tag }} to="/extensionList">{tag}</Link>{index < tags.length - 1 && ", "}</Fragment>
+            <Fragment key={index}><Link search={{ tag: tag }} to="/extensionList"><MuiLink>{tag}</MuiLink></Link>{index < tags.length - 1 && ", "}</Fragment>
         ))}</>
     )
 }

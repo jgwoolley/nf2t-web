@@ -127,7 +127,7 @@ export default function RouteComponent() {
                             <TableCell>Nar</TableCell>
                             <TableCell>
                                 <MuiLink>
-                                    <Link search={{ name: extension?.narId }} to="/narLookup">{extension?.narId}</Link>
+                                    <Link search={{ name: extension?.narId }} to="/narLookup"><MuiLink>{extension?.narId}</MuiLink></Link>
                                 </MuiLink>
                             </TableCell>
                         </TableRow>
@@ -144,33 +144,46 @@ export default function RouteComponent() {
             {extension?.properties && (
                 <>
                     <h4>Properties</h4>
-                    <Table>
-                        <TableBody>
-                            {extension.properties.map((property, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{property.name}</TableCell>
-                                    <TableCell>{property.displayName}</TableCell>
-                                    <TableCell>{property.description}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableCell>Display Name</TableCell>
+                                <TableCell>Internal Name</TableCell>
+                                <TableCell>Description</TableCell>
+                            </TableHead>
+                            <TableBody>
+                                {extension.properties.map((property, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{property.displayName}</TableCell>
+                                        <TableCell>{property.name}</TableCell>
+                                        <TableCell>{property.description}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </>
             )}
 
             {extension?.relationships && (
                 <>
                     <h4>Relationships</h4>
-                    <Table>
-                        <TableBody>
-                            {extension.relationships.map((relationship, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{relationship.name}</TableCell>
-                                    <TableCell>{relationship.description}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableCell>Relationship</TableCell>
+                                <TableCell>Description</TableCell>
+                            </TableHead>
+                            <TableBody>
+                                {extension.relationships.map((relationship, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{relationship.name}</TableCell>
+                                        <TableCell>{relationship.description}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </>
             )}
         </>

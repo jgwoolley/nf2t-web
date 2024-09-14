@@ -1,7 +1,7 @@
 import { createLazyRoute } from "@tanstack/react-router";
 import Nf2tHeader from "../components/Nf2tHeader";
 import Spacing from "../components/Spacing";
-import { Button, Table, TableBody, TableCell, TableRow } from "@mui/material";
+import { Button, MenuItem, Select, Table, TableBody, TableCell, TableRow } from "@mui/material";
 import { useNf2tContext } from "../hooks/useNf2tContext";
 
 export const Route = createLazyRoute("/settings")({
@@ -12,8 +12,8 @@ function SettingsComponent() {
     const {
         reactRouterDebug,
         setReactRouterDebug,
-        // colorMode,
-        // setColorMode,
+        colorMode,
+        setColorMode,
     } = useNf2tContext();
 
     return (
@@ -22,15 +22,25 @@ function SettingsComponent() {
             <Spacing />
             <Table>
                 <TableBody>
-                    {/* <TableRow>
+                    <TableRow>
                         <TableCell>Color Mode</TableCell>
                         <TableCell>
-                            <Button variant={colorMode === "dark" ? "contained" : "outlined"} onClick={() => setColorMode(colorMode === "dark" ? "light" : "dark")}>{colorMode}</Button>
+                        <Select
+                            value={colorMode}
+                            onChange={(event) => {
+                                if(event.target.value === "light" || event.target.value === "dark" || event.target.value === "system") {
+                                    setColorMode(event.target.value);
+                                }
+                            }}
+                        >
+                            <MenuItem value="system">System</MenuItem>
+                            <MenuItem value="light">Light</MenuItem>
+                            <MenuItem value="dark">Dark</MenuItem>
+                        </Select>
                         </TableCell>
-                    </TableRow> */}
+                    </TableRow>
                     <TableRow>
-                    <TableCell>Debug Mode</TableCell>
-
+                        <TableCell>Debug Mode</TableCell>
                         <TableCell>
                             <Button variant={reactRouterDebug ? "contained" : "outlined"} onClick={() => setReactRouterDebug(!reactRouterDebug)}>{reactRouterDebug ? "On" : "Off"}</Button>
                         </TableCell>
