@@ -20,7 +20,7 @@ export type NarAttributes = z.infer<typeof NarAttributesSchema>;
 
 export const NarExtensionRelationship = z.object({
     name: z.string(),
-    description: z.string(),
+    description: z.string().optional(),
     autoTerminated: z.boolean(),
 });
 
