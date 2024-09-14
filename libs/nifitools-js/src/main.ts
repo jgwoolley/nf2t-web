@@ -39,6 +39,7 @@ export {
     ManifestSchema ,
     NarSchema,
     NarsSchema ,
+    NarExportSchema,
     readNars,
 } from "./readNars";
 
@@ -46,12 +47,13 @@ export type {
     NarAttributeType,
     NarAttribute,
     NarAttributes,
-    NarExtension ,
-    NarExtensions ,
-    Manifest ,
-    Nar ,
+    NarExtension,
+    NarExtensions,
+    Manifest,
+    Nar,
     Nars,
-    IncomingFiles ,
-    ReadNarsParameters ,
-    ReadNarsResult ,
+    IncomingFiles,
+    ReadNarsParameters,
+    ReadNarsResult,
+    WriteNars,
 } from "./readNars";

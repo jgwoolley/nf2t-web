@@ -77,11 +77,19 @@ export type Nar = z.infer<typeof NarSchema>;
 export const NarsSchema = z.array(NarSchema);
 export type Nars = z.infer<typeof NarsSchema>;
 
+export const NarExportSchema = z.object({
+    nars: NarsSchema,
+    extensions: NarExtensionsSchema,
+    attributes: NarAttributesSchema,
+})
+
 export type IncomingFiles = File[];
 
 export type ReadNarsParameters = {
     //TODO: Update implementation of processNars to consume File[] rather than a FileList
     files: IncomingFiles, 
+    options?: JSZip.JSZipLoadOptions
+
     DOMParser: DOMParser,
     setCurrentProgress: (current: number, total: number) => void,
     parseNar: (nar: Nar) => Promise<void>,
@@ -146,7 +154,11 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
     const narResult = await NarSchema.safeParseAsync(rawNarInfo);
 
     if(!narResult.success) {
-        console.error(narResult.error);
+        console.error({
+            file: file.name,
+            type: "Unable to parse NarSchema",
+            error: narResult.error,
+        });
         return;
     }
 
@@ -172,7 +184,11 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
         });        
 
         if (!extensionResult.success) {
-            console.error(extensionResult.error);
+            console.error({
+                file: file.name,
+                type: "Unable to parse NarExtensionSchema",
+                error: extensionResult.error,
+            });
             continue;
         }
 
@@ -226,7 +242,11 @@ async function readExtensionManifest({file, manifest, extensionManifest, parseNa
                 const attributeResult = await NarAttributeSchema.safeParseAsync(rawAttribute)
                 
                 if(!attributeResult.success) {
-                    console.error(attributeResult.error);
+                    console.error({
+                        file: file.name,
+                        type: "Unable to parse NarAttributeSchema",
+                        error: attributeResult.error,
+                    });
                     continue;
                 }
 
@@ -246,7 +266,7 @@ export type ReadNarsResult = {
     narErrorCount: number
 }
 
-export async function readNars({files, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters): Promise<ReadNarsResult> {
+export async function readNars({files, options, setCurrentProgress, parseNar, parseExtension, parseAttribute, DOMParser}: ReadNarsParameters): Promise<ReadNarsResult> {
     const result: ReadNarsResult = {
         filesLength: files.length,
         filesCount: 0,
@@ -258,8 +278,21 @@ export async function readNars({files, setCurrentProgress, parseNar, parseExtens
     for (let index = 0; index < result.filesLength; index++) {
         result.filesCount += 1;
         setCurrentProgress(index, result.filesLength);
+
         const file = files[index];
-        if (file == null) {
+        if (file == null || file == undefined) {
+            console.error({
+                type: "Non-File object",
+                file: file,
+            });
+            continue;
+        } 
+        if(! (file instanceof File)) {
+            result.narErrorCount += 1;
+            console.error({
+                type: "Non-File object",
+                file: file,
+            });
             continue;
         }
         if (!file.name.endsWith(".nar")) {
@@ -267,7 +300,7 @@ export async function readNars({files, setCurrentProgress, parseNar, parseExtens
         }
         result.narCount += 1;
 
-        await JSZip.loadAsync(file).then(async (zipFile) => {
+        await JSZip.loadAsync(await file.arrayBuffer(), options).then(async (zipFile) => {
             //TODO: Actually use manifestFile
             const manifestFile = zipFile.files["META-INF/MANIFEST.MF"];
             const manifestResult = await manifestFile.async("text").then(manifest => {
@@ -279,13 +312,21 @@ export async function readNars({files, setCurrentProgress, parseNar, parseExtens
 
             if(!manifestResult.success) {
                 result.narErrorCount +=1;
-                console.error(manifestResult.error);
+                console.error({
+                    file: file.name,
+                    type: "Unable to parse ManifestSchema",
+                    error: manifestResult.error,
+                });
                 return null;
             }
 
             const extensionManifestFile = zipFile.files["META-INF/docs/extension-manifest.xml"];
             if (extensionManifestFile == undefined) {
                 result.narErrorCount +=1;
+                console.error({
+                    file: file.name,
+                    type: "Manifest file does not exist",
+                });
                 return null;
             }
 
@@ -300,14 +341,24 @@ export async function readNars({files, setCurrentProgress, parseNar, parseExtens
                     extensionManifest: extensionManifestFile,
                 });
             })
-        }).catch(() => {
+        }).catch((e) => {
             result.narErrorCount +=1;
+            console.error({
+                fileName: file.name,
+                file: file,
+                type: "Uncaught Error",
+                error: e,
+            })
         });
     }
 
-    setCurrentProgress(length, length);
+    setCurrentProgress(files.length, files.length);
 
     return result;
 }
 
-export default readNars;
+export type WriteNars = {
+    nars: Nars,
+    extensions: NarExtensions,
+    attributes: NarAttributes,
+}

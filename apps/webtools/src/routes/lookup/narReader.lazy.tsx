@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useMemo, useState } from "react"
+import { ChangeEvent, useEffect, useState } from "react"
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { Button, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import Nf2tLinearProgress from "../../components/Nf2tLinearProgress";
@@ -9,17 +9,15 @@ import Spacing from "../../components/Spacing";
 import { RoutePathType, routeDescriptions } from "../routeDescriptions";
 import { convertBytes } from "../../utils/convertBytes";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { FileUploadOutlined } from "@mui/icons-material";
-import { useNf2tTable } from "../../hooks/useNf2tTable";
-import Nf2tTable from "../../components/Nf2tTable";
 import AddIcon from '@mui/icons-material/Add';
-import ExternalLink from "../../components/ExternalLink";
 import Nf2tSnackbar from "../../components/Nf2tSnackbar";
 import ExtensionIcon from '@mui/icons-material/Extension';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ArchiveIcon from '@mui/icons-material/Archive';
+import useNarsLoad from "../../hooks/useNarsLoad";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -113,85 +111,7 @@ export default function NarReader() {
         }
     }, []);
 
-    const narNameExamples = useQuery({
-        queryKey: ["narExamples"],
-        queryFn: async () => {
-            return fetch("./nars.txt")
-                .then(response => response.text())
-                .then(text => text.split("\n").filter( x=> x.length > 0));
-        },
-    });
-
-    const filteredNarNameExamples = useMemo(() => {
-        if (!narNameExamples.data) {
-            return [];
-        }
-        if (!context.queryResults.data) {
-            return narNameExamples.data;
-        }
-        const parsedNames = new Set<string>();
-        for (const nar of context.queryResults.data.nars) {
-            parsedNames.add(nar.name);
-        }
-
-        return narNameExamples.data.filter(name => !parsedNames.has(name));
-
-    }, [context.queryResults.data, narNameExamples])
-
-    const tableProps = useNf2tTable({
-        childProps: undefined,
-        rows: filteredNarNameExamples,
-        snackbarProps: snackbarProps,
-        columns: [
-            {
-                columnName: "Nars",
-                bodyRow: ({ row }) => <ExternalLink href={`./nars/${row}`}>{row}</ExternalLink>,
-                rowToString: (row) => row,
-            },
-            {
-                columnName: "Add",
-                bodyRow: ({ row }) => <Button variant="outlined" disabled={context.narsParse.isPending} onClick={async () => {
-                    const url =`/nars/${row}`;                    
-                    const file = await fetch(url).then(async (response) => {
-                        if (!response.ok) {
-                            throw response;
-                        }
-                        const blob = await response.blob()
-                        return new File([blob], row);
-                    }).catch((e) => {
-                        snackbarProps.submitSnackbarMessage("Failed to process Example Nar", "error", e);
-                        return null;
-                    });
-
-                    if(file == null) {
-                        snackbarProps.submitSnackbarMessage("Failed to process Example Nar", "error");
-                        return;
-                    }
-
-                    context.narsParse.mutate({
-                        queryClient,
-                        files: [file],
-                        setCurrentProgress: () => {},
-                    }, {
-                        onSuccess: (data) => {
-                            if(data.narErrorCount > 0) {
-                                snackbarProps.submitSnackbarMessage("Failed to add Example Nar", "error", data);
-                            } else {
-                                snackbarProps.submitSnackbarMessage("Added Example Nar", "success", data);
-                            }
-
-                        },
-                        onError: (e) => {
-                            snackbarProps.submitSnackbarMessage("Failed to add Example Nar", "error", e);
-                        },
-                    });
-
-                }}><AddIcon /></Button>,
-                rowToString: (row) => row,
-            },
-        ],
-        canEditColumn: false,
-    });
+    const narLoader = useNarsLoad();
 
     const narsLength = context.queryResults.data?.nars.length || 0;
     const extensionsLength = context.queryResults.data?.extensions.length || 0;
@@ -244,8 +164,26 @@ export default function NarReader() {
             </Table>
 
             <h5>Download Examples</h5>
-            <p>Below are a bunch of example Nars to download. The reason you can't download them all at once is the site freezes really bad.</p>
-            <Nf2tTable {...tableProps} />
+            <p>Download the latest (at nf2t build time) Nars.</p>
+            <Button 
+                disabled={narLoader.isPending}
+                variant="outlined"
+                onClick={()=>{
+                    fetch("./nars.json").then(x => x.json()).then(narsExport => {
+                        narLoader.mutate({
+                            queryClient: queryClient,
+                            narsExport: narsExport,
+                        }, {
+                            onSuccess: () => {
+                                snackbarProps.submitSnackbarMessage("Uploaded all Nar(s)", "success");
+                            },
+                            onError: (e) => {
+                                snackbarProps.submitSnackbarMessage("Failed to Uploaded All Nar(s)", "error", e);
+                            },
+                        });
+                    });
+                }}
+            >Download Examples</Button>
 
             <Spacing />
 

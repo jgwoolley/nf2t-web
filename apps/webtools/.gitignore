@@ -26,4 +26,5 @@ dist-ssr
 # Custom
 downloads
 public/nars
+nars
 public/nars.txt

@@ -13,11 +13,8 @@ then
     unzip ./downloads/nifi.zip -d ./downloads/
 fi
 
-DIST_PATH="./public/"
-NARS_PATH="${DIST_PATH}nars"
+NARS_PATH="./nars/"
 
 mkdir --parents $NARS_PATH
 
 cp ./downloads/nifi-1.27.0/lib/*.nar $NARS_PATH
-
-ls $NARS_PATH -1 > ${DIST_PATH}nars.txt

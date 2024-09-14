@@ -4,5 +4,8 @@
     "version": "0.0.0",
     "workspaces": [
         "apps/webtools"
-    ]
+    ],
+    "scripts": {
+        "dev": "pnpm run --filter @nf2t/webtools dev"
+    }
 }

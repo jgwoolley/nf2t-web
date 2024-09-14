@@ -1,5 +1,5 @@
 import { generateGitHubInfo, GitHubInfo } from "./generateGitHubInfo";
-import generateGitInfo, { GitInfo } from "./generateGitInfo";
+import { generateGitInfo, GitInfo } from "./generateGitInfo";
 import { generateNodeVersions } from "./generateNodeVersions";
 
 export type BuildInfo = {

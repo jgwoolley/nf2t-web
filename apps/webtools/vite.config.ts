@@ -3,9 +3,17 @@ import react from '@vitejs/plugin-react';
 import generateFile, { GenerateFile } from 'vite-plugin-generate-file';
 import { VitePWA } from 'vite-plugin-pwa';
 import { generateBuildinfo } from './scripts/generateBuildInfo';
+import { generateNars } from './scripts/generateNars';
 import { fileURLToPath } from 'url';
 
 const buildInfo = generateBuildinfo();
+const narInfo = await generateNars();
+
+const narInfoOptions: GenerateFile = {
+  type: 'json',
+  output: './nars.json',
+  data: narInfo,
+}
 
 const buildInfoOptions: GenerateFile = {
   type: 'json',
@@ -58,6 +66,7 @@ export default defineConfig({
     react(),
     generateFile([
       buildInfoOptions,
+      narInfoOptions,
     ]),
   ],
 })
