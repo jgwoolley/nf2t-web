@@ -35,6 +35,7 @@ export default function LookupAttribute() {
             {(nf2tAttributeDescription) && (
                 <>
                     <h5>Attributes from Nf2t Tool</h5>
+                    <TableContainer component={Paper}>
                     <Table>
                         <TableBody>
                             <TableRow>
@@ -43,12 +44,15 @@ export default function LookupAttribute() {
                             </TableRow>
                         </TableBody>
                     </Table>
+                    </TableContainer>
                 </>
             )}
             {(coreAttributeDescription) && (
                 <>
                     <h5>Core Nifi Attributes</h5>
                     <p>See <ExternalLink href="https://github.com/apache/nifi/blob/main/nifi-api/src/main/java/org/apache/nifi/flowfile/attributes/CoreAttributes.java">CoreAttributes.java</ExternalLink>.</p>
+                    <TableContainer component={Paper}>
+
                     <Table>
                         <TableBody>
                             <TableRow>
@@ -57,6 +61,7 @@ export default function LookupAttribute() {
                             </TableRow>
                         </TableBody>
                     </Table>
+                    </TableContainer>
                 </>
             )}
 

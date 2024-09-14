@@ -104,31 +104,32 @@ export default function RouteComponent() {
 
             <h4>Nar Extension Information</h4>
 
-            <Table>
-                <TableBody>
-                    <TableRow>
-                        <TableCell>name</TableCell>
-                        <TableCell>{extension?.name}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>type</TableCell>
-                        <TableCell>{extension?.type}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>description</TableCell>
-                        <TableCell>{extension?.description}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Nar</TableCell>
-                        <TableCell><Link search={{ name: extension?.narId }} to="/narLookup">{extension?.narId}</Link></TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Tags</TableCell>
-                        <TableCell><ExtensionTagCell tags={extension?.tags} /></TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>name</TableCell>
+                            <TableCell>{extension?.name}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>type</TableCell>
+                            <TableCell>{extension?.type}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>description</TableCell>
+                            <TableCell>{extension?.description}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Nar</TableCell>
+                            <TableCell><Link search={{ name: extension?.narId }} to="/narLookup">{extension?.narId}</Link></TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Tags</TableCell>
+                            <TableCell><ExtensionTagCell tags={extension?.tags} /></TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
             <ExtensionAttributeTable title="writesAttributes" type="writes" extension={extension} attributes={attributes} />
             <ExtensionAttributeTable title="readsAttributes" type="reads" extension={extension} attributes={attributes} />
 

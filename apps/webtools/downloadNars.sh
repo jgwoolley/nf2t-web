@@ -10,7 +10,7 @@ then
     else
         echo "Found ./downloads/nifi.zip"
     fi
-    unzip ./downloads/nifi.zip -d ./downloads/
+    unzip ./downloads/nifi.zip '*/*.nar' -d ./downloads/
 fi
 
 NARS_PATH="./nars/"

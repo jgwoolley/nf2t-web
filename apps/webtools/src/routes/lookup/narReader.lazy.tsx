@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useState } from "react"
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
-import { Button, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import Nf2tLinearProgress from "../../components/Nf2tLinearProgress";
 import useNf2tLinearProgress from "../../hooks/useNf2tLinearProgress";
 import Nf2tHeader from "../../components/Nf2tHeader";
@@ -146,6 +146,8 @@ export default function NarReader() {
 
             <h5>Results</h5>
             <p>The following links are available with more information.</p>
+            
+            <TableContainer component={Paper}>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -162,6 +164,7 @@ export default function NarReader() {
                     <Nf2tLinkRow to="/tagList" length={tagsLength} />
                 </TableBody>
             </Table>
+            </TableContainer>
 
             <h5>Download Examples</h5>
             <p>Download the latest (at nf2t build time) Nars.</p>

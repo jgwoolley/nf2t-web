@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import { convertBytes } from "../../utils/convertBytes";
@@ -106,53 +106,55 @@ export default function LookupNar() {
 
             <h4>Nar Information</h4>
 
-            <Table>
-                <TableBody>
-                    <TableRow>
-                        <TableCell>name</TableCell>
-                        <TableCell>{nar?.name}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>lastModified</TableCell>
-                        <TableCell>{convertDate(nar?.lastModified)}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>size</TableCell>
-                        <TableCell>{convertBytes(nar?.size)}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>groupId</TableCell>
-                        <TableCell>{nar?.groupId}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>artifactId</TableCell>
-                        <TableCell>{nar?.artifactId}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>version</TableCell>
-                        <TableCell>{nar?.version}</TableCell>
-                    </TableRow>
-                    {nar?.buildTag && (
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableBody>
                         <TableRow>
-                            <TableCell>buildTag</TableCell>
-                            <TableCell>{nar?.buildTag}</TableCell>
+                            <TableCell>name</TableCell>
+                            <TableCell>{nar?.name}</TableCell>
                         </TableRow>
-                    )}
-                    {nar?.buildTimestamp && (
                         <TableRow>
-                            <TableCell>buildTimestamp</TableCell>
-                            <TableCell>{nar?.buildTimestamp}</TableCell>
+                            <TableCell>lastModified</TableCell>
+                            <TableCell>{convertDate(nar?.lastModified)}</TableCell>
                         </TableRow>
-                    )}
-                    {tags.length <= 0 && (
                         <TableRow>
-                            <TableCell>tags</TableCell>
-                            <TableCell><ExtensionTagCell tags={tags}/></TableCell>
+                            <TableCell>size</TableCell>
+                            <TableCell>{convertBytes(nar?.size)}</TableCell>
                         </TableRow>
-                    )}
+                        <TableRow>
+                            <TableCell>groupId</TableCell>
+                            <TableCell>{nar?.groupId}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>artifactId</TableCell>
+                            <TableCell>{nar?.artifactId}</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>version</TableCell>
+                            <TableCell>{nar?.version}</TableCell>
+                        </TableRow>
+                        {nar?.buildTag && (
+                            <TableRow>
+                                <TableCell>buildTag</TableCell>
+                                <TableCell>{nar?.buildTag}</TableCell>
+                            </TableRow>
+                        )}
+                        {nar?.buildTimestamp && (
+                            <TableRow>
+                                <TableCell>buildTimestamp</TableCell>
+                                <TableCell>{nar?.buildTimestamp}</TableCell>
+                            </TableRow>
+                        )}
+                        {tags.length <= 0 && (
+                            <TableRow>
+                                <TableCell>tags</TableCell>
+                                <TableCell><ExtensionTagCell tags={tags}/></TableCell>
+                            </TableRow>
+                        )}
 
-                </TableBody>
-            </Table>
+                    </TableBody>
+                </Table>
+            </TableContainer>
 
             <h4>Nar Extensions</h4>
 
