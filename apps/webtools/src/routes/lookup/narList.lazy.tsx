@@ -6,6 +6,8 @@ import { convertBytes } from "../../utils/convertBytes";
 import { convertDate } from "../../utils/convertDates";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useNf2tTable } from "../../hooks/useNf2tTable";
+import { Link as MuiLink } from "@mui/material";
+import NarReaderBackLink from "../../components/NarReaderBackLink";
 
 export const routeId = "/narList";
 export const Route = createLazyRoute(routeId)({
@@ -22,7 +24,7 @@ export default function RouteComponent() {
         columns: [
             {
                 columnName: "Nar",
-                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/narLookup">{row.name}</Link>,
+                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/narLookup"><MuiLink>{row.name}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {
@@ -69,7 +71,7 @@ export default function RouteComponent() {
     return (
         <>
             <Nf2tHeader to={routeId} />
-            <p><Link to="/narReader">Go back to NarReader</Link>.</p>
+            <p><NarReaderBackLink /></p>
 
             <Nf2tTable {...tableProps} />
         </>

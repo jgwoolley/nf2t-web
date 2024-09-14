@@ -5,6 +5,8 @@ import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useMemo } from "react";
 import ExtensionTagCell from "../../components/ExtensionTagCell";
+import { Link as MuiLink } from "@mui/material";
+import NarReaderBackLink from "../../components/NarReaderBackLink";
 
 export const routeId = "/extensionLookup";
 export const Route = createLazyRoute(routeId)({
@@ -53,7 +55,9 @@ function ExtensionAttributeTable({ type, title, attributes, }: ExtensionAttribut
                         {filteredAttributes.map((attribute, attribute_index) => (
                             <TableRow key={attribute_index}>
                                 <TableCell>
-                                    <Link search={{ id: attribute.id }} to="/attributeLookup">{attribute.name}</Link>
+                                    <Link search={{ id: attribute.id }} to="/attributeLookup">
+                                        <MuiLink>{attribute.name}</MuiLink>
+                                    </Link>
                                 </TableCell>
                                 <TableCell>{attribute.description}</TableCell>
                             </TableRow>
@@ -100,7 +104,7 @@ export default function RouteComponent() {
     return (
         <>
             <Nf2tHeader to="/extensionLookup" />
-            <p>The {extension?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
+            <p>The {extension?.name} was found when processing. <NarReaderBackLink /></p>
 
             <h4>Nar Extension Information</h4>
 
@@ -121,7 +125,11 @@ export default function RouteComponent() {
                         </TableRow>
                         <TableRow>
                             <TableCell>Nar</TableCell>
-                            <TableCell><Link search={{ name: extension?.narId }} to="/narLookup">{extension?.narId}</Link></TableCell>
+                            <TableCell>
+                                <MuiLink>
+                                    <Link search={{ name: extension?.narId }} to="/narLookup">{extension?.narId}</Link>
+                                </MuiLink>
+                            </TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell>Tags</TableCell>

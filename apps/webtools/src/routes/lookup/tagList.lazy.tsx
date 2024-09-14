@@ -1,9 +1,11 @@
 import { Link, createLazyRoute } from "@tanstack/react-router";
+import { Link as MuiLink } from "@mui/material";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import Nf2tTable from "../../components/Nf2tTable";
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useNf2tTable } from "../../hooks/useNf2tTable";
+import NarReaderBackLink from "../../components/NarReaderBackLink";
 
 export const routeId = "/tagList";
 export const Route = createLazyRoute(routeId)({
@@ -21,7 +23,7 @@ export default function RouteComponent() {
         columns: [
             {
                 columnName: "Tag",
-                bodyRow: ({ row }) => <Link search={{ tag: row[0] }} to="/extensionList">{row[0]}</Link>,
+                bodyRow: ({ row }) => <Link search={{ tag: row[0] }} to="/extensionList"><MuiLink>{row[0]}</MuiLink></Link>,
                 rowToString: (row) => row[0],
             },
             {
@@ -37,7 +39,7 @@ export default function RouteComponent() {
     return (
         <>
             <Nf2tHeader to={routeId} />
-            <p><Link to="/narReader">Go back to NarReader</Link>.</p>
+            <p><NarReaderBackLink /></p>
 
             <Nf2tTable {...tableProps} />
         </>

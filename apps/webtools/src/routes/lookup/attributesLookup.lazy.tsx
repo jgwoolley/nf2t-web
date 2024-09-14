@@ -5,6 +5,8 @@ import Nf2tHeader from "../../components/Nf2tHeader";
 import ExternalLink from "../../components/ExternalLink";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { getNf2tAttribute, getCoreAttribute } from "@nf2t/nifitools-js";
+import { Link as MuiLink } from "@mui/material";
+import NarReaderBackLink from "../../components/NarReaderBackLink";
 
 const route = getRouteApi("/attributesLookup");
 
@@ -30,7 +32,7 @@ export default function LookupAttribute() {
     return (
         <>
             <Nf2tHeader to="/attributesLookup" />
-            <Link to="/narReader">Navigate here to parse additional Nars.</Link>
+            <p><NarReaderBackLink /></p>
 
             {(nf2tAttributeDescription) && (
                 <>
@@ -85,13 +87,19 @@ export default function LookupAttribute() {
                                 {attributes.map((attribute, attributeIndex) => (
                                     <TableRow key={attributeIndex}>
                                         <TableCell>
-                                            <Link to="/attributeLookup" search={{ id: attribute.id }}>{attribute.name}</Link>
+                                            
+                                            <Link to="/attributeLookup" search={{ id: attribute.id }}><MuiLink>{attribute.name}</MuiLink></Link>
+                                            
                                         </TableCell>
                                         <TableCell>
-                                            <Link to="/narLookup" search={{ name: attribute.narId }}>{attribute.narId}</Link>
+                                            
+                                                <Link to="/narLookup" search={{ name: attribute.narId }}><MuiLink>{attribute.narId}</MuiLink></Link>
+                                            
                                         </TableCell>
                                         <TableCell>
-                                            <Link to="/extensionLookup" search={{ name: attribute.extensionId }}>{attribute.extensionId}</Link>
+                                            <Link to="/extensionLookup" search={{ name: attribute.extensionId }}>
+                                                <MuiLink>{attribute.extensionId}</MuiLink>      
+                                            </Link>
                                         </TableCell>
                                         <TableCell>{attribute.type}</TableCell>
                                         <TableCell>{attribute.description}</TableCell>

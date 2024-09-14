@@ -18,6 +18,7 @@ import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import useNarsLoad from "../../hooks/useNarsLoad";
+import { Link as MuiLink } from "@mui/material";
 
 export const Route = createLazyRoute("/narReader")({
     component: NarReader,
@@ -55,7 +56,7 @@ function Nf2tLinkRow({ to, length }: Nf2tLinkRowProps) {
                 <Nf2tLinkRowIcon to={to} length={length}/>
             </TableCell>
             <TableCell>
-                <Link to={to}>{props.name}</Link>
+                <Link to={to}><MuiLink>{props.name}</MuiLink></Link>
             </TableCell>
             <TableCell>
                 {props.shortDescription}

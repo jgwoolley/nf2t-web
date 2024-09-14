@@ -9,6 +9,8 @@ import Nf2tTable from "../../components/Nf2tTable";
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { useNf2tTable } from "../../hooks/useNf2tTable";
 import ExtensionTagCell from "../../components/ExtensionTagCell";
+import { Link as MuiLink } from "@mui/material";
+import NarReaderBackLink from "../../components/NarReaderBackLink";
 
 const route = getRouteApi("/narLookup");
 
@@ -36,7 +38,7 @@ export default function LookupNar() {
         columns: [
             {
                 columnName: "Extension",
-                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/extensionLookup">{row.name}</Link>,
+                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/extensionLookup"><MuiLink>{row.name}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {
@@ -102,7 +104,7 @@ export default function LookupNar() {
     return (
         <>
             <Nf2tHeader to="/narLookup" />
-            <p>The {nar?.name} was found when processing. <Link to="/narReader">Navigate here to reprocess the nars</Link>.</p>
+            <p>The {nar?.name} was found when processing. <NarReaderBackLink /></p>
 
             <h4>Nar Information</h4>
 

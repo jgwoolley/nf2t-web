@@ -5,6 +5,8 @@ import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { useNf2tTable } from "../../hooks/useNf2tTable";
 import { useMemo } from "react";
+import { Link as MuiLink } from "@mui/material";
+import NarReaderBackLink from "../../components/NarReaderBackLink";
 
 export const routeId = "/extensionList";
 export const Route = createLazyRoute(routeId)({
@@ -43,12 +45,12 @@ export default function RouteComponent() {
         columns: [
             {
                 columnName: "Nar",
-                bodyRow: ({ row }) => <Link search={{ name: row.narId }} to="/narLookup">{row.narId}</Link>,
+                bodyRow: ({ row }) => <Link search={{ name: row.narId }} to="/narLookup"><MuiLink>{row.narId}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {
                 columnName: "Extension",
-                bodyRow: ({ row }) => <Link search={{ name: row.name }} to="/extensionLookup">{row.name}</Link>,
+                bodyRow: ({ row }) => <Link search={{ name: row.name }} to="/extensionLookup"><MuiLink>{row.name}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {
@@ -63,8 +65,8 @@ export default function RouteComponent() {
     return (
         <>
             <Nf2tHeader to={routeId} />
-            <p><Link to="/narReader">Go back to NarReader</Link>.</p>
-            {tag && (<p>Tag Filter selected: <b>{tag}</b>. <Link to="/extensionList">Click here to clear tag filter</Link>.</p>)}
+            <p><NarReaderBackLink /></p>
+            {tag && (<p>Tag Filter selected: <b>{tag}</b>. <Link to="/extensionList"><MuiLink>Click here to clear tag filter.</MuiLink></Link></p>)}
             <Nf2tTable {...tableProps} />
         </>
     )

@@ -4,6 +4,7 @@ import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
 import { Nar, NarAttribute, NarExtension } from "@nf2t/nifitools-js";
+import { Link as MuiLink } from "@mui/material";
 
 //TODO: Do this more often?
 const routeId = "/attributeLookup" as const;
@@ -94,7 +95,7 @@ export default function LookupAttribute() {
                         {nar && (
                             <TableRow>
                                 <TableCell>Nar</TableCell>
-                                <TableCell>{nar ? <Link search={{ name: nar.name }} to="/narLookup">{nar.name}</Link> : "Could not find"} </TableCell>
+                                <TableCell>{nar ? <Link search={{ name: nar.name }} to="/narLookup"><MuiLink>{nar.name}</MuiLink></Link> : "Could not find"} </TableCell>
                             </TableRow>
                         )}
 
@@ -102,11 +103,11 @@ export default function LookupAttribute() {
                             <>
                                 <TableRow>
                                     <TableCell>Extension</TableCell>
-                                    <TableCell><Link search={{ name: attribute.extensionId }} to="/extensionLookup">{extension.name}</Link></TableCell>
+                                    <TableCell><Link search={{ name: attribute.extensionId }} to="/extensionLookup"><MuiLink>{extension.name}</MuiLink></Link></TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell>More examples</TableCell>
-                                    <TableCell><Link search={{ name: attribute.name }} to="/attributesLookup">{attribute.name}</Link></TableCell>
+                                    <TableCell><Link search={{ name: attribute.name }} to="/attributesLookup"><MuiLink>{attribute.name}</MuiLink></Link></TableCell>
                                 </TableRow>
                             </>
                         )}
