@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Nf2tHeader from "../components/Nf2tHeader";
-import { Table, TableBody, TableCell, TableRow } from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
 import { z } from "zod";
 import Spacing from "../components/Spacing";
 import CodeSnippet from "../components/CodeSnippet";
@@ -8,6 +8,8 @@ import Nf2tSnackbar from "../components/Nf2tSnackbar";
 import { createLazyRoute } from "@tanstack/react-router";
 import ExternalLink from "../components/ExternalLink";
 import { useNf2tSnackbar } from "../hooks/useNf2tSnackbar";
+import { useNf2tTable } from "../hooks/useNf2tTable";
+import Nf2tTable from "../components/Nf2tTable";
 
 export const Route = createLazyRoute("/source")({
     component: SourceComponent,
@@ -25,6 +27,7 @@ export type GitInfo = z.infer<typeof GitInfoSchema>;
 
 export const BuildInfoSchema = z.object({
     git: GitInfoSchema.optional(),
+    node: z.record(z.string(), z.string()),
 })
 
 export type BuildInfo = z.infer<typeof BuildInfoSchema>;
@@ -63,10 +66,37 @@ function SourceComponent() {
         setAuthorDate(new Date(parseInt(buildinfo.git.at) * 1000));
     }, [buildinfo]);
 
+    const nodeVersions = useMemo(() => {
+        if(buildinfo?.node == undefined) {
+            return [];
+        }
+        return Object.entries(buildinfo.node);
+    }, [buildinfo]);
+
+    const nodeVersionTableProps = useNf2tTable({
+        childProps: undefined,
+        canEditColumn: false,
+        snackbarProps, 
+        columns: [
+            {
+                columnName: "Software",
+                bodyRow: (x) => x.row[0],
+                rowToString: (x) => x[0],
+            },
+            {
+                columnName: "Version",
+                bodyRow: (x) => x.row[1],
+                rowToString: (x) => x[1],
+            },
+        ], 
+        rows: nodeVersions,
+    });
+
     return (
         <>
             <Nf2tHeader to="/source" />
             <Spacing />
+            <TableContainer component={Paper}>
             <Table>
                 <TableBody>
                     {buildinfo?.git ? (
@@ -95,6 +125,14 @@ function SourceComponent() {
                     </TableRow>
                 </TableBody>
             </Table>
+            </TableContainer>
+
+            <h3>Node versions</h3>
+            <p>Represent the versions of node sofware used to compile the project.</p>
+            <TableContainer component={Paper}>
+                <Nf2tTable {...nodeVersionTableProps} />
+            </TableContainer>
+
             <Nf2tSnackbar {...snackbarProps} />
         </>
     )
