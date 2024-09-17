@@ -24,7 +24,7 @@ export default function RouteComponent() {
         columns: [
             {
                 columnName: "Nar",
-                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/narLookup"><MuiLink>{row.name}</MuiLink></Link>,
+                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/narLookup"><MuiLink component="span">{row.name}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {

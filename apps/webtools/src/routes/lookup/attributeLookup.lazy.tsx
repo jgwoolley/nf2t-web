@@ -95,7 +95,7 @@ export default function LookupAttribute() {
                         {nar && (
                             <TableRow>
                                 <TableCell>Nar</TableCell>
-                                <TableCell>{nar ? <Link search={{ name: nar.name }} to="/narLookup"><MuiLink>{nar.name}</MuiLink></Link> : "Could not find"} </TableCell>
+                                <TableCell>{nar ? <Link search={{ name: nar.name }} to="/narLookup"><MuiLink component="span">{nar.name}</MuiLink></Link> : "Could not find"} </TableCell>
                             </TableRow>
                         )}
 
@@ -103,11 +103,11 @@ export default function LookupAttribute() {
                             <>
                                 <TableRow>
                                     <TableCell>Extension</TableCell>
-                                    <TableCell><Link search={{ name: attribute.extensionId }} to="/extensionLookup"><MuiLink>{extension.name}</MuiLink></Link></TableCell>
+                                    <TableCell><Link search={{ name: attribute.extensionId }} to="/extensionLookup"><MuiLink component="span">{extension.name}</MuiLink></Link></TableCell>
                                 </TableRow>
                                 <TableRow>
                                     <TableCell>More examples</TableCell>
-                                    <TableCell><Link search={{ name: attribute.name }} to="/attributesLookup"><MuiLink>{attribute.name}</MuiLink></Link></TableCell>
+                                    <TableCell><Link search={{ name: attribute.name }} to="/attributesLookup"><MuiLink component="span">{attribute.name}</MuiLink></Link></TableCell>
                                 </TableRow>
                             </>
                         )}

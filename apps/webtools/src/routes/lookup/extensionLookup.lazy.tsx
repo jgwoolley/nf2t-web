@@ -56,7 +56,7 @@ function ExtensionAttributeTable({ type, title, attributes, }: ExtensionAttribut
                             <TableRow key={attribute_index}>
                                 <TableCell>
                                     <Link search={{ id: attribute.id }} to="/attributeLookup">
-                                        <MuiLink>{attribute.name}</MuiLink>
+                                        <MuiLink component="span">{attribute.name}</MuiLink>
                                     </Link>
                                 </TableCell>
                                 <TableCell>{attribute.description}</TableCell>
@@ -126,9 +126,9 @@ export default function RouteComponent() {
                         <TableRow>
                             <TableCell>Nar</TableCell>
                             <TableCell>
-                                <MuiLink>
-                                    <Link search={{ name: extension?.narId }} to="/narLookup"><MuiLink>{extension?.narId}</MuiLink></Link>
-                                </MuiLink>
+                                
+                                <Link search={{ name: extension?.narId }} to="/narLookup"><MuiLink component="span">{extension?.narId}</MuiLink></Link>
+                                
                             </TableCell>
                         </TableRow>
                         <TableRow>

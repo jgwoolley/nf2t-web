@@ -56,7 +56,7 @@ function Nf2tLinkRow({ to, length }: Nf2tLinkRowProps) {
                 <Nf2tLinkRowIcon to={to} length={length}/>
             </TableCell>
             <TableCell>
-                <Link to={to}><MuiLink>{props.name}</MuiLink></Link>
+                <Link to={to}><MuiLink component="span">{props.name}</MuiLink></Link>
             </TableCell>
             <TableCell>
                 {props.shortDescription}

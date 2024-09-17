@@ -11,18 +11,19 @@ import Nf2tTable from './Nf2tTable';
 import { convertBytes } from '../utils/convertBytes';
 import ExternalLink from './ExternalLink';
 import { FlowFile } from '@nf2t/nifitools-js';
+import { Link as MuiLink } from "@mui/material";
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
-    flowFile: FlowFile | null,
-    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
+    flowFile?: FlowFile | null,
+    setFlowFile: (newFlowFile: FlowFile) => void,
     canEdit: boolean,
 }
 
 type AttributesTableChildProps = {
     editIndex: number,
     setEditIndex: React.Dispatch<React.SetStateAction<number>>,
-    flowFile: FlowFile | null,
-    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
+    flowFile?: FlowFile | null,
+    setFlowFile: (newValue: FlowFile) => void,
     deleteRow: (index: number) => void,
     submitSnackbarMessage: (message: string, type: AlertColor, data?: unknown) => void,
 }
@@ -89,9 +90,8 @@ function FunctionsRow({childProps, rowIndex, filteredRowIndex, childProps: {dele
     );
 }
 
-export function AttributesTable(props: AttributesTableProps) {
+export function AttributesTable({flowFile, setFlowFile, submitSnackbarMessage, canEdit}: AttributesTableProps) {
     const snackbarProps = useNf2tSnackbar();
-    const { flowFile, setFlowFile, submitSnackbarMessage } = props;
     const [ editIndex, setEditIndex ] = useState(-1);
 
     const deleteRow = useCallback((index: number) => {
@@ -100,10 +100,11 @@ export function AttributesTable(props: AttributesTableProps) {
             return;
         }
         const deletedRows = flowFile.attributes.splice(index, 1);
+
         setFlowFile({
             content: flowFile.content,
             attributes: flowFile.attributes,
-        });
+        })
         submitSnackbarMessage(`Deleted Attributes: ${deletedRows.map(x => x[0]).join(", ")}`, "info");
     }, [flowFile, setFlowFile, submitSnackbarMessage]);
 
@@ -123,7 +124,7 @@ export function AttributesTable(props: AttributesTableProps) {
                 bodyRow: ({row}) => {
                     return (
                         <Link to="/attributesLookup" search={{ name: row[0] }}>
-                            {row[0]}
+                            <MuiLink component="span">{row[0]}</MuiLink>
                         </Link>
                     )
                 },
@@ -136,7 +137,7 @@ export function AttributesTable(props: AttributesTableProps) {
             },
         ];
 
-        if(props.canEdit) {
+        if(canEdit) {
             newColumns.push({
                 columnName: "Functions",
                 rowToString: (row) => row[0],
@@ -146,7 +147,7 @@ export function AttributesTable(props: AttributesTableProps) {
         }
 
         return newColumns;
-    }, [props.canEdit]);
+    }, [canEdit]);
 
     const tableProps = useNf2tTable<FlowfileAttributeRowSchema, AttributesTableChildProps>({
         childProps: childProps,

@@ -38,7 +38,7 @@ export default function LookupNar() {
         columns: [
             {
                 columnName: "Extension",
-                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/extensionLookup"><MuiLink>{row.name}</MuiLink></Link>,
+                bodyRow: ({row}) => <Link search={{ name: row.name }} to="/extensionLookup"><MuiLink component="span">{row.name}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {

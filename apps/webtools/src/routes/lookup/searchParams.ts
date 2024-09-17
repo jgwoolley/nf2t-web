@@ -18,4 +18,9 @@ export const LookupNarSearchParamsSchema = z.object({
 
 export const ExtensionListSearchParamsSchema = z.object({
     tag: z.string().optional(),
-})
+});
+
+export const UnpackageSearchParamsSchema = z.object({
+    index: z.number().default(0),
+});
+

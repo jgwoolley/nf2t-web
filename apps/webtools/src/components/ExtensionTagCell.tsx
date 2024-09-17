@@ -9,7 +9,7 @@ export default function ExtensionTagCell({ tags }: { tags?: string[] }) {
 
     return (
         <>{tags.map((tag, index) => (
-            <Fragment key={index}><Link search={{ tag: tag }} to="/extensionList"><MuiLink>{tag}</MuiLink></Link>{index < tags.length - 1 && ", "}</Fragment>
+            <Fragment key={index}><Link search={{ tag: tag }} to="/extensionList"><MuiLink component="span">{tag}</MuiLink></Link>{index < tags.length - 1 && ", "}</Fragment>
         ))}</>
     )
 }

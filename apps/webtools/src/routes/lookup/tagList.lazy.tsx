@@ -23,7 +23,7 @@ export default function RouteComponent() {
         columns: [
             {
                 columnName: "Tag",
-                bodyRow: ({ row }) => <Link search={{ tag: row[0] }} to="/extensionList"><MuiLink>{row[0]}</MuiLink></Link>,
+                bodyRow: ({ row }) => <Link search={{ tag: row[0] }} to="/extensionList"><MuiLink component="span">{row[0]}</MuiLink></Link>,
                 rowToString: (row) => row[0],
             },
             {

@@ -46,7 +46,7 @@ export default function RouteComponent() {
                 columnName: "Attribute",
                 bodyRow: ({row}) => (
                     <Link to="/attributesLookup" search={{ name: row.name }}>
-                        <MuiLink>{row.name}</MuiLink>
+                        <MuiLink component="span">{row.name}</MuiLink>
                     </Link>
                 ),
                 rowToString: (row) => row.name,

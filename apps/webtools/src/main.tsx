@@ -6,7 +6,8 @@ import {
   createRouter,
 } from '@tanstack/react-router'
 import rootRoute from './routes/rootRoute';
-import {routeChildren} from './routes/routeDescriptions';
+import { routeChildren } from './routes/routeDescriptions';
+import { notFoundRoute } from "./routes/notFoundRoute";
 
 const routeTree = rootRoute.addChildren(routeChildren);
 
@@ -15,6 +16,7 @@ const history = createHashHistory();
 const router = createRouter({
   history: history,
   routeTree: routeTree ,
+  notFoundRoute: notFoundRoute
   // basepath: import.meta.env.BASE_URL, # I believe this is not needed for HashHistory...
 });
 

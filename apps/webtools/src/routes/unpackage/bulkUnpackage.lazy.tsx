@@ -1,20 +1,21 @@
 import { Box, Button, ButtonGroup, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
-import { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Spacing from '../../components/Spacing';
 import { downloadFile } from '../../utils/downloadFile';
 import Nf2tHeader from '../../components/Nf2tHeader';
 import Nf2tSnackbar from "../../components/Nf2tSnackbar";
-
 import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
-import { createLazyRoute } from '@tanstack/react-router';
+import { createLazyRoute, Link } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
 import { FileUploadOutlined } from '@mui/icons-material';
-import { findCoreAttributes, FlowFile, unpackageFlowFiles } from '@nf2t/nifitools-js';
+import { findCoreAttributes, FlowFile } from '@nf2t/nifitools-js';
 import {downloadAllUnpackaged}  from '../../utils/downloadAllUnpackaged';
+import useUnpackageOnUpload from '../../hooks/useUnpackageOnUpload';
+import { Link as MuiLink } from "@mui/material";
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: BulkUnPackageNifi,
@@ -22,8 +23,6 @@ export const Route = createLazyRoute("/unpackageBulk")({
 
 const defaultTotal = -1;
 const defaultCurrent = 0;
-
-
 
 // From: https://mui.com/material-ui/react-progress/
 function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {
@@ -130,19 +129,19 @@ export function BulkUnpackageDownloadButtons(props: BulkUnpackageDownloadButtons
 export function BulkUnPackageNifi() {
     const snackbarResults = useNf2tSnackbar();
     const { submitSnackbarMessage } = snackbarResults;
-    const [total, setTotal] = useState(defaultTotal);
-    const [current, setCurrent] = useState(defaultCurrent);
-    const {unpackagedRows: rows, setUnpackagedRows: setRows} = useNf2tContext();
+    const [ total, setTotal ] = useState(defaultTotal);
+    const [ current, setCurrent ] = useState(defaultCurrent);
+    const { unpackagedRows, setUnpackagedRows: setRows } = useNf2tContext();
 
     const attributes: string[] = useMemo(() => {
-        if(rows.length <= 0) {
+        if(unpackagedRows.length <= 0) {
             return [];
         }
 
         const results = new Set<string>();
-        for(const row of rows) {
-            for(const attribute of Object.entries(row.attributes)) {
-                results.add(attribute[0])
+        for(const row of unpackagedRows) {
+            for(const [attribute] of row.attributes) {
+                results.add(attribute);
             }
         }
 
@@ -151,12 +150,12 @@ export function BulkUnPackageNifi() {
                 "error",
                 {
                     uniqueAttributes: results.size,
-                    rows: rows,
+                    rows: unpackagedRows,
                 });
         }
 
         return Array.from(results);
-    }, [rows, submitSnackbarMessage]);
+    }, [unpackagedRows, submitSnackbarMessage]);
 
     const columns: Nf2tTableColumnSpec<FlowFile, undefined>[] = useMemo(() => {
         const results: Nf2tTableColumnSpec<FlowFile, undefined>[] = [];
@@ -166,34 +165,10 @@ export function BulkUnPackageNifi() {
 
         results.push({
             columnName: "Edit",
-            bodyRow: ({row}) => {
-                return (
-                    <ButtonGroup>
-                        <Button 
-                            startIcon={<CloudDownloadIcon />}
-                            variant="outlined"
-                            onClick={() => {
-                                const coreAttributes = findCoreAttributes(row.attributes);
+            bodyRow: ({row, rowIndex}) => {
+                const coreAttributes = findCoreAttributes(row.attributes);
 
-                                const blob = new Blob([JSON.stringify(row.attributes)], {
-                                    type: "application/json",
-                                });
-                                downloadFile(new File([blob], (coreAttributes.filename || "attributes") + ".json"));
-                                snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
-
-                            }}
-                        >Attributes</Button>
-                        <Button 
-                            startIcon={<CloudDownloadIcon />}
-                            onClick={async () => {
-                                const coreAttributes = findCoreAttributes(row.attributes);
-                                downloadFile(new File([row.content], coreAttributes.filename || "content"));
-                                snackbarResults.submitSnackbarMessage("downloaded flowfile content.", "info");
-                            }}
-                            variant="outlined"
-                        >Content</Button>
-                    </ButtonGroup>
-                )
+                return <Link to="/unpackage" search={{index: rowIndex}}><MuiLink component="span">{coreAttributes.filename || `FlowFile ${rowIndex + 1}`}</MuiLink></Link>
             },
             rowToString: () => "Edit",
         });
@@ -213,16 +188,16 @@ export function BulkUnPackageNifi() {
                 },
             });
         }
-
+        
         return results;
-    }, [attributes, snackbarResults]);
+    }, [attributes]);
 
     const tableProps = useNf2tTable<FlowFile, undefined>({
         childProps: undefined,
         snackbarProps: snackbarResults,
         canEditColumn: true,
         columns: columns,
-        rows: rows,
+        rows: unpackagedRows,
         ignoreNoColumnsError: true,
     });
 
@@ -232,54 +207,13 @@ export function BulkUnPackageNifi() {
         setCurrent(defaultCurrent);
     }, [tableProps])
     
-    const onUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
-        try {
-            resetProgress();
-            const files = e.target.files;
-            if (files === null || files.length < 1) {
-                submitSnackbarMessage(`At least one FlowFile should be provided: ${files?.length}.`, "error")
-                return;
-            }
-            setCurrent(0);
-            setTotal(files.length);
-
-            const newRows: FlowFile[] = [];
-            console.log(`Starting to process ${files.length} file(s).`)
-
-            for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
-                setCurrent(fileIndex);
-                setTotal(files.length);
-                const file = files[fileIndex];
-                await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = function () {
-                        const buffer = reader.result;
-                        if (!(buffer instanceof ArrayBuffer)) {
-                            console.error("Buffer not ArrayBuffer");
-                            resolve(1);
-                            return;
-                        }
-                        try {
-                            const result = unpackageFlowFiles(buffer);
-                            newRows.push(...result);
-                        } catch (e) {
-                            console.error(e);
-                            resolve(3);
-                            return;
-                        }
-                        resolve(0);
-                    }
-                    reader.readAsArrayBuffer(file);
-                });
-            }
-
-            setCurrent(files.length);
-            setTotal(files.length);
-            setRows([...newRows]);
-        } catch (error) {
-            submitSnackbarMessage("Unknown error.", "error", error);
-        }
-    }, [resetProgress, setRows, submitSnackbarMessage])
+    const onUpload = useUnpackageOnUpload({
+        resetProgress: resetProgress,
+        submitSnackbarMessage: submitSnackbarMessage,
+        setCurrent: setCurrent,
+        setTotal: setTotal,
+        setUnpackagedRows: setRows,
+    });
     
     const clearFlowFiles = useCallback(() => {
         setRows([]);
@@ -315,7 +249,7 @@ export function BulkUnPackageNifi() {
 
             <h5>3. Download FlowFile Attributes CSV</h5>
             <p>A CSV will be downloadable with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
-            <BulkUnpackageDownloadButtons {...snackbarResults} rows={rows} attributes={attributes} />
+            <BulkUnpackageDownloadButtons {...snackbarResults} rows={unpackagedRows} attributes={attributes} />
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />
         </>

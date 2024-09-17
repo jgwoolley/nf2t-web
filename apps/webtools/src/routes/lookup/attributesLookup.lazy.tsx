@@ -88,17 +88,17 @@ export default function LookupAttribute() {
                                     <TableRow key={attributeIndex}>
                                         <TableCell>
                                             
-                                            <Link to="/attributeLookup" search={{ id: attribute.id }}><MuiLink>{attribute.name}</MuiLink></Link>
+                                            <Link to="/attributeLookup" search={{ id: attribute.id }}><MuiLink component="span">{attribute.name}</MuiLink></Link>
                                             
                                         </TableCell>
                                         <TableCell>
                                             
-                                                <Link to="/narLookup" search={{ name: attribute.narId }}><MuiLink>{attribute.narId}</MuiLink></Link>
+                                                <Link to="/narLookup" search={{ name: attribute.narId }}><MuiLink component="span">{attribute.narId}</MuiLink></Link>
                                             
                                         </TableCell>
                                         <TableCell>
                                             <Link to="/extensionLookup" search={{ name: attribute.extensionId }}>
-                                                <MuiLink>{attribute.extensionId}</MuiLink>      
+                                                <MuiLink component="span">{attribute.extensionId}</MuiLink>      
                                             </Link>
                                         </TableCell>
                                         <TableCell>{attribute.type}</TableCell>

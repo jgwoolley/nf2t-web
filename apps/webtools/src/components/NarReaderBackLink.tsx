@@ -3,7 +3,7 @@ import { Link as MuiLink } from "@mui/material";
 
 export function NarReaderBackLink() {
     return (
-        <Link to="/narReader"><MuiLink>Navigate here to reprocess the nars.</MuiLink></Link>
+        <Link to="/narReader"><MuiLink component="span">Navigate here to reprocess the nars.</MuiLink></Link>
     )
 }
 

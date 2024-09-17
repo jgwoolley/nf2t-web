@@ -45,12 +45,12 @@ export default function RouteComponent() {
         columns: [
             {
                 columnName: "Nar",
-                bodyRow: ({ row }) => <Link search={{ name: row.narId }} to="/narLookup"><MuiLink>{row.narId}</MuiLink></Link>,
+                bodyRow: ({ row }) => <Link search={{ name: row.narId }} to="/narLookup"><MuiLink component="span">{row.narId}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {
                 columnName: "Extension",
-                bodyRow: ({ row }) => <Link search={{ name: row.name }} to="/extensionLookup"><MuiLink>{row.name}</MuiLink></Link>,
+                bodyRow: ({ row }) => <Link search={{ name: row.name }} to="/extensionLookup"><MuiLink component="span">{row.name}</MuiLink></Link>,
                 rowToString: (row) => row.name,
             },
             {
@@ -66,7 +66,7 @@ export default function RouteComponent() {
         <>
             <Nf2tHeader to={routeId} />
             <p><NarReaderBackLink /></p>
-            {tag && (<p>Tag Filter selected: <b>{tag}</b>. <Link to="/extensionList"><MuiLink>Click here to clear tag filter.</MuiLink></Link></p>)}
+            {tag && (<p>Tag Filter selected: <b>{tag}</b>. <Link to="/extensionList"><MuiLink component="span">Click here to clear tag filter.</MuiLink></Link></p>)}
             <Nf2tTable {...tableProps} />
         </>
     )
