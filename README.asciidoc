@@ -5,6 +5,7 @@ image::https://github.com/jgwoolley/Nifi-Flow-File-Helper/actions/workflows/page
 This is a simple react client app that will allow you to package and unpackage Apache Nifi Flow Files.
 
 Production Site: link:https://www.nf2t.net/#/[]
+NPM Library: link:https://www.npmjs.com/package/@nf2t/flowfiletools-js[]
 
 == Required Software
 
