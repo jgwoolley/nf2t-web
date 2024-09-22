@@ -8,6 +8,10 @@
   "keywords": [ "NiFi", "FlowFile", "Nf2t"],
   "license": "Apache-2.0",
   "files": [ "./dist", "./src", "./tsconfig.json", "./tsup.config.ts" ],
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/jgwoolley/Nifi-Flow-File-Helper"
+	},
   "scripts": {
     "build": "tsup",
     "test": "tsx src/tests.ts"

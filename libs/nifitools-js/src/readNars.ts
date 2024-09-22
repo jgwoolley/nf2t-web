@@ -357,8 +357,10 @@ export async function readNars({files, options, setCurrentProgress, parseNar, pa
     return result;
 }
 
-export type WriteNars = {
-    nars: Nars,
-    extensions: NarExtensions,
-    attributes: NarAttributes,
-}
+export const WriteNarsSchema = z.object({
+    nars: NarsSchema,
+    extensions: NarExtensionsSchema,
+    attributes: NarAttributesSchema,
+})
+
+export type WriteNars = z.infer<typeof WriteNarsSchema>;

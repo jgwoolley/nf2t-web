@@ -40,6 +40,7 @@ export {
     NarSchema,
     NarsSchema ,
     NarExportSchema,
+    WriteNarsSchema,
     readNars,
 } from "./readNars";
 

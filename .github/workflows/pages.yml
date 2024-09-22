@@ -47,8 +47,6 @@ jobs:
         run: pnpm run --filter @nf2t/flowfiletools-js build       
       - name: Build nifitools-js
         run: pnpm run --filter @nf2t/nifitools-js build    
-      - name: Download Nars
-        run: pnpm run --filter @nf2t/webtools downloadNars
       - name: Build @nf2t/webtools
         run: pnpm run --filter @nf2t/webtools build
       - name: Setup Pages
