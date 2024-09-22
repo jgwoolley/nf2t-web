@@ -36,6 +36,7 @@
     "@types/wicg-file-system-access": "^2023.10.5",
     "@vite-pwa/assets-generator": "^0.2.4",
     "@vitejs/plugin-react": "^4.0.3",
+    "idb": "^8.0.0",
     "jsdom": "^24.1.1",
     "sharp": "^0.33.2",
     "typescript": "^5.0.2",
