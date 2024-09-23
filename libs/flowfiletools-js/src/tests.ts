@@ -1,12 +1,13 @@
-import packageFlowFiles from "./packageFlowFiles";
-import { FlowFile } from "./schemas";
-import unpackageFlowFiles from "./unpackageFlowFiles";
+import packageFlowFileStream from "./packageFlowFileStream";
+import { FlowFileResult } from "./schemas";
+import unpackageFlowFileStream from "./unpackageFlowFileStream";
 import { updateNf2tAttributes } from "./updateNf2tAttributes";
 
-const originalFlowFiles: FlowFile[] = [];
+const originalFlowFiles: FlowFileResult[] = [];
 
 for(let index = 0; index < 2; index++) {
     originalFlowFiles.push({
+        status: "success",
         attributes: [["test", `test${index}`]], 
         content: new File(["test3"], "test3", {
             type: "text/plain",
@@ -16,6 +17,7 @@ for(let index = 0; index < 2; index++) {
 
 for(let index = 2; index < 5; index++) {
     originalFlowFiles.push({
+        status: "success",
         attributes: [["test", `test${index}`]], 
         content: new Blob(["test"]),
     });
@@ -23,7 +25,7 @@ for(let index = 2; index < 5; index++) {
 
 updateNf2tAttributes(originalFlowFiles);
 
-const packagedFile = packageFlowFiles(originalFlowFiles);
+const packagedFile = packageFlowFileStream(originalFlowFiles);
 
 console.log({
     type: "packagedFile",
@@ -31,8 +33,11 @@ console.log({
 });
 
 packagedFile.arrayBuffer().then(async (arrayBuffer) => {
-    const unpackagedFlowFiles = unpackageFlowFiles(arrayBuffer);
+    const unpackagedFlowFiles = unpackageFlowFileStream(arrayBuffer);
     for(const actualFlowFile of unpackagedFlowFiles) {
+        if(actualFlowFile.status !== "success") {
+            throw new Error(`Returned status must be success: ${actualFlowFile.status}`)
+        }
         const text = Buffer.from(await actualFlowFile.content.arrayBuffer()).toString("utf-8");
         console.log({
             type: "actualFlowFile",

@@ -1,4 +1,4 @@
-import { FlowFile, MAGIC_HEADER, MAX_VALUE_2_BYTES, FLOWFILE_MEDIA_TYPES, findCoreAttributes, FLOWFILE_EXTENSION } from "./schemas";
+import { MAGIC_HEADER, MAX_VALUE_2_BYTES, FLOWFILE_MEDIA_TYPES, findCoreAttributes, FLOWFILE_EXTENSION, FlowFileResult } from "./schemas";
 
 /**
  * 
@@ -73,11 +73,12 @@ export type PackageFlowFilesOptions = {
  * 
  * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFilePackagerV3.java
  */
-export function packageFlowFileStream(flowFiles: FlowFile[]): File {
+export function packageFlowFileStream(flowFiles: FlowFileResult[]): File {
     let filename : string | null = null;
     const blobParts: BlobPart[] = [];
 
     for(const flowFile of flowFiles) {
+        if(flowFile.status !== "success") continue;
         const coreAttributes = findCoreAttributes(flowFile.attributes);
         if(filename == undefined && coreAttributes.filename) {
             filename = coreAttributes.filename;

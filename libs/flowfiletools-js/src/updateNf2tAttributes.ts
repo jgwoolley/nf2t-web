@@ -1,16 +1,17 @@
-import { CORE_ATTRIBUTES, findCoreAttributes, FlowFile, FlowFileAttributes, NF2T_ATTRIBUTES } from "./schemas";
+import { CORE_ATTRIBUTES, findCoreAttributes, FlowFileResult, FlowFileAttributes, NF2T_ATTRIBUTES } from "./schemas";
 
 function convertDate(date: Date): string {
     return date.toISOString();
 }
 
-export function updateNf2tAttributes(flowFiles: FlowFile[], defaultAttributes?: FlowFileAttributes) {
+export function updateNf2tAttributes(flowFiles: FlowFileResult[], defaultAttributes?: FlowFileAttributes) {
     const uploadTime = convertDate(new Date());
     if(defaultAttributes == undefined) {
         defaultAttributes = [];
     }
 
     for(const flowFile of flowFiles) {
+        if(flowFile.status !== "success") continue;
         const coreAttributes = findCoreAttributes(flowFile.attributes);
 
         for(const attribute of defaultAttributes) {
