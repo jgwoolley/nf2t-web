@@ -50,7 +50,7 @@ async function generateNarsNew() {
 
 export async function generateNars(): Promise<WriteNars> {
     const cacheExists = existsSync(CACHE_PATH);
-    console.log(`Cache Exists? ${cacheExists ? "true": "false"}`)
+    console.log(`Nars Cache: Cache File Exists? ${cacheExists ? "true": "false"}`)
     if (cacheExists) {
         const content = readFileSync(CACHE_PATH, {
             encoding: "utf8",
@@ -59,30 +59,30 @@ export async function generateNars(): Promise<WriteNars> {
     }
 
     const narsExists = existsSync(NARS_PATH);
-    console.log(`Nars Directory Exists? ${narsExists ? "true": "false"}`)
+    console.log(`Nars Cache: Nars Directory Exists? ${narsExists ? "true": "false"}`)
 
     if (!narsExists) {
         mkdirSync(NARS_PATH);
 
         const downloadsExists = existsSync(DOWNLOADS_PATH);
-        console.log(`Download Directory Exists? ${downloadsExists ? "true": "false"}`)
+        console.log(`Nars Cache: Download Directory Exists? ${downloadsExists ? "true": "false"}`)
 
         if (!downloadsExists){
             mkdirSync(DOWNLOADS_PATH);
         }
 
         const zipExists = existsSync(ZIP_PATH);
-        console.log(`Zip Directory Exists? ${zipExists ? "true": "false"}`)
+        console.log(`Nars Cache: Zip Directory Exists? ${zipExists ? "true": "false"}`)
 
         if (!zipExists){
-            console.log("Download NiFi");
+            console.log("Nars Cache: Download NiFi");
             child_process.execSync(`curl https://dlcdn.apache.org/nifi/1.27.0/nifi-1.27.0-bin.zip -o ${ZIP_PATH}`);
         }
 
-        console.log("UnZip NiFi");
+        console.log("Nars Cache: UnZip NiFi");
         child_process.execSync(`unzip ${ZIP_PATH} '*/*.nar' -d ${DOWNLOADS_PATH}/`);
 
-        console.log("Copy NiFi Nars");
+        console.log("Nars Cache: Copy NiFi Nars");
         child_process.execSync(`cp ${DOWNLOADS_PATH}/nifi-1.27.0/lib/*.nar ${NARS_PATH}`);
     }
 

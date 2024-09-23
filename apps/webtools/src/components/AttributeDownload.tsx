@@ -3,7 +3,7 @@ import { downloadFile } from "../utils/downloadFile";
 import DownloadIcon from '@mui/icons-material/Download';
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 import { Nf2tSnackbarProps } from "../hooks/useNf2tSnackbar";
-import { findCoreAttributes, FlowFile } from "@nf2t/nifitools-js";
+import { findCoreAttributes, FlowFile } from "@nf2t/flowfiletools-js";
 
 interface AttributeDownloadProps extends Nf2tSnackbarProps {
     flowFile: FlowFile | null,

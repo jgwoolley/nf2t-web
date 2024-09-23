@@ -11,7 +11,7 @@ import { Link, createLazyRoute, getRouteApi } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
-import { FlowFile } from '@nf2t/nifitools-js';
+import { FlowFile } from '@nf2t/flowfiletools-js';
 import { downloadFile } from '../../utils/downloadFile';
 import useArrayElements from '../../hooks/useArrayElement';
 import { Link as MuiLink } from "@mui/material";

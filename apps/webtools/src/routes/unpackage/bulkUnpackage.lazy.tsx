@@ -12,7 +12,7 @@ import Nf2tTable from '../../components/Nf2tTable';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
 import { FileUploadOutlined } from '@mui/icons-material';
-import { findCoreAttributes, FlowFile } from '@nf2t/nifitools-js';
+import { findCoreAttributes, FlowFile } from '@nf2t/flowfiletools-js';
 import {downloadAllUnpackaged}  from '../../utils/downloadAllUnpackaged';
 import useUnpackageOnUpload from '../../hooks/useUnpackageOnUpload';
 import { Link as MuiLink } from "@mui/material";
@@ -223,7 +223,6 @@ export function BulkUnPackageNifi() {
         <>
             <Nf2tHeader to="/unpackageBulk" />
             <h5>1. Packaged FlowFiles</h5>
-
             <p>Upload FlowFiles.</p>
             <IconButton component="label">
                 <FileUploadOutlined />
@@ -241,7 +240,8 @@ export function BulkUnPackageNifi() {
             <LinearProgressWithLabel current={current} total={total} />
             <Spacing />
 
-            <h5>2. Review FlowFiles</h5>   
+            <h5>2. Review FlowFiles</h5>  
+            <p>Click on the columns to change the FlowFile attribute being viewed.</p> 
             {(attributes.length > 0) && (
                <Nf2tTable {...tableProps} />
             )}

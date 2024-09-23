@@ -1,5 +1,5 @@
 import { AlertColor } from "@mui/material";
-import { FlowFile, unpackageFlowFiles } from "@nf2t/nifitools-js";
+import { FlowFile, unpackageFlowFileStream } from "@nf2t/flowfiletools-js";
 import { ChangeEvent, useCallback } from "react";
 
 // TODO: Move this method back to its component BulkUnpackager
@@ -41,8 +41,12 @@ export function useUnpackageOnUpload({resetProgress, submitSnackbarMessage, setC
                             return;
                         }
                         try {
-                            const result = unpackageFlowFiles(buffer);
-                            newRows.push(...result);
+                            const result = unpackageFlowFileStream(buffer);
+                            result.forEach(x => {
+                                if(x.status === "success") {
+                                    newRows.push(x);
+                                }
+                            })
                         } catch (e) {
                             console.error(e);
                             resolve(3);

@@ -10,7 +10,7 @@ import { BodyRowComponentProps, Nf2tTableColumnSpec, useNf2tTable } from '../hoo
 import Nf2tTable from './Nf2tTable';
 import { convertBytes } from '../utils/convertBytes';
 import ExternalLink from './ExternalLink';
-import { FlowFile } from '@nf2t/nifitools-js';
+import { FlowFile } from '@nf2t/flowfiletools-js';
 import { Link as MuiLink } from "@mui/material";
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
@@ -58,6 +58,7 @@ function AttributeValueRow({childProps, row, rowIndex, filteredRowIndex, childPr
 
         flowFile.attributes[rowIndex][1] = event.target.value;
         setFlowFile({
+            status: "success",
             content: flowFile.content,
             attributes: [...flowFile.attributes],
         })
@@ -102,6 +103,7 @@ export function AttributesTable({flowFile, setFlowFile, submitSnackbarMessage, c
         const deletedRows = flowFile.attributes.splice(index, 1);
 
         setFlowFile({
+            status: "success",
             content: flowFile.content,
             attributes: flowFile.attributes,
         })

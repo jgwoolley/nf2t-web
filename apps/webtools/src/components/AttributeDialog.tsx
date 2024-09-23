@@ -2,7 +2,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { FlowFile } from "@nf2t/nifitools-js";
+import { FlowFile } from "@nf2t/flowfiletools-js";
 
 export interface AttributeDialogProps {
     open: boolean,
@@ -37,6 +37,7 @@ export function AttributeDialog(props: AttributeDialogProps) {
         const {flowFile} = props;
         if(flowFile != undefined) {
             props.setFlowFile({
+                status: "success",
                 content: flowFile.content,
                 attributes: [...flowFile.attributes, [data.key, data.value]],
             })

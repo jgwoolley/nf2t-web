@@ -1,4 +1,4 @@
-import { findCoreAttributes, FlowFile, FLOWFILE_ATTRIBUTES_EXTENSION } from "@nf2t/nifitools-js";
+import { findCoreAttributes, FlowFile, FLOWFILE_ATTRIBUTES_EXTENSION } from "@nf2t/flowfiletools-js";
 
 export type DownloadAllUnpackagedParams = {
     directoryHandle: FileSystemDirectoryHandle, 

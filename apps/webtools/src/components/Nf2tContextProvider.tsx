@@ -3,7 +3,7 @@ import useNarQuery from "../hooks/useQueryAllNf2tDB";
 import { useNarDeleteAll } from "../hooks/useClear";
 import useNarParse from "../hooks/useNarsParse";
 import { ColorMode, Nf2tContext, Nf2tContextType } from "../hooks/useNf2tContext";
-import { FlowFile } from "@nf2t/nifitools-js";
+import { FlowFile } from "@nf2t/flowfiletools-js";
 import { createTheme, ThemeProvider  } from "@mui/material/styles";
 import { CssBaseline, PaletteMode } from "@mui/material";
 import { useBrowserIsDarkMode } from "../hooks/useBrowserIsDarkMode";

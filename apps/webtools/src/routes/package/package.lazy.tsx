@@ -14,7 +14,7 @@ import Nf2tSnackbar from "../../components/Nf2tSnackbar";
 import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 import { createLazyRoute } from "@tanstack/react-router";
-import { FlowFile, packageFlowFiles, updateNf2tAttributes } from "@nf2t/nifitools-js";
+import { FlowFile, packageFlowFileStream, updateNf2tAttributes } from "@nf2t/flowfiletools-js";
 
 export const Route = createLazyRoute("/package")({
     component: PackageNifi,
@@ -102,7 +102,7 @@ export default function PackageNifi() {
             return;
         }
 
-        const result = packageFlowFiles([flowFile]);
+        const result = packageFlowFileStream([flowFile]);
         downloadFile(result);
     }
 
@@ -119,6 +119,7 @@ export default function PackageNifi() {
         const newFile = files[0];
         const newRows: FlowFile[] = [
             {
+                status: "success",
                 attributes: [],
                 content: newFile,
             },

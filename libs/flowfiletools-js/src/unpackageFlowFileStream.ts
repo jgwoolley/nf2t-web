@@ -1,4 +1,4 @@
-import { FlowFileAttributes, FlowFile, MAGIC_HEADER, findCoreAttributes, CoreFlowFileAttributes, FlowFileContent } from "./schemas";
+import { FlowFileAttributes, FlowFile, MAGIC_HEADER, findCoreAttributes, CoreFlowFileAttributes, FlowFileContent, FlowFileResult } from "./schemas";
 import InputStream from "./InputStream";
 
 function readFieldLength(view: InputStream) {
@@ -91,20 +91,8 @@ function createContent(coreAttributes: CoreFlowFileAttributes, content: ArrayBuf
     })
 }
 
-/**
- * 
- * @param buffer 
- * @returns 
- * 
- * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFileUnpackagerV3.java
- * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-extension-bundles/nifi-hadoop-bundle/nifi-hdfs-processors/src/main/java/org/apache/nifi/processors/hadoop/FlowFileStreamUnpackerSequenceFileWriter.java
- */
-export function unpackageFlowFiles(buffer: ArrayBuffer): FlowFile[] {
-    const results: FlowFile[] = [];
-
-    const view = new InputStream(buffer);
-
-    while(view.hasMoreData()) {
+function unpackageFlowFile(view: InputStream): FlowFileResult {
+    try {
         for(let i = 0; i < MAGIC_HEADER.length; i++) {
             const expected = MAGIC_HEADER.charCodeAt(i);
             view.assertUint8(expected);
@@ -116,13 +104,39 @@ export function unpackageFlowFiles(buffer: ArrayBuffer): FlowFile[] {
         const coreAttributes = findCoreAttributes(attributes);
 
         const flowFile: FlowFile = {
+            status: "success",
             attributes: attributes, 
             content: createContent(coreAttributes, content),
         }
+
+        return flowFile;
+    } catch(error) {
+        return {
+            status: "error",
+            error: error,
+        }
+    }
+}
+
+/**
+ * 
+ * @param buffer 
+ * @returns 
+ * 
+ * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFileUnpackagerV3.java
+ * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-extension-bundles/nifi-hadoop-bundle/nifi-hdfs-processors/src/main/java/org/apache/nifi/processors/hadoop/FlowFileStreamUnpackerSequenceFileWriter.java
+ */
+export function unpackageFlowFileStream(buffer: ArrayBuffer): FlowFileResult[] {
+    const results: FlowFileResult[] = [];
+
+    const view = new InputStream(buffer);
+
+    while(view.hasMoreData()) {
+        const flowFile = unpackageFlowFile(view);
         results.push(flowFile);
     }
 
     return results;
 }
 
-export default unpackageFlowFiles;
+export default unpackageFlowFileStream;

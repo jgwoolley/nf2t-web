@@ -4,7 +4,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { z } from "zod";
 import { useState } from "react";
 import { Nf2tSnackbarProps } from "../hooks/useNf2tSnackbar";
-import { FlowFile } from "@nf2t/nifitools-js";
+import { FlowFile } from "@nf2t/flowfiletools-js";
 
 interface AttributeDownloadProps extends Nf2tSnackbarProps {
     flowFile: FlowFile | null,
@@ -54,6 +54,7 @@ export function AttributeDownload({flowFile, setFlowFile, submitSnackbarMessage}
 
         if(flowFile != undefined) {
             setFlowFile({
+                status: "success",
                 content: flowFile?.content,
                 attributes: newRows
             });

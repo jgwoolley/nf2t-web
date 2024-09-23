@@ -1,6 +1,6 @@
 export { InputStream } from "./InputStream";
-export { packageFlowFiles } from "./packageFlowFiles";
-export { unpackageFlowFiles } from "./unpackageFlowFiles";
+export { packageFlowFileStream } from "./packageFlowFileStream";
+export { unpackageFlowFileStream } from "./unpackageFlowFileStream";
 export { 
     CORE_ATTRIBUTES,
     NF2T_ATTRIBUTES,
@@ -24,6 +24,7 @@ export type {
     FlowFileAttributes,
     FlowFileContent,
     FlowFile,
+    FlowFileResult,
     CoreFlowFileAttributes,
 } from "./schemas";
 

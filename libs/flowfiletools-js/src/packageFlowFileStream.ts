@@ -73,7 +73,7 @@ export type PackageFlowFilesOptions = {
  * 
  * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFilePackagerV3.java
  */
-export function packageFlowFiles(flowFiles: FlowFile[]): File {
+export function packageFlowFileStream(flowFiles: FlowFile[]): File {
     let filename : string | null = null;
     const blobParts: BlobPart[] = [];
 
@@ -109,4 +109,4 @@ export function packageFlowFiles(flowFiles: FlowFile[]): File {
     return blob;
 }
 
-export default packageFlowFiles;
+export default packageFlowFileStream;

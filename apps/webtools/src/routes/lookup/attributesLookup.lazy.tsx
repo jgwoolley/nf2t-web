@@ -4,7 +4,7 @@ import { Link, createLazyRoute, getRouteApi } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
 import ExternalLink from "../../components/ExternalLink";
 import { useNf2tContext } from "../../hooks/useNf2tContext";
-import { getNf2tAttribute, getCoreAttribute } from "@nf2t/nifitools-js";
+import { getNf2tAttribute, getCoreAttribute } from "@nf2t/flowfiletools-js";
 import { Link as MuiLink } from "@mui/material";
 import NarReaderBackLink from "../../components/NarReaderBackLink";
 

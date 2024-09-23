@@ -2,7 +2,7 @@ import { createContext, useContext } from "react";
 import { UseNarDeleteAll } from "../hooks/useClear";
 import { UseNarsParseResult } from "../hooks/useNarsParse";
 import { UseQueryAllNf2tDBResult } from "./useQueryAllNf2tDB";
-import { FlowFile } from "@nf2t/nifitools-js";
+import { FlowFile } from "@nf2t/flowfiletools-js";
 
 export type ColorMode = "dark" | "light" | "system";
 
