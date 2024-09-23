@@ -38,6 +38,7 @@ export function AttributeDialog(props: AttributeDialogProps) {
         if(flowFile.status === "success") {
             props.setFlowFile({
                 status: "success",
+                parentId: flowFile.parentId,
                 content: flowFile.content,
                 attributes: [...flowFile.attributes, [data.key, data.value]],
             })

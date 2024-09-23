@@ -112,11 +112,13 @@ export type FlowFileContent = File | Blob;
 
 export type FlowFileFailure = {
     status: "error",
+    parentId: string,
     error: unknown,
 }
 
 export type FlowFile = {
     status: "success",
+    parentId: string,
     attributes: FlowFileAttributes,
     content: FlowFileContent,
 }

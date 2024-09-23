@@ -11,6 +11,16 @@ NPM Library: link:https://www.npmjs.com/package/@nf2t/flowfiletools-js[]
 
 - NodeJS
 - Git
+- Bash Environment
+
+== Scripts
+
+If your testing the tar.gz functionality:
+
+[,shell]
+----
+tar -czvf test.tar.gz README.asciidoc TODO.asciidoc
+----
 
 == TODO
 

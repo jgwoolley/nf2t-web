@@ -185,7 +185,7 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
                     continue;
                 }
                 const column = columns[columnIndex];
-
+                
                 newRows = newRows.filter((row) => {
                     const value = column.rowToString(row);
                     return value.match(filter);

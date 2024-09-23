@@ -91,7 +91,7 @@ function createContent(coreAttributes: CoreFlowFileAttributes, content: ArrayBuf
     })
 }
 
-function unpackageFlowFile(view: InputStream): FlowFileResult {
+function unpackageFlowFile(view: InputStream, parentId: string): FlowFileResult {
     try {
         for(let i = 0; i < MAGIC_HEADER.length; i++) {
             const expected = MAGIC_HEADER.charCodeAt(i);
@@ -105,6 +105,7 @@ function unpackageFlowFile(view: InputStream): FlowFileResult {
 
         const flowFile: FlowFile = {
             status: "success",
+            parentId: parentId,
             attributes: attributes, 
             content: createContent(coreAttributes, content),
         }
@@ -113,6 +114,7 @@ function unpackageFlowFile(view: InputStream): FlowFileResult {
     } catch(error) {
         return {
             status: "error",
+            parentId: parentId,
             error: error,
         }
     }
@@ -126,14 +128,15 @@ function unpackageFlowFile(view: InputStream): FlowFileResult {
  * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFileUnpackagerV3.java
  * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-extension-bundles/nifi-hadoop-bundle/nifi-hdfs-processors/src/main/java/org/apache/nifi/processors/hadoop/FlowFileStreamUnpackerSequenceFileWriter.java
  */
-export function unpackageFlowFileStream(buffer: ArrayBuffer): FlowFileResult[] {
+export function unpackageFlowFileStream(buffer: ArrayBuffer, parentId: string): FlowFileResult[] {
     const results: FlowFileResult[] = [];
 
     const view = new InputStream(buffer);
 
     while(view.hasMoreData()) {
-        const flowFile = unpackageFlowFile(view);
+        const flowFile = unpackageFlowFile(view, parentId);
         results.push(flowFile);
+        if(flowFile.status !== "success") break;
     }
 
     return results;

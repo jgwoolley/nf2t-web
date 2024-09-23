@@ -55,6 +55,7 @@ export function AttributeDownload({flowFile, setFlowFile, submitSnackbarMessage}
         if(flowFile.status === "success") {
             setFlowFile({
                 status: "success",
+                parentId: flowFile.parentId,
                 content: flowFile.content,
                 attributes: newRows
             });

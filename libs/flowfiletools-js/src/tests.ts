@@ -8,6 +8,7 @@ const originalFlowFiles: FlowFileResult[] = [];
 for(let index = 0; index < 2; index++) {
     originalFlowFiles.push({
         status: "success",
+        parentId: "test",
         attributes: [["test", `test${index}`]], 
         content: new File(["test3"], "test3", {
             type: "text/plain",
@@ -18,6 +19,7 @@ for(let index = 0; index < 2; index++) {
 for(let index = 2; index < 5; index++) {
     originalFlowFiles.push({
         status: "success",
+        parentId: "test",
         attributes: [["test", `test${index}`]], 
         content: new Blob(["test"]),
     });
@@ -33,7 +35,7 @@ console.log({
 });
 
 packagedFile.arrayBuffer().then(async (arrayBuffer) => {
-    const unpackagedFlowFiles = unpackageFlowFileStream(arrayBuffer);
+    const unpackagedFlowFiles = unpackageFlowFileStream(arrayBuffer, "test");
     for(const actualFlowFile of unpackagedFlowFiles) {
         if(actualFlowFile.status !== "success") {
             throw new Error(`Returned status must be success: ${actualFlowFile.status}`)

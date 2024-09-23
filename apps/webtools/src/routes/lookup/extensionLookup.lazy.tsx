@@ -126,9 +126,9 @@ export default function RouteComponent() {
                         <TableRow>
                             <TableCell>Nar</TableCell>
                             <TableCell>
-                                
+
                                 <Link search={{ name: extension?.narId }} to="/narLookup"><MuiLink component="span">{extension?.narId}</MuiLink></Link>
-                                
+
                             </TableCell>
                         </TableRow>
                         <TableRow>
@@ -147,9 +147,11 @@ export default function RouteComponent() {
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
-                                <TableCell>Display Name</TableCell>
-                                <TableCell>Internal Name</TableCell>
-                                <TableCell>Description</TableCell>
+                                <TableRow>
+                                    <TableCell>Display Name</TableCell>
+                                    <TableCell>Internal Name</TableCell>
+                                    <TableCell>Description</TableCell>
+                                </TableRow>
                             </TableHead>
                             <TableBody>
                                 {extension.properties.map((property, index) => (
@@ -171,8 +173,11 @@ export default function RouteComponent() {
                     <TableContainer component={Paper}>
                         <Table>
                             <TableHead>
-                                <TableCell>Relationship</TableCell>
-                                <TableCell>Description</TableCell>
+                                <TableRow>
+                                    <TableCell>Relationship</TableCell>
+                                    <TableCell>Description</TableCell>
+                                </TableRow>
+
                             </TableHead>
                             <TableBody>
                                 {extension.relationships.map((relationship, index) => (

@@ -46,7 +46,7 @@ function SetFlowFileContent({onUpload, flowFile, setFlowFile}: PackageNifiProps)
             ) : (
                 <>
                     <p>Clear existing FlowFile.</p>
-                    <Button variant="outlined" onClick={() => setFlowFile({ status: "error", error: "No Value"})}>Clear</Button>
+                    <Button variant="outlined" onClick={() => setFlowFile({ status: "error", parentId: "none", error: "No Value"})}>Clear</Button>
                 </>
             )}
         </>
@@ -94,7 +94,7 @@ function GetFlowFile({download: submit, flowFile, submitSnackbarMessage}: Packag
 
 export default function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
-    const [flowFile, setFlowFile] = useState<FlowFileResult>({ status: "error", error: "No Value"});
+    const [flowFile, setFlowFile] = useState<FlowFileResult>({ status: "error", parentId: "none", error: "No Value"});
     const snackbarResults = useNf2tSnackbar();
     const { submitSnackbarMessage } = snackbarResults;
 
@@ -122,6 +122,7 @@ export default function PackageNifi() {
         const newRows: FlowFile[] = [
             {
                 status: "success",
+                parentId: "none",
                 attributes: [],
                 content: newFile,
             },
@@ -132,7 +133,7 @@ export default function PackageNifi() {
     }
 
     const clear = () => {
-        setFlowFile({ status: "error", error: "No Value"});
+        setFlowFile({ status: "error", parentId: "none", error: "No Value"});
         submitSnackbarMessage("Cleared", "error");
     }
 

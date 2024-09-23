@@ -12,8 +12,8 @@ export type UseArrayElementsResult<T> = {
     setValue: (newValue: T) => void,
 }
 
-export function useArrayElements<T>({index, values, setValues}: UseArrayElementsParams<T>): UseArrayElementsResult<T> {    
-    const value = index == undefined ? values[0] : values[index];
+export function useArrayElements<T>({index, values, setValues, defaultValue}: UseArrayElementsParams<T>): UseArrayElementsResult<T> {    
+    const value = (index == undefined ? values[0] : values[index]) || defaultValue;
 
     const setValue = useCallback((newValue: T) => {
         if(index == undefined) {

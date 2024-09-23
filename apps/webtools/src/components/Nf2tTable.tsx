@@ -311,7 +311,7 @@ function Nf2tColumnEditDialog<R, C>({ open, handleClose, filteredColumns, column
 
     const addFilteredColumns = () => {
         filteredColumns.push({
-            columnIndex: 1,
+            columnIndex: 0,
             sortDirection: Nf2tTableColumnSortDirectionDefault,
             emptyFilter: Nf2tTableColumnEmptyFilterTypeDefault,
             regexFilter: "",

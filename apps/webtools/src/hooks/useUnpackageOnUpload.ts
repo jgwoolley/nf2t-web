@@ -1,6 +1,7 @@
 import { AlertColor } from "@mui/material";
 import { FlowFileResult, unpackageFlowFileStream } from "@nf2t/flowfiletools-js";
 import { ChangeEvent, useCallback } from "react";
+import untar from "../utils/untar";
 
 // TODO: Move this method back to its component BulkUnpackager
 
@@ -31,25 +32,52 @@ export function useUnpackageOnUpload({resetProgress, submitSnackbarMessage, setC
                 setCurrent(fileIndex);
                 setTotal(files.length);
                 const file = files[fileIndex];
+                const id = crypto?.randomUUID ? crypto.randomUUID() : `${new Date().toISOString()}${fileIndex}`;
+
                 await new Promise((resolve) => {
                     const reader = new FileReader();
-                    reader.onload = function () {
+                    reader.onload = async function () {
                         const buffer = reader.result;
                         if (!(buffer instanceof ArrayBuffer)) {
                             console.error("Buffer not ArrayBuffer");
                             resolve(1);
                             return;
                         }
+
+                        if(file.name.endsWith(".tar.gz")) {
+                            console.log(file);
+                            const files = await untar(file);
+                            for(const file of files) {
+                                try {
+                                    const result = unpackageFlowFileStream(await file.arrayBuffer(), id);
+                                    result.forEach(x => {
+                                        newRows.push(x);
+                                    })
+                                } catch (error) {
+                                    newRows.push({
+                                        status: "error",
+                                        parentId: id,
+                                        error: error,
+                                    });
+                                    return;
+                                }
+                            }
+
+                        }
+
                         try {
-                            const result = unpackageFlowFileStream(buffer);
+                            const result = unpackageFlowFileStream(buffer, id);
                             result.forEach(x => {
                                 if(x.status === "success") {
                                     newRows.push(x);
                                 }
                             })
-                        } catch (e) {
-                            console.error(e);
-                            resolve(3);
+                        } catch (error) {
+                            newRows.push({
+                                status: "error",
+                                parentId: id,
+                                error: error,
+                            });
                             return;
                         }
                         resolve(0);

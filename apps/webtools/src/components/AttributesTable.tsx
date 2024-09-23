@@ -63,6 +63,7 @@ function AttributeValueRow({childProps, row, rowIndex, filteredRowIndex, childPr
         flowFile.attributes[rowIndex][1] = event.target.value;
         setFlowFile({
             status: "success",
+            parentId: flowFile.parentId,
             content: flowFile.content,
             attributes: [...flowFile.attributes],
         })
@@ -113,6 +114,7 @@ export function AttributesTable({flowFile, setFlowFile, submitSnackbarMessage, c
 
         setFlowFile({
             status: "success",
+            parentId: flowFile.parentId,
             content: flowFile.content,
             attributes: flowFile.attributes,
         })

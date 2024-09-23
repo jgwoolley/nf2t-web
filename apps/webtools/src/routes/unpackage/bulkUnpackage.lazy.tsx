@@ -154,29 +154,17 @@ export function BulkUnPackageNifi() {
             }
         }
 
-        if (results.size <= 0) {
-            submitSnackbarMessage("Did not find any attributes in the given files.",
-                "error",
-                {
-                    uniqueAttributes: results.size,
-                    rows: unpackagedRows,
-                });
-        }
-
         return Array.from(results);
     }, [unpackagedRows, submitSnackbarMessage]);
 
     const columns: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = useMemo(() => {
         const results: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = [];
-        if(attributes == undefined) {
-            return results;
-        }
 
         results.push({
             columnName: "Edit",
             bodyRow: ({row, rowIndex}) => {
                 if(row.status === "error") {
-                    return <></>;
+                    return "Failed to parse.";
                 }
 
                 const coreAttributes = findCoreAttributes(row.attributes);
@@ -261,9 +249,7 @@ export function BulkUnPackageNifi() {
 
             <h5>2. Review FlowFiles</h5>  
             <p>Click on the columns to change the FlowFile attribute being viewed.</p> 
-            {(attributes.length > 0) && (
-               <Nf2tTable {...tableProps} />
-            )}
+            <Nf2tTable {...tableProps} />
             <Spacing />
 
             <h5>3. Download FlowFile Attributes CSV</h5>
