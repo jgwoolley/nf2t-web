@@ -2,13 +2,13 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { FlowFile } from "@nf2t/flowfiletools-js";
+import { FlowFileResult } from "@nf2t/flowfiletools-js";
 
 export interface AttributeDialogProps {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    flowFile: FlowFile | null,
-    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
+    flowFile: FlowFileResult,
+    setFlowFile: React.Dispatch<React.SetStateAction<FlowFileResult>>,
 }
 
 const attributeDialogRow = z.object({
@@ -35,7 +35,7 @@ export function AttributeDialog(props: AttributeDialogProps) {
 
     const onSubmit: SubmitHandler<AttributeDialogRowSchema> = (data) => {
         const {flowFile} = props;
-        if(flowFile != undefined) {
+        if(flowFile.status === "success") {
             props.setFlowFile({
                 status: "success",
                 content: flowFile.content,

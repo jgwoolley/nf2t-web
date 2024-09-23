@@ -2,12 +2,13 @@ import { useCallback } from "react";
 
 export type UseArrayElementsParams<T> = {
     values: T[],
+    defaultValue: T,
     setValues: React.Dispatch<React.SetStateAction<T[]>>,
     index?: number,
 }
 
 export type UseArrayElementsResult<T> = {
-    value: T | null,
+    value: T,
     setValue: (newValue: T) => void,
 }
 

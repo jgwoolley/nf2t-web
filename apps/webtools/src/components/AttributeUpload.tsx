@@ -4,11 +4,11 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { z } from "zod";
 import { useState } from "react";
 import { Nf2tSnackbarProps } from "../hooks/useNf2tSnackbar";
-import { FlowFile } from "@nf2t/flowfiletools-js";
+import { FlowFileResult } from "@nf2t/flowfiletools-js";
 
 interface AttributeDownloadProps extends Nf2tSnackbarProps {
-    flowFile: FlowFile | null,
-    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
+    flowFile: FlowFileResult,
+    setFlowFile: React.Dispatch<React.SetStateAction<FlowFileResult>>,
 }
 
 const jsonSchema = z.record(z.string(), z.string());
@@ -52,10 +52,10 @@ export function AttributeDownload({flowFile, setFlowFile, submitSnackbarMessage}
             return;
         }
 
-        if(flowFile != undefined) {
+        if(flowFile.status === "success") {
             setFlowFile({
                 status: "success",
-                content: flowFile?.content,
+                content: flowFile.content,
                 attributes: newRows
             });
             submitSnackbarMessage("Uploaded new Attributes.", "info")

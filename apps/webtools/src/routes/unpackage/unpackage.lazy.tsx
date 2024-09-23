@@ -11,7 +11,7 @@ import { Link, createLazyRoute, getRouteApi } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
-import { FlowFile } from '@nf2t/flowfiletools-js';
+import { FlowFileResult } from '@nf2t/flowfiletools-js';
 import { downloadFile } from '../../utils/downloadFile';
 import useArrayElements from '../../hooks/useArrayElement';
 import { Link as MuiLink } from "@mui/material";
@@ -21,20 +21,24 @@ export const Route = createLazyRoute("/unpackage")({
 })
 
 interface ContentDownloadButtonProps extends Nf2tSnackbarProps {
-    flowFile?: FlowFile | null,
+    flowFile: FlowFileResult,
 }
 
 function ContentDownloadButton({ flowFile, submitSnackbarMessage }: ContentDownloadButtonProps) {
     const onClick = useCallback(() => {
+        if(flowFile?.status !== "success") {
+            submitSnackbarMessage("No content to download.", "error");
+            return;
+        }
         if(flowFile?.content == undefined) {
             submitSnackbarMessage("No content to download.", "error");
             return;
         }
         downloadFile(new File([flowFile.content], ""));
-    }, [flowFile?.content, submitSnackbarMessage]);
+    }, [flowFile, submitSnackbarMessage]);
     
     return (
-        <Button startIcon={flowFile?.content ? <Download />: <SyncProblem />} variant="outlined" onClick={onClick}>Download Content</Button>
+        <Button startIcon={flowFile.status === "success" ? <Download />: <SyncProblem />} variant="outlined" onClick={onClick}>Download Content</Button>
     )
 }
 
@@ -48,7 +52,8 @@ export default function UnpackageFlowFile() {
 
     const { queryResults, unpackagedRows, setUnpackagedRows } = useNf2tContext();
 
-    const {value: flowFile, setValue: setFlowFile} = useArrayElements<FlowFile>({
+    const {value: flowFile, setValue: setFlowFile} = useArrayElements<FlowFileResult>({
+        defaultValue: { status: "error", error: "No Value" },
         index: searchParams.index,
         values: unpackagedRows,
         setValues: setUnpackagedRows,
@@ -69,6 +74,7 @@ export default function UnpackageFlowFile() {
         }
 
         const flowFileAttributes = new Set<string>();
+        if(flowFile.status !== "success") return [];
         for(const row of flowFile.attributes) {
             flowFileAttributes.add(row[0]);
         }

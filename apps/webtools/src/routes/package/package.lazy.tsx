@@ -14,7 +14,7 @@ import Nf2tSnackbar from "../../components/Nf2tSnackbar";
 import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 import { createLazyRoute } from "@tanstack/react-router";
-import { FlowFile, packageFlowFileStream, updateNf2tAttributes } from "@nf2t/flowfiletools-js";
+import { FlowFile, FlowFileResult, packageFlowFileStream, updateNf2tAttributes } from "@nf2t/flowfiletools-js";
 
 export const Route = createLazyRoute("/package")({
     component: PackageNifi,
@@ -24,8 +24,8 @@ interface PackageNifiProps extends Nf2tSnackbarProps {
     openAttribute: boolean,
     setOpenAttribute: React.Dispatch<React.SetStateAction<boolean>>,
     
-    flowFile: FlowFile | null,
-    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile | null>>,
+    flowFile: FlowFileResult,
+    setFlowFile: React.Dispatch<React.SetStateAction<FlowFileResult>>,
 
     download: () => void,
     onUpload: (e: ChangeEvent<HTMLInputElement>) => void,
@@ -33,10 +33,12 @@ interface PackageNifiProps extends Nf2tSnackbarProps {
 }
 
 function SetFlowFileContent({onUpload, flowFile, setFlowFile}: PackageNifiProps) {
+    const existing = flowFile.status === "success" && (flowFile.attributes.length || 0 )<= 0;
+
     return (
         <>
             <h5>1. FlowFile Content</h5>
-            {(flowFile?.attributes.length || 0 )<= 0 ? (
+            {existing ? (
                 <>       
                     <p>Upload a file to package into a FlowFile.</p>
                     <TextField type="file" onChange={onUpload}/>
@@ -44,7 +46,7 @@ function SetFlowFileContent({onUpload, flowFile, setFlowFile}: PackageNifiProps)
             ) : (
                 <>
                     <p>Clear existing FlowFile.</p>
-                    <Button variant="outlined" onClick={() => setFlowFile(null)}>Clear</Button>
+                    <Button variant="outlined" onClick={() => setFlowFile({ status: "error", error: "No Value"})}>Clear</Button>
                 </>
             )}
         </>
@@ -92,12 +94,12 @@ function GetFlowFile({download: submit, flowFile, submitSnackbarMessage}: Packag
 
 export default function PackageNifi() {
     const [openAttribute, setOpenAttribute] = useState(false);
-    const [flowFile, setFlowFile] = useState<FlowFile | null>(null);
+    const [flowFile, setFlowFile] = useState<FlowFileResult>({ status: "error", error: "No Value"});
     const snackbarResults = useNf2tSnackbar();
     const { submitSnackbarMessage } = snackbarResults;
 
     const submit = () => {
-        if (flowFile == undefined) {
+        if (flowFile.status !== "success") {
             submitSnackbarMessage("No File Provided.", "error")
             return;
         }
@@ -130,7 +132,7 @@ export default function PackageNifi() {
     }
 
     const clear = () => {
-        setFlowFile(null);
+        setFlowFile({ status: "error", error: "No Value"});
         submitSnackbarMessage("Cleared", "error");
     }
 

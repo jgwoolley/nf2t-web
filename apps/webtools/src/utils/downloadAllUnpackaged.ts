@@ -1,11 +1,13 @@
-import { findCoreAttributes, FlowFile, FLOWFILE_ATTRIBUTES_EXTENSION } from "@nf2t/flowfiletools-js";
+import { findCoreAttributes, FLOWFILE_ATTRIBUTES_EXTENSION, FlowFileResult } from "@nf2t/flowfiletools-js";
 
 export type DownloadAllUnpackagedParams = {
     directoryHandle: FileSystemDirectoryHandle, 
-    row: FlowFile,
+    row: FlowFileResult,
 }
 
 export async function downloadAttributes({directoryHandle, row}: DownloadAllUnpackagedParams) {
+    if(row.status !== "success") return;
+    
     const coreAttributes = findCoreAttributes(row.attributes);
 
     const filename = (coreAttributes.filename || "flowFiles") + FLOWFILE_ATTRIBUTES_EXTENSION;
@@ -21,6 +23,8 @@ export async function downloadAttributes({directoryHandle, row}: DownloadAllUnpa
 }
 
 export async function downloadContent({directoryHandle, row}: DownloadAllUnpackagedParams) {
+    if(row.status !== "success") return;
+
     const coreAttributes = findCoreAttributes(row.attributes);
     const filename = coreAttributes.filename || "flowFiles";
 
@@ -31,7 +35,7 @@ export async function downloadContent({directoryHandle, row}: DownloadAllUnpacka
     await writable.close();
 }
 
-export async function downloadAllUnpackaged({directoryHandle, rows}: {directoryHandle: FileSystemDirectoryHandle, rows: FlowFile[]}) {
+export async function downloadAllUnpackaged({directoryHandle, rows}: {directoryHandle: FileSystemDirectoryHandle, rows: FlowFileResult[]}) {
     const results = rows.map(row => {
         return Promise.all([
             downloadAttributes({directoryHandle: directoryHandle, row: row, }),

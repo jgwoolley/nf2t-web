@@ -1,5 +1,5 @@
 import { AlertColor } from "@mui/material";
-import { FlowFile, unpackageFlowFileStream } from "@nf2t/flowfiletools-js";
+import { FlowFileResult, unpackageFlowFileStream } from "@nf2t/flowfiletools-js";
 import { ChangeEvent, useCallback } from "react";
 
 // TODO: Move this method back to its component BulkUnpackager
@@ -9,7 +9,7 @@ export type UseUnpackageOnUploadParams = {
     submitSnackbarMessage: (message: string, type: AlertColor, data?: unknown) => void,
     setCurrent: (value: React.SetStateAction<number>) => void,
     setTotal: (value: React.SetStateAction<number>) => void,
-    setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFile[]>>,
+    setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFileResult[]>>,
 }
 
 export function useUnpackageOnUpload({resetProgress, submitSnackbarMessage, setCurrent, setTotal, setUnpackagedRows}: UseUnpackageOnUploadParams)  {
@@ -24,7 +24,7 @@ export function useUnpackageOnUpload({resetProgress, submitSnackbarMessage, setC
             setCurrent(0);
             setTotal(files.length);
 
-            const newRows: FlowFile[] = [];
+            const newRows: FlowFileResult[] = [];
             console.log(`Starting to process ${files.length} file(s).`)
 
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {

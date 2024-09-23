@@ -12,8 +12,8 @@ import Nf2tTable from '../../components/Nf2tTable';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
 import { FileUploadOutlined } from '@mui/icons-material';
-import { findCoreAttributes, FlowFile } from '@nf2t/flowfiletools-js';
-import {downloadAllUnpackaged}  from '../../utils/downloadAllUnpackaged';
+import { findCoreAttributes, FlowFileResult } from '@nf2t/flowfiletools-js';
+import { downloadAllUnpackaged }  from '../../utils/downloadAllUnpackaged';
 import useUnpackageOnUpload from '../../hooks/useUnpackageOnUpload';
 import { Link as MuiLink } from "@mui/material";
 
@@ -21,10 +21,13 @@ export const Route = createLazyRoute("/unpackageBulk")({
     component: BulkUnPackageNifi,
 })
 
-const defaultTotal = -1;
+const defaultTotal = -1 ; 
 const defaultCurrent = 0;
 
-// From: https://mui.com/material-ui/react-progress/
+/**
+ * 
+ * @see https://mui.com/material-ui/react-progress/
+ */
 function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {
     const value = useMemo(() => ((current) / total) * 100, [current, total])
 
@@ -45,7 +48,7 @@ function LinearProgressWithLabel({ current, total }: { current: number, total: n
 }
 
 export interface BulkUnpackageDownloadButtonsProps extends Nf2tSnackbarProps {
-    rows: FlowFile[],
+    rows: FlowFileResult[],
     attributes: string[] | undefined,
 }
 
@@ -60,6 +63,9 @@ export function BulkUnpackageDownloadReportButton({ submitSnackbarMessage, rows,
         content += "\n";
 
         for (const row of rows) {
+            if(row.status !== "success") {
+                continue;
+            }
             const coreAttributes = findCoreAttributes(row.attributes);
 
             for (const attribute of attributes) {
@@ -131,7 +137,7 @@ export function BulkUnPackageNifi() {
     const { submitSnackbarMessage } = snackbarResults;
     const [ total, setTotal ] = useState(defaultTotal);
     const [ current, setCurrent ] = useState(defaultCurrent);
-    const { unpackagedRows, setUnpackagedRows: setRows } = useNf2tContext();
+    const { unpackagedRows, setUnpackagedRows } = useNf2tContext();
 
     const attributes: string[] = useMemo(() => {
         if(unpackagedRows.length <= 0) {
@@ -140,6 +146,9 @@ export function BulkUnPackageNifi() {
 
         const results = new Set<string>();
         for(const row of unpackagedRows) {
+            if(row.status !== "success") {
+                continue;
+            }
             for(const [attribute] of row.attributes) {
                 results.add(attribute);
             }
@@ -157,8 +166,8 @@ export function BulkUnPackageNifi() {
         return Array.from(results);
     }, [unpackagedRows, submitSnackbarMessage]);
 
-    const columns: Nf2tTableColumnSpec<FlowFile, undefined>[] = useMemo(() => {
-        const results: Nf2tTableColumnSpec<FlowFile, undefined>[] = [];
+    const columns: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = useMemo(() => {
+        const results: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = [];
         if(attributes == undefined) {
             return results;
         }
@@ -166,6 +175,10 @@ export function BulkUnPackageNifi() {
         results.push({
             columnName: "Edit",
             bodyRow: ({row, rowIndex}) => {
+                if(row.status === "error") {
+                    return <></>;
+                }
+
                 const coreAttributes = findCoreAttributes(row.attributes);
 
                 return <Link to="/unpackage" search={{index: rowIndex}}><MuiLink component="span">{coreAttributes.filename || `FlowFile ${rowIndex + 1}`}</MuiLink></Link>
@@ -177,11 +190,17 @@ export function BulkUnPackageNifi() {
             results.push({
                 columnName: attribute,
                 bodyRow: ({row}) => {
+                    if(row.status === "error") {
+                        return <></>;
+                    }
                     // TODO: This is slow...
                     const coreAttributes = findCoreAttributes(row.attributes);
                     return coreAttributes[attribute] || "";
                 },
-                rowToString: (row: FlowFile) => {
+                rowToString: (row: FlowFileResult) => {
+                    if(row.status === "error") {
+                        return "";
+                    }
                     // TODO: This is slow...
                     const coreAttributes = findCoreAttributes(row.attributes);
                     return coreAttributes[attribute] || "";
@@ -192,7 +211,7 @@ export function BulkUnPackageNifi() {
         return results;
     }, [attributes]);
 
-    const tableProps = useNf2tTable<FlowFile, undefined>({
+    const tableProps = useNf2tTable<FlowFileResult, undefined>({
         childProps: undefined,
         snackbarProps: snackbarResults,
         canEditColumn: true,
@@ -212,12 +231,12 @@ export function BulkUnPackageNifi() {
         submitSnackbarMessage: submitSnackbarMessage,
         setCurrent: setCurrent,
         setTotal: setTotal,
-        setUnpackagedRows: setRows,
+        setUnpackagedRows: setUnpackagedRows,
     });
     
     const clearFlowFiles = useCallback(() => {
-        setRows([]);
-    }, [setRows]);
+        setUnpackagedRows([]);
+    }, [setUnpackagedRows]);
 
     return (
         <>

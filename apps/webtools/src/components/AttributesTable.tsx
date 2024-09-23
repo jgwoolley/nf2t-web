@@ -10,11 +10,11 @@ import { BodyRowComponentProps, Nf2tTableColumnSpec, useNf2tTable } from '../hoo
 import Nf2tTable from './Nf2tTable';
 import { convertBytes } from '../utils/convertBytes';
 import ExternalLink from './ExternalLink';
-import { FlowFile } from '@nf2t/flowfiletools-js';
+import { FlowFile, FlowFileResult } from '@nf2t/flowfiletools-js';
 import { Link as MuiLink } from "@mui/material";
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
-    flowFile?: FlowFile | null,
+    flowFile: FlowFileResult,
     setFlowFile: (newFlowFile: FlowFile) => void,
     canEdit: boolean,
 }
@@ -22,7 +22,7 @@ export interface AttributesTableProps extends Nf2tSnackbarProps {
 type AttributesTableChildProps = {
     editIndex: number,
     setEditIndex: React.Dispatch<React.SetStateAction<number>>,
-    flowFile?: FlowFile | null,
+    flowFile: FlowFileResult,
     setFlowFile: (newValue: FlowFile) => void,
     deleteRow: (index: number) => void,
     submitSnackbarMessage: (message: string, type: AlertColor, data?: unknown) => void,
@@ -52,6 +52,10 @@ function AttributeValue({row}: {row: FlowfileAttributeRowSchema}) {
 function AttributeValueRow({childProps, row, rowIndex, filteredRowIndex, childProps: {flowFile, setFlowFile, submitSnackbarMessage, }}: BodyRowComponentProps<FlowfileAttributeRowSchema, AttributesTableChildProps>) {
     const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
         if(flowFile == undefined) {
+            submitSnackbarMessage("No FlowFile provided", "error");
+            return;
+        }
+        if(flowFile.status !== "success") {
             submitSnackbarMessage("No FlowFile provided", "error");
             return;
         }
@@ -100,6 +104,11 @@ export function AttributesTable({flowFile, setFlowFile, submitSnackbarMessage, c
             submitSnackbarMessage("No FlowFile", "error");
             return;
         }
+        if(flowFile.status !== "success") {
+            submitSnackbarMessage("No FlowFile", "error");
+            return;
+        }
+
         const deletedRows = flowFile.attributes.splice(index, 1);
 
         setFlowFile({
@@ -156,7 +165,7 @@ export function AttributesTable({flowFile, setFlowFile, submitSnackbarMessage, c
         snackbarProps: snackbarProps,
         canEditColumn: false,
         columns: columns,
-        rows: flowFile?.attributes || [],
+        rows: flowFile?.status === "success" ? (flowFile?.attributes || []): [],
     });
 
     return (
