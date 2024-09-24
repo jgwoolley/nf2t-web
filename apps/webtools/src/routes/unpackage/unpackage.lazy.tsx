@@ -58,15 +58,6 @@ export default function UnpackageFlowFile() {
         setValues: setUnpackagedRows,
     });
 
-    // TODO: Remove this method being in a seperate location.
-    // const onUpload = useUnpackageOnUpload({
-    //     resetProgress: () => { },
-    //     submitSnackbarMessage: snackbarResults.submitSnackbarMessage,
-    //     setCurrent: () => { },
-    //     setTotal: () => { },
-    //     setUnpackagedRows: setUnpackagedRows,
-    // });
-
     const evaluatedProcessors = useMemo(() => {
         if (!queryResults.data || flowFile == undefined) {
             return [];

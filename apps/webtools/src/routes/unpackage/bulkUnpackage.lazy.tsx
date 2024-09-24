@@ -11,17 +11,17 @@ import { createLazyRoute, Link } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
-import { FileUploadOutlined } from '@mui/icons-material';
 import { findCoreAttributes, FlowFileResult } from '@nf2t/flowfiletools-js';
-import { downloadAllUnpackaged }  from '../../utils/downloadAllUnpackaged';
+import { downloadAllUnpackaged } from '../../utils/downloadAllUnpackaged';
 import useUnpackageOnUpload from '../../hooks/useUnpackageOnUpload';
 import { Link as MuiLink } from "@mui/material";
+import { FileUploadOutlined } from '@mui/icons-material';
 
 export const Route = createLazyRoute("/unpackageBulk")({
     component: BulkUnPackageNifi,
 })
 
-const defaultTotal = -1 ; 
+const defaultTotal = -1;
 const defaultCurrent = 0;
 
 /**
@@ -63,7 +63,7 @@ export function BulkUnpackageDownloadReportButton({ submitSnackbarMessage, rows,
         content += "\n";
 
         for (const row of rows) {
-            if(row.status !== "success") {
+            if (row.status !== "success") {
                 continue;
             }
             const coreAttributes = findCoreAttributes(row.attributes);
@@ -88,15 +88,15 @@ export function BulkUnpackageDownloadReportButton({ submitSnackbarMessage, rows,
     };
 
     const isntDownloadable = rows.length <= 0 || attributes == undefined || attributes.length <= 0;
-    const onClick = isntDownloadable ? onClickIsntDownloadable: onClickDownloadReport;
+    const onClick = isntDownloadable ? onClickIsntDownloadable : onClickDownloadReport;
 
     return (
-        <Button startIcon={ isntDownloadable ? <SyncProblemIcon /> : <CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download Report</Button>
+        <Button startIcon={isntDownloadable ? <SyncProblemIcon /> : <CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download Report</Button>
     )
 }
 
 export function BulkUnpackageDownloadAllButton({ submitSnackbarMessage, rows, attributes }: BulkUnpackageDownloadButtonsProps) {
-    let hasIssue = false;    
+    let hasIssue = false;
     let onClick = async () => {
         const directoryHandle = await window.showDirectoryPicker();
         await downloadAllUnpackaged({
@@ -105,12 +105,12 @@ export function BulkUnpackageDownloadAllButton({ submitSnackbarMessage, rows, at
         });
         submitSnackbarMessage(`Completed download to ${directoryHandle.name}`, "success");
     };
-    if(typeof window.showDirectoryPicker == "undefined") {
+    if (typeof window.showDirectoryPicker == "undefined") {
         hasIssue = true;
         onClick = async () => {
             submitSnackbarMessage("Your browser doesn't support the showDirectoryPicker API", "error")
         };
-    } else if(rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
+    } else if (rows.length <= 0 || attributes == undefined || attributes.length <= 0) {
         hasIssue = true;
         onClick = async () => {
             submitSnackbarMessage("No attributes to download", "error")
@@ -118,7 +118,7 @@ export function BulkUnpackageDownloadAllButton({ submitSnackbarMessage, rows, at
     }
 
     return (
-        <Button startIcon={ hasIssue ? <SyncProblemIcon /> : <CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download All Content and Attributes</Button>
+        <Button startIcon={hasIssue ? <SyncProblemIcon /> : <CloudDownloadIcon />} variant="outlined" onClick={onClick}>Download All Content and Attributes</Button>
     )
 }
 
@@ -126,30 +126,30 @@ export function BulkUnpackageDownloadButtons(props: BulkUnpackageDownloadButtons
     return (
         <ButtonGroup>
             <BulkUnpackageDownloadReportButton {...props} />
-            <BulkUnpackageDownloadAllButton {...props}  />
+            <BulkUnpackageDownloadAllButton {...props} />
         </ButtonGroup>
     )
-    
+
 }
 
 export function BulkUnPackageNifi() {
     const snackbarResults = useNf2tSnackbar();
     const { submitSnackbarMessage } = snackbarResults;
-    const [ total, setTotal ] = useState(defaultTotal);
-    const [ current, setCurrent ] = useState(defaultCurrent);
+    const [total, setTotal] = useState(defaultTotal);
+    const [current, setCurrent] = useState(defaultCurrent);
     const { unpackagedRows, setUnpackagedRows } = useNf2tContext();
 
     const attributes: string[] = useMemo(() => {
-        if(unpackagedRows.length <= 0) {
+        if (unpackagedRows.length <= 0) {
             return [];
         }
 
         const results = new Set<string>();
-        for(const row of unpackagedRows) {
-            if(row.status !== "success") {
+        for (const row of unpackagedRows) {
+            if (row.status !== "success") {
                 continue;
             }
-            for(const [attribute] of row.attributes) {
+            for (const [attribute] of row.attributes) {
                 results.add(attribute);
             }
         }
@@ -162,23 +162,23 @@ export function BulkUnPackageNifi() {
 
         results.push({
             columnName: "Edit",
-            bodyRow: ({row, rowIndex}) => {
-                if(row.status === "error") {
+            bodyRow: ({ row, rowIndex }) => {
+                if (row.status === "error") {
                     return "Failed to parse.";
                 }
 
                 const coreAttributes = findCoreAttributes(row.attributes);
 
-                return <Link to="/unpackage" search={{index: rowIndex}}><MuiLink component="span">{coreAttributes.filename || `FlowFile ${rowIndex + 1}`}</MuiLink></Link>
+                return <Link to="/unpackage" search={{ index: rowIndex }}><MuiLink component="span">{coreAttributes.filename || `FlowFile ${rowIndex + 1}`}</MuiLink></Link>
             },
             rowToString: () => "Edit",
         });
 
-        for(const attribute of attributes) {
+        for (const attribute of attributes) {
             results.push({
                 columnName: attribute,
-                bodyRow: ({row}) => {
-                    if(row.status === "error") {
+                bodyRow: ({ row }) => {
+                    if (row.status === "error") {
                         return <></>;
                     }
                     // TODO: This is slow...
@@ -186,7 +186,7 @@ export function BulkUnPackageNifi() {
                     return coreAttributes[attribute] || "";
                 },
                 rowToString: (row: FlowFileResult) => {
-                    if(row.status === "error") {
+                    if (row.status === "error") {
                         return "";
                     }
                     // TODO: This is slow...
@@ -195,7 +195,7 @@ export function BulkUnPackageNifi() {
                 },
             });
         }
-        
+
         return results;
     }, [attributes]);
 
@@ -213,24 +213,27 @@ export function BulkUnPackageNifi() {
         setTotal(defaultTotal);
         setCurrent(defaultCurrent);
     }, [tableProps])
-    
-    const onUpload = useUnpackageOnUpload({
+
+    const {onUpload, dragOverProps} = useUnpackageOnUpload({
         resetProgress: resetProgress,
         submitSnackbarMessage: submitSnackbarMessage,
         setCurrent: setCurrent,
         setTotal: setTotal,
         setUnpackagedRows: setUnpackagedRows,
+        unpackagedRows: unpackagedRows,
     });
-    
+
     const clearFlowFiles = useCallback(() => {
         setUnpackagedRows([]);
     }, [setUnpackagedRows]);
 
     return (
-        <>
+        <div
+            {...dragOverProps}
+        >
             <Nf2tHeader to="/unpackageBulk" />
             <h5>1. Packaged FlowFiles</h5>
-            <p>Upload FlowFiles.</p>
+            <p>Drag FlowFile(s) onto the screen, or click the Upload Button below:</p>    
             <IconButton component="label">
                 <FileUploadOutlined />
                 <input
@@ -240,15 +243,15 @@ export function BulkUnPackageNifi() {
                     hidden
                     onChange={onUpload}
                 />
-            </IconButton>
+            </IconButton>       
             <p>Clear provided FlowFiles.</p>
             <Button variant="outlined" onClick={clearFlowFiles}>Clear</Button>
             <Spacing />
             <LinearProgressWithLabel current={current} total={total} />
             <Spacing />
 
-            <h5>2. Review FlowFiles</h5>  
-            <p>Click on the columns to change the FlowFile attribute being viewed.</p> 
+            <h5>2. Review FlowFiles</h5>
+            <p>Click on the columns to change the FlowFile attribute being viewed.</p>
             <Nf2tTable {...tableProps} />
             <Spacing />
 
@@ -257,7 +260,7 @@ export function BulkUnPackageNifi() {
             <BulkUnpackageDownloadButtons {...snackbarResults} rows={unpackagedRows} attributes={attributes} />
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />
-        </>
+        </div>
     )
 }
 
