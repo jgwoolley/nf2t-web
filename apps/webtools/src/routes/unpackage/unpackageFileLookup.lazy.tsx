@@ -9,8 +9,9 @@ import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import Nf2tTable from "../../components/Nf2tTable";
 import { findCoreAttributes, FlowFileResult } from "@nf2t/flowfiletools-js";
 import { UnpackagedFile } from "../../utils/schemas";
+import UnpackageLink from "./UnpackageLink";
 
-const routeId = "/parentFile" as const;
+const routeId = "/unpackageFileLookup" as const;
 
 export const Route = createLazyRoute(routeId)({
     component: ParentFileLookup,
@@ -60,7 +61,7 @@ export function ParentFileLookup() {
             {
                 columnName: "File",
                 bodyRow: ({row}) => {
-                    return <Link to="/parentFile" search={{ id: row.id }}><MuiLink component="span">{row.name}</MuiLink></Link>;
+                    return <Link to="/unpackageFileLookup" search={{ id: row.id }}><MuiLink component="span">{row.name}</MuiLink></Link>;
                 },
                 rowToString: function (row: UnpackagedFile): string {
                     return row.name;
@@ -116,13 +117,9 @@ export function ParentFileLookup() {
         canEditColumn: false,
     });
 
-
-
-
-
     return <>
-        <Nf2tHeader to="/parentFile" />
-        <p><Link to="/unpackageBulk"><MuiLink component="span">Go here to unpackage FlowFile(s).</MuiLink></Link></p>
+        <Nf2tHeader to={routeId} />
+        <p><UnpackageLink /></p>
 
         {parentFile ? (
             <>
@@ -139,7 +136,7 @@ export function ParentFileLookup() {
                         {grandParentFile && (
                             <TableRow>
                                 <TableCell>Parent</TableCell>
-                                <TableCell><Link to="/parentFile" search={{ id: grandParentFile.id }}><MuiLink component="span">{grandParentFile.name}</MuiLink></Link></TableCell>
+                                <TableCell><Link to={routeId} search={{ id: grandParentFile.id }}><MuiLink component="span">{grandParentFile.name}</MuiLink></Link></TableCell>
                             </TableRow>
                         )}
                        

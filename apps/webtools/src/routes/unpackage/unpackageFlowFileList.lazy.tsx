@@ -16,8 +16,9 @@ import { downloadAllUnpackaged } from '../../utils/downloadAllUnpackaged';
 import useUnpackageOnUpload from '../../hooks/useUnpackageOnUpload';
 import { Link as MuiLink } from "@mui/material";
 import { FileUploadOutlined } from '@mui/icons-material';
+import UnpackageLink from './UnpackageLink';
 
-export const Route = createLazyRoute("/unpackageBulk")({
+export const Route = createLazyRoute("/unpackageFlowFileList")({
     component: BulkUnPackageNifi,
 })
 
@@ -169,7 +170,7 @@ export function BulkUnPackageNifi() {
                     return "";
                 }
 
-                return <Link to="/parentFile" search={{ id: row.parentId }}><MuiLink component="span">{parentFiles[0].name}</MuiLink></Link>
+                return <Link to="/unpackageFileLookup" search={{ id: row.parentId }}><MuiLink component="span">{parentFiles[0].name}</MuiLink></Link>
             },
             compareFn: (x, y) => x.parentId.localeCompare(y.parentId),
             rowToString: (row) => {
@@ -191,7 +192,7 @@ export function BulkUnPackageNifi() {
 
                 const coreAttributes = findCoreAttributes(row.attributes);
 
-                return <Link to="/unpackage" search={{ index: rowIndex }}><MuiLink component="span">{coreAttributes.filename || `FlowFile ${rowIndex + 1}`}</MuiLink></Link>
+                return <Link to="/unpackageFlowFileLookup" search={{ index: rowIndex }}><MuiLink component="span">{coreAttributes.filename || `FlowFile ${rowIndex + 1}`}</MuiLink></Link>
             },
             rowToString: () => "Edit",
         });
@@ -257,7 +258,9 @@ export function BulkUnPackageNifi() {
         <div
             {...dragOverProps}
         >
-            <Nf2tHeader to="/unpackageBulk" />
+            <Nf2tHeader to="/unpackageFlowFileList" />
+            <p><UnpackageLink /></p>
+
             <h5>1. Packaged FlowFiles</h5>
             <p>Drag FlowFile(s) onto the screen, or click the Upload Button below:</p>    
             <IconButton component="label">

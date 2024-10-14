@@ -57,7 +57,7 @@ function Nf2tSettingsMenu() {
                 }}
             >
                 <Nf2tMenuItem to="/" />
-                <Nf2tMenuItem to="/unpackageBulk" />
+                <Nf2tMenuItem to="/unpackage" />
                 <Nf2tMenuItem to="/package" />
                 <Nf2tMenuItem to="/narReader" />
                 <Nf2tMenuItem to="/source" />

@@ -10,16 +10,16 @@ import { route as tagList } from "./lookup/tagList";
 import { route as narLookup } from "./lookup/narLookup";
 import { route as narReader } from "./lookup/narReader";
 import { route as packageFlowFile } from "./package/package";
-import { route as unpackageFlowFile } from "./unpackage/unpackage";
-import { route as bulkUnpackageFlowFile } from "./unpackage/bulkUnpackage";
 import { route as source } from "./source";
 import { route as home } from "./home";
 import { route as settings } from "./settings";
-import { route as parentFileLookup} from "./unpackage/parentFileLookup";
+import { UnpackageFileLookupRoute} from "./unpackage/unpackageFileLookup";
+import { UnpackageRoute} from "./unpackage/unpackage";
+import { ViewFlowFileRoute } from "./unpackage/unpackageFlowFileLookup";
+import { ViewFlowFilesRoute } from "./unpackage/unpackageFlowFileList";
 
 export const routeChildren = [
   buildInfo,
-  parentFileLookup,
   technologiesInfo,
   attributesLookup,
   attributeLookup,
@@ -29,8 +29,10 @@ export const routeChildren = [
   narLookup,
   narReader,
   packageFlowFile,
-  unpackageFlowFile,
-  bulkUnpackageFlowFile,
+  UnpackageRoute,
+  UnpackageFileLookupRoute,
+  ViewFlowFileRoute,
+  ViewFlowFilesRoute,
   source,
   home,
   attributeList,
@@ -85,13 +87,6 @@ export interface RouteDescription {
 }
 
 export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
-  "/parentFile": {
-    to: "/parentFile",
-    name: "Parent File",
-    shortName: "Parent File",
-    shortDescription: "Parent File",
-    description: "Parent File",
-  },
   "/": {
     to: "/",
     name: "Nifi FlowFile Tools",
@@ -163,15 +158,27 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
   },
   "/unpackage": {
     to: "/unpackage",
-    source: FlowFileUnpackagerV3Reference,
-    name: "Unpackager (Single)",
-    shortDescription: "Unpackage a FlowFile's content, and attributes.",
-  },
-  "/unpackageBulk": {
-    to: "/unpackageBulk",
-    source: FlowFileUnpackagerV3Reference,
     name: "Unpackager",
-    shortDescription: "Unpackage the attributes and content of multiple FlowFiles.",
+    shortDescription: "Unpackages files for further processing.",
+  },
+  "/unpackageFileLookup": {
+    to: "/unpackageFileLookup",
+    name: "Parent File",
+    shortName: "Parent File",
+    shortDescription: "Parent File",
+    description: "Parent File",
+  },
+  "/unpackageFlowFileLookup": {
+    to: "/unpackageFlowFileLookup",
+    source: FlowFileUnpackagerV3Reference,
+    name: "FlowFile Lookup",
+    shortDescription: "View information on a FlowFile's content, and attributes.",
+  },
+  "/unpackageFlowFileList": {
+    to: "/unpackageFlowFileList",
+    source: FlowFileUnpackagerV3Reference,
+    name: "FlowFile List",
+    shortDescription: "View information on the attributes and content of multiple FlowFiles.",
   },
   "/source": {
     to: "/source",

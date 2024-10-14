@@ -1,9 +1,7 @@
 import { createRoute } from "@tanstack/react-router";
-import routeTree from "../rootRoute.tsx";
-import { UnpackageSearchParamsSchema } from "../lookup/searchParams.ts";
+import routeTree from "../rootRoute";
 
-export const route = createRoute({
+export const UnpackageRoute = createRoute({
     path: "/unpackage",
     getParentRoute: () => routeTree,
-    validateSearch: (params) => UnpackageSearchParamsSchema.parse(params),
 }).lazy(() => import('./unpackage.lazy.tsx').then((d) => d.Route));

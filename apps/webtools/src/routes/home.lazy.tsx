@@ -29,7 +29,7 @@ function ApplicationIcon({path}: {path: RoutePathType}) {
         return <ArchiveIcon />
     }
 
-    if(path === "/unpackageBulk") {
+    if(path === "/unpackage") {
         return <UnarchiveIcon />
     }
 
@@ -75,7 +75,7 @@ export default function Nf2tHome() {
             },
         ],
         rows: [
-            "/unpackageBulk",
+            "/unpackage",
             "/package",
             "/narReader",
             "/source",
