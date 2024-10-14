@@ -99,10 +99,10 @@ function Nf2tColumnEditDialogContent<R, C>({ columnPage, onClickColumn, filtered
     const uniqueValues = useMemo(() => {
         const uniqueValues = new Map<string, number>();
         if (columnMemoResult.errorMessage === undefined) {
-            for (const row of filteredRows) {
-                const value = columnMemoResult.column.rowToString(row);
+            filteredRows.forEach((row, index) => {
+                const value = columnMemoResult.column.rowToString(row, index);
                 uniqueValues.set(value, (uniqueValues.get(value) || 0) + 1)
-            }
+            });
         }
 
         return Array.from(uniqueValues.entries()).sort((a, b) => b[1] - a[1]);

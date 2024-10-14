@@ -16,7 +16,7 @@ export interface Nf2tTableColumnSpec<R,C> {
     columnName: string,
     bodyRow: FC<BodyRowComponentProps<R,C>>,
     hideFilter?: boolean,
-    rowToString: (row: R) => string,
+    rowToString: (row: R, index: number) => string,
     compareFn?: (a: R, b: R) => number,
 }
 
@@ -107,10 +107,6 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
             return;
         }
 
-        if(columns.length == 0) {
-            return;
-        }
-
         if (!ignoreNoColumnsError && columns.length <= 0) {
             snackbarProps.submitSnackbarMessage("No columns for table configured", "error");
             return;
@@ -134,7 +130,7 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
     
     useEffect(() => {
         restoreDefaultFilteredColumns();
-    }, [columns, filteredColumns, restoreDefaultFilteredColumns]);
+    }, []);
 
     const handleClickOpen = () => {  
         setOpen(true);
@@ -143,7 +139,6 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
     const handleClose = () => {
         setOpen(false);
     };
-
 
     const handleChangePage = useCallback((_event: unknown, newPage: number) => {
         setRowPage(newPage);
@@ -170,8 +165,8 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
                 }
                 const column = columns[columnIndex];
 
-                newRows = newRows.filter((row) => {
-                    const value = column.rowToString(row);
+                newRows = newRows.filter((row, index) => {
+                    const value = column.rowToString(row, index);
                     return filter(value);
                 });
             }
@@ -186,8 +181,8 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
                 }
                 const column = columns[columnIndex];
                 
-                newRows = newRows.filter((row) => {
-                    const value = column.rowToString(row);
+                newRows = newRows.filter((row, index) => {
+                    const value = column.rowToString(row, index);
                     return value.match(filter);
                 });
             }

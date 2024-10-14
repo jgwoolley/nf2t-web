@@ -74,6 +74,7 @@ export type PackageFlowFilesOptions = {
  * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFilePackagerV3.java
  */
 export function packageFlowFileStream(flowFiles: FlowFileResult[]): File {
+    // TODO: Maybe just always give it the same filename...
     let filename : string | null = null;
     const blobParts: BlobPart[] = [];
 

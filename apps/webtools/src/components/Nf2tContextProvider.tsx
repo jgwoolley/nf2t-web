@@ -7,6 +7,7 @@ import { FlowFileResult } from "@nf2t/flowfiletools-js";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, PaletteMode } from "@mui/material";
 import { useBrowserIsDarkMode } from "../hooks/useBrowserIsDarkMode";
+import { UnpackagedFile } from "../utils/schemas";
 
 const colorModeLut: Record<ColorMode, PaletteMode | undefined> = {
     dark: 'dark',
@@ -19,7 +20,9 @@ export default function Nf2tContextProvider({children}: React.PropsWithChildren)
     const narsDeleteAll = useNarDeleteAll();
     const narsParse = useNarParse();
     const [reactRouterDebug, setReactRouterDebug] = useState<boolean>(false);
+    // TODO: Change to unpackagedFlowFiles
     const [unpackagedRows, setUnpackagedRows] = useState<FlowFileResult[]>([]);
+    const [unpackagedFiles, setUnpackagedFiles] = useState<UnpackagedFile[]>([]);
     const [colorMode, setColorMode] = useState<ColorMode>("system");
     const browserIsDarkMode = useBrowserIsDarkMode();
 
@@ -47,6 +50,8 @@ export default function Nf2tContextProvider({children}: React.PropsWithChildren)
         setColorMode,
         unpackagedRows,
         setUnpackagedRows,
+        unpackagedFiles, 
+        setUnpackagedFiles,
     };
 
     return (

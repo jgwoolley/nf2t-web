@@ -15,9 +15,11 @@ import { route as bulkUnpackageFlowFile } from "./unpackage/bulkUnpackage";
 import { route as source } from "./source";
 import { route as home } from "./home";
 import { route as settings } from "./settings";
+import { route as parentFileLookup} from "./unpackage/parentFileLookup";
 
 export const routeChildren = [
   buildInfo,
+  parentFileLookup,
   technologiesInfo,
   attributesLookup,
   attributeLookup,
@@ -83,6 +85,13 @@ export interface RouteDescription {
 }
 
 export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
+  "/parentFile": {
+    to: "/parentFile",
+    name: "Parent File",
+    shortName: "Parent File",
+    shortDescription: "Parent File",
+    description: "Parent File",
+  },
   "/": {
     to: "/",
     name: "Nifi FlowFile Tools",

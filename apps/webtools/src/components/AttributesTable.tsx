@@ -1,4 +1,5 @@
-import { FlowfileAttributeRowSchema } from '../utils/schemas';
+import { FlowFileAttribute as FlowfileAttributeRowSchema } from '@nf2t/flowfiletools-js';
+
 import { AlertColor, Button, ButtonGroup, TextField } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';

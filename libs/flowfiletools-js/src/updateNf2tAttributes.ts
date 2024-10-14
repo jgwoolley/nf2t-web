@@ -1,4 +1,4 @@
-import { CORE_ATTRIBUTES, findCoreAttributes, FlowFileResult, FlowFileAttributes, NF2T_ATTRIBUTES } from "./schemas";
+import { findCoreAttributes, FlowFileResult, FlowFileAttributes, NF2T_ATTRIBUTES, CORE_ATTRIBUTES } from "./schemas";
 
 function convertDate(date: Date): string {
     return date.toISOString();

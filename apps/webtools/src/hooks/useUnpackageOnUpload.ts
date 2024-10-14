@@ -2,6 +2,7 @@ import { AlertColor } from "@mui/material";
 import { FlowFileResult, unpackageFlowFileStream } from "@nf2t/flowfiletools-js";
 import { ChangeEvent, DragEvent, useCallback } from "react";
 import untar from "../utils/untar";
+import { UnpackagedFile } from "../utils/schemas";
 
 // TODO: Move this method back to its component BulkUnpackager
 
@@ -12,6 +13,8 @@ export type UseUnpackageOnUploadParams = {
     setTotal: (value: React.SetStateAction<number>) => void,
     unpackagedRows: FlowFileResult[],
     setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFileResult[]>>,
+    unpackagedFiles: UnpackagedFile[], 
+    setUnpackagedFiles: React.Dispatch<React.SetStateAction<UnpackagedFile[]>>,
 }
 
 export type UseUnpackageOnUploadResults = {
@@ -25,13 +28,27 @@ export type UseUnpackageOnUploadResults = {
     }
 }
 
+function generateId(file: File): string {
+    if(crypto?.randomUUID) {
+        return crypto.randomUUID();
+    }
+
+    return new Date().toISOString() + file.name;
+}
+
+export type ParseFilesParameters = {
+    unpackagedFiles: UnpackagedFile[], 
+    unpackagedRows: FlowFileResult[],
+    files: FileList,
+}
+
 /**
  * 
  * @see https://codesandbox.io/p/sandbox/crazy-butterfly-4c2ehe
  * @see https://github.com/mui/material-ui/issues/33898
  */
-export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, setCurrent, setTotal, setUnpackagedRows, unpackagedRows }: UseUnpackageOnUploadParams): UseUnpackageOnUploadResults {
-    const parseFiles = useCallback(async (files: FileList) => {
+export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, setCurrent, setTotal, setUnpackagedRows, unpackagedRows, unpackagedFiles, setUnpackagedFiles}: UseUnpackageOnUploadParams): UseUnpackageOnUploadResults {
+    const parseFiles = useCallback(async ({files, unpackagedFiles, unpackagedRows}: ParseFilesParameters) => {
         try {
             resetProgress();
 
@@ -43,75 +60,88 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
             setTotal(files.length);
 
             const newRows: FlowFileResult[] = [];
+            const newUnpackagedFiles: UnpackagedFile[] = [];
             console.log(`Starting to process ${files.length} file(s).`)
 
             for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
                 setCurrent(fileIndex);
                 setTotal(files.length);
                 const file = files[fileIndex];
-                const id = crypto?.randomUUID ? crypto.randomUUID() : `${new Date().toISOString()}${fileIndex}`;
 
-                await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = async function () {
-                        const buffer = reader.result;
-                        if (!(buffer instanceof ArrayBuffer)) {
-                            newRows.push({
-                                status: "error",
-                                parentId: id,
-                                error: "Buffer not ArrayBuffer",
-                            });
-                            resolve(1);
-                            return;
-                        }
+                const parseFlowFileStream = async (file: File, parentId?: string) => {
+                    const id = generateId(file);
 
-                        const parseFlowFileStream = (arrayBuffer: ArrayBuffer) => {
-                            try {
-                                const result = unpackageFlowFileStream(arrayBuffer, id);
-                                result.forEach(x => {
-                                    newRows.push(x);
-                                })
-                            } catch (error) {
-                                newRows.push({
-                                    status: "error",
-                                    parentId: id,
-                                    error: error,
-                                });
-                                resolve(1);
-                                return;
-                            }
-                        }
+                    newUnpackagedFiles.push({
+                        parentId: parentId,
+                        id: id,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                    });
 
-                        if (file.name.endsWith(".tar.gz")) {
-                            const files = await untar(file);
-                            for (const file of files) {
-                                parseFlowFileStream(await file.arrayBuffer());
-                            }
-
-                        } else {
-                            parseFlowFileStream(buffer);
-                        }
-                        resolve(0);
+                    try {
+                        const result = unpackageFlowFileStream(await file.arrayBuffer(), id);
+                        result.forEach(x => {
+                            newRows.push(x);
+                        })
+                    } catch (error) {
+                        newRows.push({
+                            status: "error",
+                            parentId: id,
+                            error: error,
+                        });
                     }
-                    reader.readAsArrayBuffer(file);
-                });
+                }
+
+                if (file.name.endsWith(".tar.gz")) {
+                    const parentId = generateId(file);
+                    newUnpackagedFiles.push({
+                        parentId: undefined,
+                        id: parentId,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                    });
+
+                    const files = await untar(file);
+                    for (const file of files) {
+                        await parseFlowFileStream(file, parentId);
+                    }
+
+                } else if(file.name.endsWith(".zip")) {
+                    console.error("Cannot parse ZIP.", "error");
+                }
+                else {
+                    await parseFlowFileStream(file);
+                }
             }
 
             setCurrent(files.length);
             setTotal(files.length);
             setUnpackagedRows([...unpackagedRows, ...newRows]);
-            console.log(`Added ${newRows.length} FlowFile(s).`);
+            setUnpackagedFiles([...unpackagedFiles, ...newUnpackagedFiles]);
+            submitSnackbarMessage(`Unpackaged ${newUnpackagedFiles.length} file(s) into ${newRows.filter(x => x.status === "success").length} FlowFile(s).`, "success", {
+                "files.length": files.length,
+                "newRows.length": newRows.length,
+                "unpackagedRows.length": unpackagedRows.length,
+                "newUnpackagedFiles.length": newUnpackagedFiles.length,
+                "unpackagedFiles.length": unpackagedFiles.length,
+            });
         } catch (error) {
             submitSnackbarMessage("Unknown error.", "error", error);
         }
-    }, [resetProgress, setCurrent, setTotal, setUnpackagedRows, submitSnackbarMessage]);
+    }, [resetProgress, setCurrent, setTotal, setUnpackagedRows, submitSnackbarMessage, setUnpackagedFiles]);
 
     const onUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if(!files) {
             return;
         }
-        await parseFiles(files);
+        await parseFiles({
+            files: files,
+            unpackagedFiles: unpackagedFiles,
+            unpackagedRows: unpackagedRows,
+        });
     }, [parseFiles]);
 
     const onDrop = useCallback(async (e: DragEvent<HTMLDivElement>) => {
@@ -119,7 +149,7 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
         e.stopPropagation();
 
         const { files } = e.dataTransfer;
-        await parseFiles(files);
+        await parseFiles({files, unpackagedFiles, unpackagedRows});
     }, [parseFiles]);
 
     const handleDragging = useCallback((e: React.DragEvent<HTMLDivElement>) => {

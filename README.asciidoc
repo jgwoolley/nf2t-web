@@ -19,7 +19,7 @@ If your testing the tar.gz functionality:
 
 [,shell]
 ----
-tar -czvf test.tar.gz README.asciidoc TODO.asciidoc
+tar -czvf test.tar.gz README.asciidoc data.flowfilev3
 ----
 
 == TODO

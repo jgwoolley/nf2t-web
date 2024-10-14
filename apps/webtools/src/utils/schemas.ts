@@ -1,16 +1,5 @@
 
-import {z } from "zod";
-
-export const CORE_ATTRIBUTES = [
-    "filename",
-    "mime.type",
-    "uuid",
-    "priority",
-    "path",
-    "absolute.path",
-    "discard.reason",
-    "alternate.identifier",
-]
+import { z } from "zod";
 
 export const flowfileAttributes = z.record(z.string(), z.string());
 
@@ -22,5 +11,10 @@ export const flowfileAttributeRow = z.array(z.string()).refine(
     }
 );
 
-// TODO: Deprecated
-export type FlowfileAttributeRowSchema = [string, string];
+export type UnpackagedFile = {
+    parentId?: string,
+    id: string,
+    name: string,
+    size: number,
+    type: string,
+}

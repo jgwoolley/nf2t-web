@@ -1,5 +1,5 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
-import { FlowfileAttributeRowSchema } from "../utils/schemas";
+import { FlowFileAttribute as FlowfileAttributeRowSchema } from '@nf2t/flowfiletools-js';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import { z } from "zod";
 import { useState } from "react";

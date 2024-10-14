@@ -137,7 +137,7 @@ export function BulkUnPackageNifi() {
     const { submitSnackbarMessage } = snackbarResults;
     const [total, setTotal] = useState(defaultTotal);
     const [current, setCurrent] = useState(defaultCurrent);
-    const { unpackagedRows, setUnpackagedRows } = useNf2tContext();
+    const { unpackagedRows, setUnpackagedRows, unpackagedFiles, setUnpackagedFiles } = useNf2tContext();
 
     const attributes: string[] = useMemo(() => {
         if (unpackagedRows.length <= 0) {
@@ -161,7 +161,29 @@ export function BulkUnPackageNifi() {
         const results: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = [];
 
         results.push({
-            columnName: "Edit",
+            columnName: "Parent File",
+            bodyRow: ({ row }) => {
+                const parentFiles = unpackagedFiles.filter(x => row.parentId === x.id);
+
+                if(parentFiles.length !== 1) {
+                    return "";
+                }
+
+                return <Link to="/parentFile" search={{ id: row.parentId }}><MuiLink component="span">{parentFiles[0].name}</MuiLink></Link>
+            },
+            compareFn: (x, y) => x.parentId.localeCompare(y.parentId),
+            rowToString: (row) => {
+                const parentFiles = unpackagedFiles.filter(x => row.parentId === x.id);
+                if(parentFiles.length !== 1) {
+                    return "";
+                }
+
+                return parentFiles[0].id;
+            },
+        });
+
+        results.push({
+            columnName: "FlowFile",
             bodyRow: ({ row, rowIndex }) => {
                 if (row.status === "error") {
                     return "Failed to parse.";
@@ -206,6 +228,7 @@ export function BulkUnPackageNifi() {
         columns: columns,
         rows: unpackagedRows,
         ignoreNoColumnsError: true,
+        minColumns: 3,
     });
 
     const resetProgress = useCallback(() => {
@@ -214,18 +237,21 @@ export function BulkUnPackageNifi() {
         setCurrent(defaultCurrent);
     }, [tableProps])
 
-    const {onUpload, dragOverProps} = useUnpackageOnUpload({
+    const { onUpload, dragOverProps } = useUnpackageOnUpload({
         resetProgress: resetProgress,
         submitSnackbarMessage: submitSnackbarMessage,
         setCurrent: setCurrent,
         setTotal: setTotal,
         setUnpackagedRows: setUnpackagedRows,
         unpackagedRows: unpackagedRows,
+        unpackagedFiles: unpackagedFiles, 
+        setUnpackagedFiles: setUnpackagedFiles,
     });
 
     const clearFlowFiles = useCallback(() => {
         setUnpackagedRows([]);
-    }, [setUnpackagedRows]);
+        setUnpackagedFiles([]);
+    }, [setUnpackagedRows, setUnpackagedFiles]);
 
     return (
         <div
@@ -251,6 +277,7 @@ export function BulkUnPackageNifi() {
             <Spacing />
 
             <h5>2. Review FlowFiles</h5>
+
             <p>Click on the columns to change the FlowFile attribute being viewed.</p>
             <Nf2tTable {...tableProps} />
             <Spacing />

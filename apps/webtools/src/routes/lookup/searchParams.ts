@@ -24,3 +24,6 @@ export const UnpackageSearchParamsSchema = z.object({
     index: z.number().default(0),
 });
 
+export const ParentFileLookupParamsSchema = z.object({
+    id: z.string(),
+});

@@ -3,6 +3,7 @@ import { UseNarDeleteAll } from "../hooks/useClear";
 import { UseNarsParseResult } from "../hooks/useNarsParse";
 import { UseQueryAllNf2tDBResult } from "./useQueryAllNf2tDB";
 import { FlowFileResult } from "@nf2t/flowfiletools-js";
+import { UnpackagedFile } from "../utils/schemas";
 
 export type ColorMode = "dark" | "light" | "system";
 
@@ -15,6 +16,8 @@ export type Nf2tContextType = {
     setReactRouterDebug: React.Dispatch<React.SetStateAction<boolean>>,
     colorMode: ColorMode,
     setColorMode: React.Dispatch<React.SetStateAction<ColorMode>>,
+    unpackagedFiles: UnpackagedFile[],
+    setUnpackagedFiles: React.Dispatch<React.SetStateAction<UnpackagedFile[]>>,
     unpackagedRows: FlowFileResult[]
     setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFileResult[]>>,
 }
