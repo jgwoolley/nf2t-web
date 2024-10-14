@@ -106,7 +106,7 @@ export default function UnpackageFlowFile() {
         rows: evaluatedProcessors,
         columns: [
             {
-                columnName: 'ExtensionId',
+                columnName: 'Extension Id',
                 bodyRow: ({ row }) => <Link to="/extensionLookup" search={{ name: row.extensionId }}><MuiLink component="span">{row.extensionId}</MuiLink></Link>,
                 rowToString: (row) => row.extensionId,
             },
@@ -115,6 +115,7 @@ export default function UnpackageFlowFile() {
                 bodyRow: ({ row }) => <>{Math.round(row.matchPercent * 100)}% ({row.sameCount}/{row.total})</>,
                 rowToString: (row) => row.matchPercent.toString(),
                 compareFn: (a, b) => a.matchPercent - b.matchPercent,
+                defaultSortDirection: "desc",
             },
         ],
         canEditColumn: false,
@@ -123,12 +124,12 @@ export default function UnpackageFlowFile() {
     return (
         <>
             <Nf2tHeader to={routeId} />
+
             <p><UnpackageLink /></p>
 
-            <h5>1. Packaged FlowFile</h5>
-
-            {flowFile.status === "success" && (
+            {flowFile.status === "success" ? (
                 <>
+                    <h5>1. Packaged FlowFile</h5>
                     <h5>2. Unpackaged FlowFile Attributes</h5>
                     <p>Download FlowFile Attributes.</p>
                     <AttributesTable
@@ -150,7 +151,7 @@ export default function UnpackageFlowFile() {
                     <p>These are processors which might have updated this FlowFile.</p>
                     <Nf2tTable {...tableProps} />
                 </>
-            )}
+            ) : <p>No content found.</p>}
 
             <Nf2tSnackbar {...snackbarResults} />
         </>

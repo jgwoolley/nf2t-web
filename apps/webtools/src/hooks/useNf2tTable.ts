@@ -12,16 +12,18 @@ export interface BodyRowComponentProps<R,C> {
     hideFilter?: boolean,
 }
 
+export type Nf2tTableColumnSortDirectionType = "asc" | "desc" | "ignored";
+export type Nf2tTableColumnEmptyFilterType = "non-empty" | "empty" | "ignored";
+
 export interface Nf2tTableColumnSpec<R,C> {
     columnName: string,
     bodyRow: FC<BodyRowComponentProps<R,C>>,
     hideFilter?: boolean,
     rowToString: (row: R, index: number) => string,
     compareFn?: (a: R, b: R) => number,
-}
-
-export type Nf2tTableColumnSortDirectionType = "asc" | "desc" | "ignored";
-export type Nf2tTableColumnEmptyFilterType = "non-empty" | "empty" | "ignored";
+    defaultSortDirection?: Nf2tTableColumnSortDirectionType,
+    defaultEmptyFilterType?: Nf2tTableColumnEmptyFilterType,
+};
 
 export const Nf2tTableColumnSortDirectionDefault: Nf2tTableColumnSortDirectionType = "ignored";
 export const Nf2tTableColumnEmptyFilterTypeDefault: Nf2tTableColumnEmptyFilterType = "ignored";
@@ -112,11 +114,11 @@ export function useNf2tTable<R, C>({ childProps, snackbarProps, rows, columns, c
             return;
         }
         const entries = columns.entries();
-        const newFilteredColumns: Nf2tTableColumn[] = Array.from(entries).map(([columnIndex]) => {
+        const newFilteredColumns: Nf2tTableColumn[] = Array.from(entries).map(([columnIndex, spec]) => {
             const newColumn: Nf2tTableColumn = {
                 columnIndex: columnIndex,
-                sortDirection: Nf2tTableColumnSortDirectionDefault,
-                emptyFilter: Nf2tTableColumnEmptyFilterTypeDefault,
+                sortDirection: spec.defaultSortDirection || Nf2tTableColumnSortDirectionDefault,
+                emptyFilter: spec.defaultEmptyFilterType || Nf2tTableColumnEmptyFilterTypeDefault,
                 regexFilter: "",
             }
 

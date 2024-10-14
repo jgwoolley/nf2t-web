@@ -6,6 +6,10 @@
 ** link:https://github.com/apache/nifi/blob/5f0cbed5a6a68e995dac8ba10695be6e432620c5/nifi-extension-bundles/nifi-standard-bundle/nifi-standard-processors/src/main/java/org/apache/nifi/processors/standard/UnpackContent.java#L636[UnpackContent.java]
 ** Package could work as an array of files like Unpackager. All flowfiles could be grouped together.
 
+* Nf2t Unpack
+** Add JSZip unpacking option.
+** Think about making unpacks not happining automatically but allow clicking and selecting to do this. Maybe make a table selection option for performaing actions?
+
 * Nf2t Table 
 ** Tried to implement in NewNf2tTable @tanstack/react-table. Remove import if it doesn't work.
 ** tabs for columns

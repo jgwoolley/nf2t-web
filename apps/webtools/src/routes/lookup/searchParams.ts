@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+export const UnpackageFlowFilesListSchema = z.object({
+    id: z.string().optional(),
+})
+
 export const searchParamsSchema = z.object({
     id: z.string(),
 })

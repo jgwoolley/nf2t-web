@@ -1,5 +1,5 @@
-import { Box, Button, ButtonGroup, IconButton, LinearProgress, Tooltip, Typography } from '@mui/material';
-import { useCallback, useMemo, useState } from 'react';
+import { Button, ButtonGroup } from '@mui/material';
+import { useMemo } from 'react';
 import Spacing from '../../components/Spacing';
 import { downloadFile } from '../../utils/downloadFile';
 import Nf2tHeader from '../../components/Nf2tHeader';
@@ -7,46 +7,22 @@ import Nf2tSnackbar from "../../components/Nf2tSnackbar";
 import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import SyncProblemIcon from "@mui/icons-material/SyncProblem";
-import { createLazyRoute, Link } from '@tanstack/react-router';
+import { createLazyRoute, getRouteApi, Link } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
 import { findCoreAttributes, FlowFileResult } from '@nf2t/flowfiletools-js';
 import { downloadAllUnpackaged } from '../../utils/downloadAllUnpackaged';
-import useUnpackageOnUpload from '../../hooks/useUnpackageOnUpload';
 import { Link as MuiLink } from "@mui/material";
-import { FileUploadOutlined } from '@mui/icons-material';
 import UnpackageLink from './UnpackageLink';
 
-export const Route = createLazyRoute("/unpackageFlowFileList")({
+const routeId = "/unpackageFlowFileList" as const;
+
+export const Route = createLazyRoute(routeId)({
     component: BulkUnPackageNifi,
 })
 
-const defaultTotal = -1;
-const defaultCurrent = 0;
-
-/**
- * 
- * @see https://mui.com/material-ui/react-progress/
- */
-function LinearProgressWithLabel({ current, total }: { current: number, total: number }) {
-    const value = useMemo(() => ((current) / total) * 100, [current, total])
-
-    return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box sx={{ width: '100%', mr: 1 }}>
-                <LinearProgress variant="determinate" value={value} />
-            </Box>
-            <Box sx={{ minWidth: 35 }}>
-                <Tooltip title={`${current}/${total}`}>
-                    <Typography variant="body2" color="text.secondary">{`${Math.round(
-                        value,
-                    )}%`}</Typography>
-                </Tooltip>
-            </Box>
-        </Box>
-    );
-}
+const route = getRouteApi(routeId);
 
 export interface BulkUnpackageDownloadButtonsProps extends Nf2tSnackbarProps {
     rows: FlowFileResult[],
@@ -134,19 +110,25 @@ export function BulkUnpackageDownloadButtons(props: BulkUnpackageDownloadButtons
 }
 
 export function BulkUnPackageNifi() {
+    const { id: parentId } = route.useSearch();
     const snackbarResults = useNf2tSnackbar();
     const { submitSnackbarMessage } = snackbarResults;
-    const [total, setTotal] = useState(defaultTotal);
-    const [current, setCurrent] = useState(defaultCurrent);
-    const { unpackagedRows, setUnpackagedRows, unpackagedFiles, setUnpackagedFiles } = useNf2tContext();
+    const { unpackagedRows, unpackagedFiles } = useNf2tContext();
+
+    const filteredRows = useMemo(() => {
+        if(parentId) {
+            return unpackagedRows.filter(x => parentId === x.parentId)
+        }
+        return unpackagedRows;
+    }, [parentId, unpackagedRows])
 
     const attributes: string[] = useMemo(() => {
-        if (unpackagedRows.length <= 0) {
+        if (filteredRows.length <= 0) {
             return [];
         }
 
         const results = new Set<string>();
-        for (const row of unpackagedRows) {
+        for (const row of filteredRows) {
             if (row.status !== "success") {
                 continue;
             }
@@ -156,7 +138,7 @@ export function BulkUnPackageNifi() {
         }
 
         return Array.from(results);
-    }, [unpackagedRows, submitSnackbarMessage]);
+    }, [filteredRows, submitSnackbarMessage]);
 
     const columns: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = useMemo(() => {
         const results: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = [];
@@ -227,70 +209,31 @@ export function BulkUnPackageNifi() {
         snackbarProps: snackbarResults,
         canEditColumn: true,
         columns: columns,
-        rows: unpackagedRows,
+        rows: filteredRows,
         ignoreNoColumnsError: true,
         minColumns: 3,
     });
 
-    const resetProgress = useCallback(() => {
-        tableProps.restoreDefaultFilteredColumns();
-        setTotal(defaultTotal);
-        setCurrent(defaultCurrent);
-    }, [tableProps])
-
-    const { onUpload, dragOverProps } = useUnpackageOnUpload({
-        resetProgress: resetProgress,
-        submitSnackbarMessage: submitSnackbarMessage,
-        setCurrent: setCurrent,
-        setTotal: setTotal,
-        setUnpackagedRows: setUnpackagedRows,
-        unpackagedRows: unpackagedRows,
-        unpackagedFiles: unpackagedFiles, 
-        setUnpackagedFiles: setUnpackagedFiles,
-    });
-
-    const clearFlowFiles = useCallback(() => {
-        setUnpackagedRows([]);
-        setUnpackagedFiles([]);
-    }, [setUnpackagedRows, setUnpackagedFiles]);
-
     return (
-        <div
-            {...dragOverProps}
-        >
+        <>
             <Nf2tHeader to="/unpackageFlowFileList" />
-            <p><UnpackageLink /></p>
 
             <h5>1. Packaged FlowFiles</h5>
-            <p>Drag FlowFile(s) onto the screen, or click the Upload Button below:</p>    
-            <IconButton component="label">
-                <FileUploadOutlined />
-                <input
-                    multiple={true}
-                    style={{ display: "none" }}
-                    type="file"
-                    hidden
-                    onChange={onUpload}
-                />
-            </IconButton>       
-            <p>Clear provided FlowFiles.</p>
-            <Button variant="outlined" onClick={clearFlowFiles}>Clear</Button>
-            <Spacing />
-            <LinearProgressWithLabel current={current} total={total} />
-            <Spacing />
-
+            <p><UnpackageLink /></p>
+            { parentId && (
+                <p><Link to="/unpackageFlowFileList"><MuiLink component="span">Currently filtering by parentId, click to clear filter.</MuiLink></Link></p>
+            )}
+            
             <h5>2. Review FlowFiles</h5>
-
             <p>Click on the columns to change the FlowFile attribute being viewed.</p>
             <Nf2tTable {...tableProps} />
             <Spacing />
-
             <h5>3. Download FlowFile Attributes CSV</h5>
             <p>A CSV will be downloadable with all of the FlowFile attributes for each FlowFile provided. This may take some time.</p>
-            <BulkUnpackageDownloadButtons {...snackbarResults} rows={unpackagedRows} attributes={attributes} />
+            <BulkUnpackageDownloadButtons {...snackbarResults} rows={filteredRows} attributes={attributes} />
             <Spacing />
             <Nf2tSnackbar {...snackbarResults} />
-        </div>
+        </>
     )
 }
 

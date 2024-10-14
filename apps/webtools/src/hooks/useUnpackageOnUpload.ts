@@ -9,8 +9,8 @@ import { UnpackagedFile } from "../utils/schemas";
 export type UseUnpackageOnUploadParams = {
     resetProgress: () => void,
     submitSnackbarMessage: (message: string, type: AlertColor, data?: unknown) => void,
-    setCurrent: (value: React.SetStateAction<number>) => void,
-    setTotal: (value: React.SetStateAction<number>) => void,
+    setCurrent: (value: React.SetStateAction<number | undefined>) => void,
+    setTotal: (value: React.SetStateAction<number | undefined>) => void,
     unpackagedRows: FlowFileResult[],
     setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFileResult[]>>,
     unpackagedFiles: UnpackagedFile[], 

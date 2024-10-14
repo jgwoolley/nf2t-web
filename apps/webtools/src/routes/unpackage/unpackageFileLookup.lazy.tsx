@@ -7,7 +7,6 @@ import { convertBytes } from "../../utils/convertBytes";
 import { useNf2tTable } from "../../hooks/useNf2tTable";
 import { useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
 import Nf2tTable from "../../components/Nf2tTable";
-import { findCoreAttributes, FlowFileResult } from "@nf2t/flowfiletools-js";
 import { UnpackagedFile } from "../../utils/schemas";
 import UnpackageLink from "./UnpackageLink";
 
@@ -20,7 +19,7 @@ export const Route = createLazyRoute(routeId)({
 const route = getRouteApi(routeId);
 
 export function ParentFileLookup() {
-    const { unpackagedFiles, unpackagedRows } = useNf2tContext();
+    const { unpackagedFiles } = useNf2tContext();
 
     const { id } = route.useSearch();
 
@@ -41,13 +40,6 @@ export function ParentFileLookup() {
         if(id == undefined) return [];
 
         return unpackagedFiles.filter(x => x.parentId === id);
-
-    }, [id, unpackagedFiles]);
-
-    const childFlowFiles = useMemo(() => {
-        if(id == undefined) return [];
-
-        return unpackagedRows.filter(x => x.parentId === id);
 
     }, [id, unpackagedFiles]);
 
@@ -90,30 +82,6 @@ export function ParentFileLookup() {
             },
         ],
         rows: childFiles,
-        canEditColumn: false,
-    });
-
-    const childFlowFileTableProps = useNf2tTable({
-        childProps: undefined,
-        snackbarProps: snackbarProps,
-        minColumns: 3,
-        columns: [
-            {
-                columnName: "FlowFile",
-                bodyRow: ({row, rowIndex}) => {
-                    if(row.status === "success") {
-                        const attributes = findCoreAttributes(row.attributes);
-                        return attributes.filename || rowIndex;
-                    } else {
-                        return `Failed to parse: ${parentFile?.name || rowIndex}`;
-                    }
-                },
-                rowToString: function (row: FlowFileResult, index: number): string {
-                    return `${row.parentId}\t${index}`;
-                },
-            },
-        ],
-        rows: childFlowFiles,
         canEditColumn: false,
     });
 
@@ -163,13 +131,9 @@ export function ParentFileLookup() {
                 </>
             )}
 
-            {childFlowFiles.length > 0 && (
-                <>
-                    <h3>FlowFile Children</h3>
-                    <Nf2tTable {...childFlowFileTableProps} />
-                </>
-            )}
-            
+            <h3>FlowFile Children</h3>
+            <p><Link to="/unpackageFlowFileList" search={{ id: parentFile.id }}><MuiLink component="span">Go here to see FlowFile(s).</MuiLink></Link></p>
+
             </>
         ) : (
             <p>No File with that id.</p>
