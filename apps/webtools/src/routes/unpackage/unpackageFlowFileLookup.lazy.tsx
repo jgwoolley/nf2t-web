@@ -10,7 +10,7 @@ import { Link, createLazyRoute, getRouteApi } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
-import { FlowFileResult } from '@nf2t/flowfiletools-js';
+import { findCoreAttributes, FlowFileResult } from '@nf2t/flowfiletools-js';
 import { downloadFile } from '../../utils/downloadFile';
 import useArrayElements from '../../hooks/useArrayElement';
 import { Link as MuiLink } from "@mui/material";
@@ -34,7 +34,10 @@ function ContentDownloadButton({ flowFile, submitSnackbarMessage }: ContentDownl
             submitSnackbarMessage("No content to download.", "error");
             return;
         }
-        downloadFile(new File([flowFile.content], ""));
+
+        const coreAttributes = findCoreAttributes(flowFile.attributes);
+
+        downloadFile(new File([flowFile.content], coreAttributes.filename || ""));
     }, [flowFile, submitSnackbarMessage]);
 
     return (

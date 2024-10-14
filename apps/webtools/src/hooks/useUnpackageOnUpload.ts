@@ -108,8 +108,16 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
                         await parseFlowFileStream(file, parentId);
                     }
 
-                } else if(file.name.endsWith(".zip")) {
+                } else if(file.type === "application/zip" || file.name.endsWith(".zip")) {
                     console.error("Cannot parse ZIP.", "error");
+                    const parentId = generateId(file);
+                    newUnpackagedFiles.push({
+                        parentId: undefined,
+                        id: parentId,
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                    });
                 }
                 else {
                     await parseFlowFileStream(file);
