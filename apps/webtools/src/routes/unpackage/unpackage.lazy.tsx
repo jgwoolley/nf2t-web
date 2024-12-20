@@ -12,6 +12,7 @@ import useNf2tLinearProgress from "../../hooks/useNf2tLinearProgress";
 import { Link as MuiLink } from "@mui/material";
 import { UnpackagedFile } from "../../utils/schemas";
 import Nf2tTable from "../../components/Nf2tTable";
+import { convertBytes } from "../../utils/convertBytes";
 
 export const routeId = "/unpackage" as const;
 
@@ -44,7 +45,7 @@ function Component() {
         {
             columnName: "Size",
             bodyRow: ({row}) => {
-                return row.size;
+                return convertBytes(row.size);
             },
             compareFn: (a, b) => {
                 return b.size - a.size;
