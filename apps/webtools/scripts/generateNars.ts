@@ -76,7 +76,7 @@ export async function generateNars(): Promise<WriteNars> {
 
         if (!zipExists){
             console.log("Nars Cache: Download NiFi");
-            child_process.execSync(`curl https://dlcdn.apache.org/nifi/1.27.0/nifi-1.27.0-bin.zip -o ${ZIP_PATH}`);
+            child_process.execSync(`curl https://dlcdn.apache.org/nifi/1.28.1/nifi-1.28.1-bin.zip -o ${ZIP_PATH}`);
         }
 
         console.log("Nars Cache: UnZip NiFi");
