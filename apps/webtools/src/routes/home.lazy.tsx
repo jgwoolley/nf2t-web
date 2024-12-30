@@ -14,6 +14,7 @@ import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CallMergeIcon from '@mui/icons-material/CallMerge';
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -43,6 +44,10 @@ function ApplicationIcon({path}: {path: RoutePathType}) {
 
     if(path === "/settings") {
         return <SettingsIcon />
+    }
+
+    if(path === "/mergecidrs") {
+        return <CallMergeIcon />
     }
 
     return <PlayCircleIcon />
@@ -78,6 +83,7 @@ export default function Nf2tHome() {
             "/unpackage",
             "/package",
             "/narReader",
+            // "/mergecidrs",            
             "/source",
             "/settings",
         ],

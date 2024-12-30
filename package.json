@@ -6,6 +6,7 @@
         "apps/webtools"
     ],
     "scripts": {
-        "dev": "pnpm run --filter @nf2t/webtools dev"
+        "dev": "pnpm run --filter @nf2t/webtools dev",
+        "build": "pnpm run --filter @nf2t/webtools build"
     }
 }

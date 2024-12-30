@@ -17,6 +17,7 @@ import { UnpackageFileLookupRoute} from "./unpackage/unpackageFileLookup";
 import { UnpackageRoute} from "./unpackage/unpackage";
 import { ViewFlowFileRoute } from "./unpackage/unpackageFlowFileLookup";
 import { ViewFlowFilesRoute } from "./unpackage/unpackageFlowFileList";
+import { MergeCidrsRoute } from "./mergecidrs/MergeCidrsRoute";
 
 export const routeChildren = [
   buildInfo,
@@ -38,6 +39,7 @@ export const routeChildren = [
   attributeList,
   settings,
   tagList,
+  MergeCidrsRoute,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -191,5 +193,10 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
     to: "/tagList",
     name: "Tag List",
     shortDescription: "Lists all Nar Extension Tags.",
+  },
+  "/mergecidrs": {
+    to: "/mergecidrs",
+    name: "Merge CIDRs",
+    shortDescription: "Merge Duplicate CIDRs"
   }
 }
