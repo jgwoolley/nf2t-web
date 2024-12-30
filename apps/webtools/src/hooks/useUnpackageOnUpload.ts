@@ -77,6 +77,7 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
                         name: file.name,
                         size: file.size,
                         type: file.type,
+                        storageMethod: "Content Not Available",
                     });
 
                     try {
@@ -101,6 +102,7 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
                         name: file.name,
                         size: file.size,
                         type: file.type,
+                        storageMethod: "Content Not Available",
                     });
 
                     const files = await untar(file);
@@ -117,6 +119,7 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
                         name: file.name,
                         size: file.size,
                         type: file.type,
+                        storageMethod: "Content Not Available",
                     });
                 }
                 else {

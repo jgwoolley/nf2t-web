@@ -63,6 +63,15 @@ function Component() {
                 return row.type;
             },
         },
+        {
+            columnName: "Storage Method",
+            bodyRow: ({row}) => {
+              return row.storageMethod;  
+            },
+            rowToString: function (row): string {
+                return row.storageMethod;
+            },
+        }
     ],
         rows: rootUnpackagedFiles,
         ignoreNoColumnsError: true,

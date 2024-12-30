@@ -11,10 +11,13 @@ export const flowfileAttributeRow = z.array(z.string()).refine(
     }
 );
 
+export type UnpackagedFileStorageMethod = "Content Not Available";
+
 export type UnpackagedFile = {
     parentId?: string,
     id: string,
     name: string,
     size: number,
     type: string,
+    storageMethod: UnpackagedFileStorageMethod,
 }
