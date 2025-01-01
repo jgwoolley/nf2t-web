@@ -83,7 +83,7 @@ export async function generateNars(): Promise<WriteNars> {
         child_process.execSync(`unzip ${ZIP_PATH} '*/*.nar' -d ${DOWNLOADS_PATH}/`);
 
         console.log("Nars Cache: Copy NiFi Nars");
-        child_process.execSync(`cp ${DOWNLOADS_PATH}/nifi-1.27.0/lib/*.nar ${NARS_PATH}`);
+        child_process.execSync(`cp ${DOWNLOADS_PATH}/nifi-*.*.*/lib/*.nar ${NARS_PATH}`);
     }
 
     const narInfo = await generateNarsNew();
