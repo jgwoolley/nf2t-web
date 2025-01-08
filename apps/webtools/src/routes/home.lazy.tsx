@@ -15,6 +15,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -27,27 +28,30 @@ const linkStyles: React.CSSProperties = {
 
 function ApplicationIcon({path}: {path: RoutePathType}) {
     if(path === "/package") {
-        return <ArchiveIcon />
+        return <ArchiveIcon />;
     }
 
     if(path === "/unpackage") {
-        return <UnarchiveIcon />
+        return <UnarchiveIcon />;
     }
 
     if(path === "/narReader") {
-        return <AutoStoriesIcon />
+        return <AutoStoriesIcon />;
     }
 
     if(path === "/source") {
-        return <GitHubIcon />
+        return <GitHubIcon />;
     }
 
     if(path === "/settings") {
-        return <SettingsIcon />
+        return <SettingsIcon />;
     }
 
     if(path === "/mergecidrs") {
-        return <CallMergeIcon />
+        return <CallMergeIcon />;
+    }
+    if(path === "/nf2tcli") {
+        return <WaterDropIcon />;
     }
 
     return <PlayCircleIcon />
@@ -80,6 +84,7 @@ export default function Nf2tHome() {
             },
         ],
         rows: [
+            "/nf2tcli",
             "/unpackage",
             "/package",
             "/narReader",

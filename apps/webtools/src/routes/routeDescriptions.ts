@@ -18,6 +18,7 @@ import { UnpackageRoute} from "./unpackage/unpackage";
 import { ViewFlowFileRoute } from "./unpackage/unpackageFlowFileLookup";
 import { ViewFlowFilesRoute } from "./unpackage/unpackageFlowFileList";
 import { MergeCidrsRoute } from "./mergecidrs/MergeCidrsRoute";
+import { Nf2tCliRoute } from "./nf2tcli/nf2tcli";
 
 export const routeChildren = [
   buildInfo,
@@ -40,6 +41,7 @@ export const routeChildren = [
   settings,
   tagList,
   MergeCidrsRoute,
+  Nf2tCliRoute,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -115,6 +117,13 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
     to: "/attributesLookup",
     name: "Attributes Lookup",
     shortDescription: "Review Nifi Processors that either write to or read the attributes.",
+  },
+  "/nf2tcli": {
+    to: "/nf2tcli",
+    name: "Nf2t Command Line Interface",
+    shortName: "Nf2t CLI",
+    shortDescription: "A Java CLI for parsing Apache NiFi FlowFileStreams.",
+    description: "A Java CLI for parsing Apache NiFi FlowFileStreams. One or more FlowFiles can be serialized into a FlowFileStream, in one of three formats.",
   },
   "/attributeLookup": {
     to: "/attributeLookup",
