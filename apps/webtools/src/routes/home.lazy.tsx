@@ -16,6 +16,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -53,6 +54,9 @@ function ApplicationIcon({path}: {path: RoutePathType}) {
     if(path === "/nf2tcli") {
         return <WaterDropIcon />;
     }
+    if(path === "/mavenCoordinate") {
+        return <DownloadForOfflineIcon />
+    }
 
     return <PlayCircleIcon />
 }
@@ -88,7 +92,8 @@ export default function Nf2tHome() {
             "/unpackage",
             "/package",
             "/narReader",
-            // "/mergecidrs",            
+            // "/mergecidrs",  
+            "/mavenCoordinate",          
             "/source",
             "/settings",
         ],

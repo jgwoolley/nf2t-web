@@ -8,7 +8,10 @@ function getFilename(fullPath: string) {
 export async function untar(file: File, chunk?: File[]) {
     chunk = chunk || [];
     
-    await file.arrayBuffer().then(pako.inflate).then( arr => arr.buffer).then(jsuntar).then(files => {
+    await file.arrayBuffer().then(pako.inflate).then( arr => {
+        console.log(arr);
+        return arr.buffer;
+    }).then(jsuntar).then(files => {
         files.forEach(file => {
             if(file.size <= 0) {
                 return;

@@ -19,6 +19,8 @@ import { ViewFlowFileRoute } from "./unpackage/unpackageFlowFileLookup";
 import { ViewFlowFilesRoute } from "./unpackage/unpackageFlowFileList";
 import { MergeCidrsRoute } from "./mergecidrs/MergeCidrsRoute";
 import { Nf2tCliRoute } from "./nf2tcli/nf2tcli";
+import { downloadMavenRoute } from "./mavenCoordinate/mavenCoordinate";
+import { mavenCoordinateListRoute } from "./mavenCoordinate/mavenCoordinateList";
 
 export const routeChildren = [
   buildInfo,
@@ -42,6 +44,8 @@ export const routeChildren = [
   tagList,
   MergeCidrsRoute,
   Nf2tCliRoute,
+  downloadMavenRoute,
+  mavenCoordinateListRoute,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -206,6 +210,16 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
   "/mergecidrs": {
     to: "/mergecidrs",
     name: "Merge CIDRs",
-    shortDescription: "Merge Duplicate CIDRs"
-  }
+    shortDescription: "Merge Duplicate CIDRs.",
+  },
+  "/mavenCoordinate": {
+    to: "/mavenCoordinate",
+    name: "Download Maven Artifacts",
+    shortDescription: "Generate URLs for downloading Maven Artifacts.",
+  },
+  "/mavenCoordinateList": {
+    to: "/mavenCoordinateList",
+    name: "List Maven Coordinates",
+    shortDescription: "Generate URLs for downloading Maven Artifacts.",
+  },
 }
