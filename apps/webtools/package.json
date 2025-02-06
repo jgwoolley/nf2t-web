@@ -39,13 +39,13 @@
     "@types/vscode": "^1.92.0",
     "@types/wicg-file-system-access": "^2023.10.5",
     "@vite-pwa/assets-generator": "^0.2.4",
-    "@vitejs/plugin-react": "^4.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
     "idb": "^8.0.0",
     "jsdom": "^24.1.1",
     "sharp": "^0.33.2",
     "typescript": "^5.0.2",
-    "vite": "^4.5.4",
-    "vite-plugin-generate-file": "^0.1.1",
-    "vite-plugin-pwa": "^0.18.1"
+    "vite": "^4.5.9",
+    "vite-plugin-generate-file": "^0.2.0",
+    "vite-plugin-pwa": "^0.21.1"
   }
 }
