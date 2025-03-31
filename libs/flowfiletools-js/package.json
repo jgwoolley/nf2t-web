@@ -4,6 +4,7 @@
   "version": "0.0.2",
   "type": "module",
   "main": "./dist/main.js",
+  "homepage": "https://github.com/jgwoolley/nf2t-web",
   "types": "./dist/main.d.ts",
   "keywords": [ "NiFi", "FlowFile", "Nf2t"],
   "license": "Apache-2.0",

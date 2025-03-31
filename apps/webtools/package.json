@@ -3,6 +3,7 @@
   "private": false,
   "version": "0.0.2",
   "type": "module",
+  "homepage": "https://github.com/jgwoolley/nf2t-web",
   "files": [ 
     "./dist", 
     "./public",
