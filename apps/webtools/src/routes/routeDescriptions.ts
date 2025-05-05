@@ -21,6 +21,7 @@ import { MergeCidrsRoute } from "./mergecidrs/MergeCidrsRoute";
 import { Nf2tCliRoute } from "./nf2tcli/nf2tcli";
 import { downloadMavenRoute } from "./mavenCoordinate/mavenCoordinate";
 import { mavenCoordinateListRoute } from "./mavenCoordinate/mavenCoordinateList";
+import { PdfCombinerRoute } from "./pdfcombiner/PdfCombinerRoute";
 
 export const routeChildren = [
   buildInfo,
@@ -46,6 +47,7 @@ export const routeChildren = [
   Nf2tCliRoute,
   downloadMavenRoute,
   mavenCoordinateListRoute,
+  PdfCombinerRoute,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -221,5 +223,10 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
     to: "/mavenCoordinateList",
     name: "List Maven Coordinates",
     shortDescription: "Generate URLs for downloading Maven Artifacts.",
+  },
+  "/pdfcombiner": {
+    to: "/pdfcombiner",
+    name: "PDF Combiner",
+    shortDescription: "Combines multiple PDFs into a single document.",
   },
 }

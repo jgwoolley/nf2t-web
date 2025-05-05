@@ -57,6 +57,9 @@ function ApplicationIcon({path}: {path: RoutePathType}) {
     if(path === "/mavenCoordinate") {
         return <DownloadForOfflineIcon />
     }
+    if(path === "/pdfcombiner") {
+        return <CallMergeIcon />
+    }
 
     return <PlayCircleIcon />
 }
@@ -93,7 +96,8 @@ export default function Nf2tHome() {
             "/package",
             "/narReader",
             // "/mergecidrs",  
-            "/mavenCoordinate",          
+            "/mavenCoordinate",      
+            "/pdfcombiner",    
             "/source",
             "/settings",
         ],
