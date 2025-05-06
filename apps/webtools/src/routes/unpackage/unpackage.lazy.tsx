@@ -113,7 +113,6 @@ function Component() {
             </IconButton>
 
             <Nf2tLinearProgress {...linearProgressProps} />
-
             <Nf2tTable {...tableProps} />
         </div>
     );
