@@ -228,7 +228,7 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
   },
   "/mavenCoordinateResolver": {
     to: "/mavenCoordinateResolver",
-    name: "Download Maven Artifacts",
+    name: "Maven Artifact Resolver",
     shortDescription: "Generate URLs for downloading Maven Artifacts.",
   },
   "/pdfcombiner": {

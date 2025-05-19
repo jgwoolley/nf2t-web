@@ -54,7 +54,10 @@ function ApplicationIcon({path}: {path: RoutePathType}) {
     if(path === "/nf2tcli") {
         return <WaterDropIcon />;
     }
-    if(path === "/mavenCoordinate") {
+    // if(path === "/mavenCoordinate") {
+    //     return <DownloadForOfflineIcon />
+    // }
+    if(path === "/mavenCoordinateResolver") {
         return <DownloadForOfflineIcon />
     }
     if(path === "/pdfcombiner") {
@@ -96,7 +99,8 @@ export default function Nf2tHome() {
             "/package",
             "/narReader",
             // "/mergecidrs",  
-            "/mavenCoordinate",      
+            // "/mavenCoordinate",
+            "/mavenCoordinateResolver",      
             "/pdfcombiner",    
             "/source",
             "/settings",

@@ -389,12 +389,26 @@ function MavenCoordinateResolverComponent() {
 
     const outputOptions: Record<string, MavenCoordinateOutputConsumer> = {
         "pom": (coordinates) => {
-            const text = `<dependencies>${coordinates.map(x => `<dependency><groupId>${x.groupId}</groupId><artifactId>${x.artifactId}</artifactId><version>${x.version}</version></dependency>`).join("\n")}</dependencies>`;
+            const xmlDoc = document.implementation.createDocument(null, "project");
+            const dependenciesElement = xmlDoc.createElement("dependencies"); 
+            xmlDoc.documentElement.appendChild(dependenciesElement);
+            coordinates.forEach(coordinate => {
+                const coordinateElement = xmlDoc.createElement("dependencies"); 
+                dependenciesElement.appendChild(coordinateElement);
+                const fields = ["groupId", "artifactId", "version"] as const;
+                for(const field of fields) {
+                    const fieldElement = xmlDoc.createElement(field); 
+                    fieldElement.textContent = coordinate[field];
+                    coordinateElement.appendChild(fieldElement);
+                }
+            });
+
+            const xmlString = new XMLSerializer().serializeToString(xmlDoc);
 
             return {
-                node: text,
-                text: text,
-                file: new File([text], "output.xml", { type: "application/json" }),
+                node: xmlString,
+                text: xmlString,
+                file: new File([xmlString], "output.xml", { type: "text/xml" }),
             }
         },
         "json": (coordinates, urls) => {
