@@ -6,6 +6,9 @@ import {
     FileDownload as FileDownloadIcon,
     FileUpload as FileUploadIcon,
     Edit as EditIcon,
+    // VisibilityOff as VisibilityOffIcon,
+    // Visibility as VisibilityOnIcon,
+    ErrorOutline as ErrorOutlineIcon,
 } from "@mui/icons-material";
 
 import {
@@ -34,7 +37,7 @@ import {
     useState,
 } from "react";
 import { Nf2tSnackbarResult, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
-import { BodyRowComponentProps, useNf2tTable } from "../../hooks/useNf2tTable";
+import { BodyRowComponentProps, Nf2tTableColumnSpec, useNf2tTable } from "../../hooks/useNf2tTable";
 import Nf2tTable from "../../components/Nf2tTable";
 import { createLazyRoute } from "@tanstack/react-router";
 import Nf2tHeader from "../../components/Nf2tHeader";
@@ -82,13 +85,13 @@ type CoordinateFieldComponentProps = {
 function CoordinateFieldComponent({ index, field, coordinates, setCoordinates }: CoordinateFieldComponentProps) {
     const coordinate = coordinates[index];
     return (
-        <TextField 
+        <TextField
             label={field}
-            value={coordinate[field]} 
+            value={coordinate[field]}
             onChange={(x) => {
                 coordinate[field] = x.target.value;
                 setCoordinates([...coordinates]);
-            }} 
+            }}
         />
     )
 }
@@ -136,11 +139,11 @@ type EditRowCellProps = {
     handleClickOpenEditCoordinatesDialog: (newCoordinates: MavenCoordinate[], index: number) => void,
 } & BodyRowComponentProps<MavenCoordinate, null>;
 
-function EditRowCell({ 
-    coordinates, 
-    setCoordinates, 
-    rowIndex, 
-    row, 
+function EditRowCell({
+    coordinates,
+    setCoordinates,
+    rowIndex,
+    row,
     nf2tSnackBarProps,
     handleClickOpenEditCoordinatesDialog,
 }: EditRowCellProps) {
@@ -162,7 +165,7 @@ function EditRowCell({
         <ButtonGroup>
             <Tooltip title="Edit Coordinate">
                 <IconButton onClick={() => {
-                   handleClickOpenEditCoordinatesDialog(coordinates, rowIndex);
+                    handleClickOpenEditCoordinatesDialog(coordinates, rowIndex);
                 }}><EditIcon /></IconButton>
             </Tooltip>
             <Tooltip title="Delete Coordinate">
@@ -334,6 +337,8 @@ function AddCoordinatesFromTextDialog({
     )
 }
 
+// type CoordinateTableMode = "simple" | "complex";
+
 function MavenCoordinateResolverComponent() {
     const nf2tSnackBarProps = useNf2tSnackbar();
 
@@ -346,15 +351,15 @@ function MavenCoordinateResolverComponent() {
             const dependencies = xml.getElementsByTagName("dependency");
             const plugins = xml.getElementsByTagName("plugin");
 
-            for(const dependency of [...dependencies, ...plugins]) {
+            for (const dependency of [...dependencies, ...plugins]) {
                 const groupId = dependency.getElementsByTagName("groupId").item(0)?.textContent;
                 const artifactId = dependency.getElementsByTagName("artifactId").item(0)?.textContent;
                 const version = dependency.getElementsByTagName("version").item(0)?.textContent;
                 const classifier = dependency.getElementsByTagName("classifier").item(0)?.textContent;
                 const packaging = dependency.getElementsByTagName("packaging").item(0)?.textContent;
-                
+
                 newCoordinates.push({
-                    groupId:  groupId || "",
+                    groupId: groupId || "",
                     artifactId: artifactId || "",
                     version: version || "",
                     classifier: classifier || undefined,
@@ -362,8 +367,8 @@ function MavenCoordinateResolverComponent() {
                 });
             }
 
-            
-            
+
+
             return {
                 coordinates: newCoordinates,
                 urls: [],
@@ -390,14 +395,14 @@ function MavenCoordinateResolverComponent() {
     const outputOptions: Record<string, MavenCoordinateOutputConsumer> = {
         "pom": (coordinates) => {
             const xmlDoc = document.implementation.createDocument(null, "project");
-            const dependenciesElement = xmlDoc.createElement("dependencies"); 
+            const dependenciesElement = xmlDoc.createElement("dependencies");
             xmlDoc.documentElement.appendChild(dependenciesElement);
             coordinates.forEach(coordinate => {
-                const coordinateElement = xmlDoc.createElement("dependencies"); 
+                const coordinateElement = xmlDoc.createElement("dependencies");
                 dependenciesElement.appendChild(coordinateElement);
                 const fields = ["groupId", "artifactId", "version"] as const;
-                for(const field of fields) {
-                    const fieldElement = xmlDoc.createElement(field); 
+                for (const field of fields) {
+                    const fieldElement = xmlDoc.createElement(field);
                     fieldElement.textContent = coordinate[field];
                     coordinateElement.appendChild(fieldElement);
                 }
@@ -419,13 +424,36 @@ function MavenCoordinateResolverComponent() {
                 text: text,
                 file: new File([text], "output.json", { type: "application/json" }),
             }
+        },
+        "coordinates": (coordinates) => {
+            const results: string[] = coordinates.map(coordinate => {
+                let result = `${coordinate.groupId}:${coordinate.artifactId}`;
+                if (coordinate.packaging) {
+                    result += `:${coordinate.packaging}`;
+                }
+                result += `:${coordinate.version}`;
+
+                if (coordinate.classifier) {
+                    result += `:${coordinate.classifier}`;
+                }
+
+                return result;
+            });
+
+            const text = results.join("\n");
+
+            return {
+                node: results.map(x => <p>{x}</p>),
+                text: text,
+                file: new File([text], "output.txt", { type: "text/plain" }),
+            }
         }
     };
     const [editCoordinateIndex, setEditCoordinateIndex] = useState<number>(-1);
 
     const [inputValue, setInputValue] = useState<string>("");
     const [inputOption, setInputOption] = useState<keyof typeof inputOptions>("Maven Coordinates");
-    const [outputOption, setOutputOption] = useState<keyof typeof outputOptions>("json");
+    const [outputOption, setOutputOption] = useState<keyof typeof outputOptions>("pom");
     const [coordinates, setCoordinates] = useState<MavenCoordinate[]>([]);
     const [urls, setUrls] = useState<string[]>([]);
 
@@ -456,6 +484,7 @@ function MavenCoordinateResolverComponent() {
 
     const [openAddCoordinatesFromTextDialog, setOpenAddCoordinatesFromTextDialog] = useState(false);
     const [openEditCoordinatesDialog, setOpenEditCoordinatesDialog] = useState(false);
+    // const [coordinateTableMode, setCoordinateTableMode] = useState<CoordinateTableMode>("simple");
 
     const handleClickOpenAddCoordinatesFromTextDialog = () => {
         setOpenAddCoordinatesFromTextDialog(true);
@@ -517,26 +546,49 @@ function MavenCoordinateResolverComponent() {
         handleCloseDialogs();
     }
 
-    const tableProps = useNf2tTable({
-        childProps: null,
-        snackbarProps: nf2tSnackBarProps,
-        canEditColumn: false,
-        columns: [
+    const columns = useMemo<Nf2tTableColumnSpec<MavenCoordinate, null>[]>(() => {
+        const results: Nf2tTableColumnSpec<MavenCoordinate, null>[] = [
             {
                 columnName: "GroupId",
-                bodyRow: (x) => x.row.groupId,
+                bodyRow: (x) => {
+                    if (x.row.groupId.trim().length === 0) {
+                        return <Tooltip title="Invalid Value">
+                            <ErrorOutlineIcon color="error" sx={{ ml: 1, fontSize: 'small' }} />
+                        </Tooltip>
+                    }
+
+                    return x.row.groupId;
+                },
                 rowToString: (row) => row.groupId,
             },
             {
                 columnName: "ArtifactId",
-                bodyRow: (x) => x.row.artifactId,
+                bodyRow: (x) => {
+                    if (x.row.artifactId.trim().length === 0) {
+                        return <Tooltip title="Invalid Value">
+                            <ErrorOutlineIcon color="error" sx={{ ml: 1, fontSize: 'small' }} /></Tooltip>
+                    }
+                    return x.row.artifactId;
+                },
                 rowToString: (row) => row.artifactId,
             },
             {
                 columnName: "Version",
-                bodyRow: (x) => x.row.version,
+                bodyRow: (x) => {
+                    if (x.row.version.trim().length === 0) {
+                        return <Tooltip title="Invalid Value">
+                            <ErrorOutlineIcon color="error" sx={{ ml: 1, fontSize: 'small' }} />
+                        </Tooltip>
+                    }
+                    return x.row.version;
+                },
                 rowToString: (row) => row.version,
             },
+        ];
+        // TODO: Doesn't work to swap this mode...
+
+        // if(coordinateTableMode !== "simple") {
+        results.push(
             {
                 columnName: "Packaging",
                 bodyRow: (x) => x.row.packaging,
@@ -547,6 +599,10 @@ function MavenCoordinateResolverComponent() {
                 bodyRow: (x) => x.row.classifier,
                 rowToString: (row) => row.classifier || "",
             },
+        )
+        // }
+
+        results.push(
             {
                 columnName: "Edit",
                 bodyRow: (x) => (
@@ -561,7 +617,18 @@ function MavenCoordinateResolverComponent() {
                 ),
                 rowToString: () => "",
             },
-        ],
+        )
+
+        console.log(results);
+
+        return results;
+    }, [nf2tSnackBarProps, coordinates, setCoordinates, setEditCoordinateIndex, handleClickOpenEditCoordinatesDialog]);
+
+    const tableProps = useNf2tTable({
+        childProps: null,
+        snackbarProps: nf2tSnackBarProps,
+        canEditColumn: false,
+        columns: columns,
         rows: coordinates,
     });
 
@@ -603,7 +670,7 @@ function MavenCoordinateResolverComponent() {
                 </Tooltip>
                 <Tooltip title="Add Maven Coordinate Row">
                     <IconButton onClick={() => {
-                        const newCoordinates = [...coordinates, { groupId: "", artifactId: "", version: ""}];
+                        const newCoordinates = [...coordinates, { groupId: "", artifactId: "", version: "" }];
                         handleClickOpenEditCoordinatesDialog(newCoordinates, newCoordinates.length - 1);
                     }}>
                         <AddIcon />
@@ -614,6 +681,11 @@ function MavenCoordinateResolverComponent() {
                         <FileUploadIcon />
                     </IconButton>
                 </Tooltip>
+                {/* <Tooltip title="Swap visibility mode">
+                    <IconButton onClick={() => setCoordinateTableMode(coordinateTableMode === "complex" ? "simple": "complex")}>
+                        {coordinateTableMode === "complex" ? <VisibilityOnIcon />: <VisibilityOffIcon />}
+                    </IconButton>
+                </Tooltip> */}
             </ButtonGroup>
 
             <h3>Output</h3>

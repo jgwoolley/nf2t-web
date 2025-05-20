@@ -8,15 +8,19 @@ import { routeDescriptions, RoutePathType } from "./routeDescriptions";
 import Nf2tTable from "../components/Nf2tTable";
 import { useNf2tSnackbar } from "../hooks/useNf2tSnackbar";
 import { useNf2tTable } from "../hooks/useNf2tTable";
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import UnarchiveIcon from '@mui/icons-material/Unarchive';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import SettingsIcon from '@mui/icons-material/Settings';
-import CallMergeIcon from '@mui/icons-material/CallMerge';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
-import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
+
+import {
+    PlayCircle as PlayCircleIcon,
+    Archive as ArchiveIcon,
+    Unarchive as UnarchiveIcon,
+    AutoStories as AutoStoriesIcon,
+    GitHub as GitHubIcon,
+    Settings as SettingsIcon,
+    CallMerge as CallMergeIcon,
+    WaterDrop as WaterDropIcon,
+    DownloadForOffline as DownloadForOfflineIcon,
+} from '@mui/icons-material';
+import { ReactNode, useMemo } from "react";
 
 export const Route = createLazyRoute("/")({
     component: Nf2tHome,
@@ -27,48 +31,23 @@ const linkStyles: React.CSSProperties = {
     textDecoration: "inherit",
 }
 
-function ApplicationIcon({path}: {path: RoutePathType}) {
-    if(path === "/package") {
-        return <ArchiveIcon />;
-    }
-
-    if(path === "/unpackage") {
-        return <UnarchiveIcon />;
-    }
-
-    if(path === "/narReader") {
-        return <AutoStoriesIcon />;
-    }
-
-    if(path === "/source") {
-        return <GitHubIcon />;
-    }
-
-    if(path === "/settings") {
-        return <SettingsIcon />;
-    }
-
-    if(path === "/mergecidrs") {
-        return <CallMergeIcon />;
-    }
-    if(path === "/nf2tcli") {
-        return <WaterDropIcon />;
-    }
-    // if(path === "/mavenCoordinate") {
-    //     return <DownloadForOfflineIcon />
-    // }
-    if(path === "/mavenCoordinateResolver") {
-        return <DownloadForOfflineIcon />
-    }
-    if(path === "/pdfcombiner") {
-        return <CallMergeIcon />
-    }
-
-    return <PlayCircleIcon />
-}
-
 export default function Nf2tHome() {
     const snackbarProps = useNf2tSnackbar();
+    const iconLut = useMemo<Map<RoutePathType, ReactNode>>(() => {
+        const result = new Map<RoutePathType, ReactNode>();
+        result.set("/package", <ArchiveIcon />);
+        result.set("/unpackage", <UnarchiveIcon />);
+        result.set("/narReader", <AutoStoriesIcon />);
+        result.set("/source", <GitHubIcon />);
+        result.set("/settings", <SettingsIcon />);
+        result.set("/mergecidrs", <CallMergeIcon />);
+        result.set("/nf2tcli", <WaterDropIcon />);
+        result.set("/mavenCoordinate", <DownloadForOfflineIcon />);
+        result.set("/mavenCoordinateResolver", <DownloadForOfflineIcon />);
+        result.set("/pdfcombiner", <CallMergeIcon />);
+
+        return result;
+    }, []);
 
     const tableProps = useNf2tTable<RoutePathType, undefined>({
         childProps: undefined,
@@ -77,19 +56,20 @@ export default function Nf2tHome() {
         columns: [
             {
                 columnName: "Tools",
-                bodyRow: ({row}) => <Link style={linkStyles} to={routeDescriptions[row].to}><ApplicationIcon path={row}/></Link>,
+                bodyRow: ({ row }) => <Link style={linkStyles} to={routeDescriptions[row].to}>{iconLut.get(row) || <PlayCircleIcon />}
+                </Link>,
                 rowToString: (row) => routeDescriptions[row].name,
             },
-            { 
-                columnName: "", 
+            {
+                columnName: "",
                 compareFn: (a, b) => routeDescriptions[b].name.localeCompare(routeDescriptions[a].name),
-                bodyRow: ({row}) => <Link style={linkStyles} to={routeDescriptions[row].to}>{routeDescriptions[row].name}</Link>,
+                bodyRow: ({ row }) => <Link style={linkStyles} to={routeDescriptions[row].to}>{routeDescriptions[row].name}</Link>,
                 rowToString: (row) => routeDescriptions[row].name,
             },
-            { 
-                columnName: "Description", 
+            {
+                columnName: "Description",
                 compareFn: (a, b) => (routeDescriptions[b].shortDescription || "").localeCompare((routeDescriptions[a].shortDescription || "")),
-                bodyRow: ({row}) => routeDescriptions[row].shortDescription,
+                bodyRow: ({ row }) => routeDescriptions[row].shortDescription,
                 rowToString: (row) => routeDescriptions[row].shortDescription || "",
             },
         ],
@@ -100,8 +80,8 @@ export default function Nf2tHome() {
             "/narReader",
             // "/mergecidrs",  
             // "/mavenCoordinate",
-            "/mavenCoordinateResolver",      
-            "/pdfcombiner",    
+            "/mavenCoordinateResolver",
+            "/pdfcombiner",
             "/source",
             "/settings",
         ],
