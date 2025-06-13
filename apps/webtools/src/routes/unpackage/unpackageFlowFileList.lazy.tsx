@@ -11,7 +11,7 @@ import { createLazyRoute, getRouteApi, Link } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { Nf2tTableColumnSpec, useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
-import { findCoreAttributes, FlowFileResult } from '@nf2t/flowfiletools-js';
+import { findCoreAttributes, FlowFile } from '@nf2t/flowfiletools-js';
 import { downloadAllUnpackaged } from '../../utils/downloadAllUnpackaged';
 import { Link as MuiLink } from "@mui/material";
 import UnpackageLink from './UnpackageLink';
@@ -25,7 +25,7 @@ export const Route = createLazyRoute(routeId)({
 const route = getRouteApi(routeId);
 
 export interface BulkUnpackageDownloadButtonsProps extends Nf2tSnackbarProps {
-    rows: FlowFileResult[],
+    rows: FlowFile[],
     attributes: string[] | undefined,
 }
 
@@ -40,9 +40,6 @@ export function BulkUnpackageDownloadReportButton({ submitSnackbarMessage, rows,
         content += "\n";
 
         for (const row of rows) {
-            if (row.status !== "success") {
-                continue;
-            }
             const coreAttributes = findCoreAttributes(row.attributes);
 
             for (const attribute of attributes) {
@@ -113,14 +110,14 @@ export function BulkUnPackageNifi() {
     const { id: parentId } = route.useSearch();
     const snackbarResults = useNf2tSnackbar();
     const { submitSnackbarMessage } = snackbarResults;
-    const { unpackagedRows, unpackagedFiles } = useNf2tContext();
+    const { flowFileResults, unpackagedFiles } = useNf2tContext();
 
     const filteredRows = useMemo(() => {
         if(parentId) {
-            return unpackagedRows.filter(x => parentId === x.parentId)
+            return flowFileResults.success.filter(x => parentId === x.parentId)
         }
-        return unpackagedRows;
-    }, [parentId, unpackagedRows])
+        return flowFileResults.success;
+    }, [parentId, flowFileResults])
 
     const attributes: string[] = useMemo(() => {
         if (filteredRows.length <= 0) {
@@ -129,9 +126,6 @@ export function BulkUnPackageNifi() {
 
         const results = new Set<string>();
         for (const row of filteredRows) {
-            if (row.status !== "success") {
-                continue;
-            }
             for (const [attribute] of row.attributes) {
                 results.add(attribute);
             }
@@ -140,8 +134,8 @@ export function BulkUnPackageNifi() {
         return Array.from(results);
     }, [filteredRows, submitSnackbarMessage]);
 
-    const columns: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = useMemo(() => {
-        const results: Nf2tTableColumnSpec<FlowFileResult, undefined>[] = [];
+    const columns: Nf2tTableColumnSpec<FlowFile, undefined>[] = useMemo(() => {
+        const results: Nf2tTableColumnSpec<FlowFile, undefined>[] = [];
 
         results.push({
             columnName: "Parent File",
@@ -168,10 +162,6 @@ export function BulkUnPackageNifi() {
         results.push({
             columnName: "FlowFile",
             bodyRow: ({ row, rowIndex }) => {
-                if (row.status === "error") {
-                    return "Failed to parse.";
-                }
-
                 const coreAttributes = findCoreAttributes(row.attributes);
 
                 return <Link to="/unpackageFlowFileLookup" search={{ index: rowIndex }}><MuiLink component="span">{coreAttributes.filename || `FlowFile ${rowIndex + 1}`}</MuiLink></Link>
@@ -183,17 +173,11 @@ export function BulkUnPackageNifi() {
             results.push({
                 columnName: attribute,
                 bodyRow: ({ row }) => {
-                    if (row.status === "error") {
-                        return <></>;
-                    }
                     // TODO: This is slow...
                     const coreAttributes = findCoreAttributes(row.attributes);
                     return coreAttributes[attribute] || "";
                 },
-                rowToString: (row: FlowFileResult) => {
-                    if (row.status === "error") {
-                        return "";
-                    }
+                rowToString: (row: FlowFile) => {
                     // TODO: This is slow...
                     const coreAttributes = findCoreAttributes(row.attributes);
                     return coreAttributes[attribute] || "";
@@ -204,7 +188,7 @@ export function BulkUnPackageNifi() {
         return results;
     }, [attributes]);
 
-    const tableProps = useNf2tTable<FlowFileResult, undefined>({
+    const tableProps = useNf2tTable<FlowFile, undefined>({
         childProps: undefined,
         snackbarProps: snackbarResults,
         canEditColumn: true,

@@ -1,7 +1,7 @@
 {
   "name": "@nf2t/webtools",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "homepage": "https://github.com/jgwoolley/nf2t-web",
   "files": [

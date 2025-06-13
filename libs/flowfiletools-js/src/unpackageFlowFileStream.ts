@@ -1,4 +1,11 @@
-import { FlowFileAttributes, FlowFile, MAGIC_HEADER, findCoreAttributes, CoreFlowFileAttributes, FlowFileContent, FlowFileResult } from "./schemas";
+import { 
+    FlowFileAttributes, 
+    MAGIC_HEADER, 
+    findCoreAttributes, 
+    CoreFlowFileAttributes, 
+    FlowFileContent, 
+    FlowFileResults,
+} from "./schemas";
 import InputStream from "./InputStream";
 
 function readFieldLength(view: InputStream) {
@@ -91,7 +98,7 @@ function createContent(coreAttributes: CoreFlowFileAttributes, content: ArrayBuf
     })
 }
 
-function unpackageFlowFile(view: InputStream, parentId: string): FlowFileResult {
+function unpackageFlowFile(result: FlowFileResults, view: InputStream, parentId: string) {
     try {
         for(let i = 0; i < MAGIC_HEADER.length; i++) {
             const expected = MAGIC_HEADER.charCodeAt(i);
@@ -103,20 +110,16 @@ function unpackageFlowFile(view: InputStream, parentId: string): FlowFileResult 
         
         const coreAttributes = findCoreAttributes(attributes);
 
-        const flowFile: FlowFile = {
-            status: "success",
+        result.success.push({
             parentId: parentId,
             attributes: attributes, 
             content: createContent(coreAttributes, content),
-        }
-
-        return flowFile;
+        });
     } catch(error) {
-        return {
-            status: "error",
+        result.errors.push({
             parentId: parentId,
             error: error,
-        }
+        });
     }
 }
 
@@ -129,15 +132,16 @@ function unpackageFlowFile(view: InputStream, parentId: string): FlowFileResult 
  * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-commons/nifi-flowfile-packager/src/main/java/org/apache/nifi/util/FlowFileUnpackagerV3.java
  * @see https://github.com/apache/nifi/blob/821e5d23c9d090c85986be00160269f35bc4a246/nifi-extension-bundles/nifi-hadoop-bundle/nifi-hdfs-processors/src/main/java/org/apache/nifi/processors/hadoop/FlowFileStreamUnpackerSequenceFileWriter.java
  */
-export function unpackageFlowFileStream(buffer: ArrayBuffer, parentId: string): FlowFileResult[] {
-    const results: FlowFileResult[] = [];
+export function unpackageFlowFileStream(buffer: ArrayBuffer, parentId: string): FlowFileResults {
+    const results: FlowFileResults = {
+        success: [],
+        errors: [],
+    };
 
     const view = new InputStream(buffer);
 
     while(view.hasMoreData()) {
-        const flowFile = unpackageFlowFile(view, parentId);
-        results.push(flowFile);
-        if(flowFile.status !== "success") break;
+        unpackageFlowFile(results, view, parentId);
     }
 
     return results;
