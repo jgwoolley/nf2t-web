@@ -42,14 +42,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Test flowfiletools-js
-        run: pnpm run --filter @nf2t/flowfiletools-js test
-      - name: Build flowfiletools-js
-        run: pnpm run --filter @nf2t/flowfiletools-js build       
-      - name: Build nifitools-js
-        run: pnpm run --filter @nf2t/nifitools-js build    
-      - name: Build @nf2t/webtools
-        run: pnpm run --filter @nf2t/webtools build
-
+        run: pnpm run test
+      - name: Build Project
+        run: pnpm run build       
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
