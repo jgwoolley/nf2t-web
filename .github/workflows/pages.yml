@@ -50,15 +50,11 @@ jobs:
       - name: Build @nf2t/webtools
         run: pnpm run --filter @nf2t/webtools build
       - name: Install NextJS version
-        run: npm install
-        working-directory: ./apps/nf2t-webtools
-      - name: Build NextJS version
-        run: npm build
-        working-directory: ./apps/nf2t-webtools
+        run: pnpm run --filter @nf2t/nf2t-webtools build
       - name: Make NextJS dist directory
-        run: mkdir --parents ./apps/webtools/dist/nextjs
+        run: mkdir --parents ./apps/webtools/dist/vintagestory
       - name: Copy NextJS to dist directory
-        run: cp -r ./apps/nf2t-webtools/out/* ./apps/webtools/dist/nextjs
+        run: cp -r ./apps/nf2t-webtools/out/* ./apps/webtools/dist/vintagestory
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

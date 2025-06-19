@@ -1,5 +1,5 @@
 {
-  "name": "nf2t-webtools",
+  "name": "@nf2t/nf2t-webtools",
   "version": "0.1.0",
   "private": true,
   "scripts": {
