@@ -126,9 +126,7 @@ export default function RouteComponent() {
                         <TableRow>
                             <TableCell>Nar</TableCell>
                             <TableCell>
-
                                 <Link search={{ name: extension?.narId }} to="/narLookup"><MuiLink component="span">{extension?.narId}</MuiLink></Link>
-
                             </TableCell>
                         </TableRow>
                         <TableRow>

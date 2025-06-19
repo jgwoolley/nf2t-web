@@ -26,7 +26,7 @@ for(let index = 2; index < 5; index++) {
     });
 }
 
-updateNf2tAttributes(originalFlowFiles);
+updateNf2tAttributes(originalFlowFiles.success);
 
 const packagedFile = packageFlowFileStream(originalFlowFiles.success);
 
