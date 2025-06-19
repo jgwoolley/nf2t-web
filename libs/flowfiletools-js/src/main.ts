@@ -24,7 +24,7 @@ export type {
     FlowFileAttributes,
     FlowFileContent,
     FlowFile,
-    FlowFileResult,
+    FlowFileResults,
     CoreFlowFileAttributes,
 } from "./schemas";
 

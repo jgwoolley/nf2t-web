@@ -3,19 +3,15 @@ import { downloadFile } from "../utils/downloadFile";
 import DownloadIcon from '@mui/icons-material/Download';
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 import { Nf2tSnackbarProps } from "../hooks/useNf2tSnackbar";
-import { findCoreAttributes, FlowFileResult } from "@nf2t/flowfiletools-js";
+import { findCoreAttributes, FlowFile } from "@nf2t/flowfiletools-js";
 
 interface AttributeDownloadProps extends Nf2tSnackbarProps {
-    flowFile: FlowFileResult,
+    flowFile: FlowFile,
 }
 
 export function AttributeDownload({flowFile, submitSnackbarMessage}: AttributeDownloadProps) {
     const onClick = () => {
         if(flowFile == undefined) {
-            // TODO: Check
-            return;
-        }
-        if(flowFile.status !== "success") {
             // TODO: Check
             return;
         }
@@ -25,7 +21,7 @@ export function AttributeDownload({flowFile, submitSnackbarMessage}: AttributeDo
         downloadFile(blob);
     }
 
-    if(flowFile == null || flowFile.status !== "success" || flowFile.attributes.length <= 0) {
+    if(flowFile == null || flowFile.attributes.length <= 0) {
         return (
             <Button startIcon={<SyncProblemIcon />} variant="outlined" onClick={() => submitSnackbarMessage("No attributes to download", "error")} >Download Attributes</Button>
         )

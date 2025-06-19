@@ -111,19 +111,20 @@ export type FlowFileAttributes = FlowFileAttribute[];
 export type FlowFileContent = File | Blob;
 
 export type FlowFileFailure = {
-    status: "error",
     parentId: string,
     error: unknown,
 }
 
 export type FlowFile = {
-    status: "success",
     parentId: string,
     attributes: FlowFileAttributes,
     content: FlowFileContent,
 }
 
-export type FlowFileResult = FlowFile | FlowFileFailure;
+export type FlowFileResults = {
+    success: FlowFile[],
+    errors: FlowFileFailure[],
+};
 
 export function isCoreAttribute(key: string): key is CoreAttributeNames {
     return key in CORE_ATTRIBUTES;

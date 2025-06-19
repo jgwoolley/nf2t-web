@@ -2,21 +2,21 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { FlowFileResult } from "@nf2t/flowfiletools-js";
+import { FlowFile } from "@nf2t/flowfiletools-js";
 
 export interface AttributeDialogProps {
     open: boolean,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    flowFile: FlowFileResult,
-    setFlowFile: React.Dispatch<React.SetStateAction<FlowFileResult>>,
+    flowFile: FlowFile,
+    setFlowFile: React.Dispatch<React.SetStateAction<FlowFile>>,
 }
 
-const attributeDialogRow = z.object({
+const AttributeDialogRowSchema = z.object({
     key: z.string(),
     value: z.string(),
 })
 
-export type AttributeDialogRowSchema = z.infer<typeof attributeDialogRow>;
+export type AttributeDialogRow = z.infer<typeof AttributeDialogRowSchema>;
 
 export function AttributeDialog(props: AttributeDialogProps) {
     const {
@@ -24,8 +24,8 @@ export function AttributeDialog(props: AttributeDialogProps) {
         handleSubmit,
         reset,
         formState: { errors, },
-    } = useForm<AttributeDialogRowSchema>({
-        resolver: zodResolver(attributeDialogRow),
+    } = useForm<AttributeDialogRow>({
+        resolver: zodResolver(AttributeDialogRowSchema),
     });
 
     const handleClose = () => {
@@ -33,16 +33,13 @@ export function AttributeDialog(props: AttributeDialogProps) {
         reset();
     };
 
-    const onSubmit: SubmitHandler<AttributeDialogRowSchema> = (data) => {
+    const onSubmit: SubmitHandler<AttributeDialogRow> = (data) => {
         const {flowFile} = props;
-        if(flowFile.status === "success") {
-            props.setFlowFile({
-                status: "success",
-                parentId: flowFile.parentId,
-                content: flowFile.content,
-                attributes: [...flowFile.attributes, [data.key, data.value]],
-            })
-        }
+        props.setFlowFile({
+            parentId: flowFile.parentId,
+            content: flowFile.content,
+            attributes: [...flowFile.attributes, [data.key, data.value]],
+        })
 
         handleClose();
     }

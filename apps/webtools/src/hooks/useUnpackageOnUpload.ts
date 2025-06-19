@@ -1,5 +1,5 @@
 import { AlertColor } from "@mui/material";
-import { FlowFileResult, unpackageFlowFileStream } from "@nf2t/flowfiletools-js";
+import { FlowFileResults, unpackageFlowFileStream } from "@nf2t/flowfiletools-js";
 import { ChangeEvent, DragEvent, useCallback } from "react";
 import untar from "../utils/untar";
 import { UnpackagedFile } from "../utils/schemas";
@@ -11,8 +11,8 @@ export type UseUnpackageOnUploadParams = {
     submitSnackbarMessage: (message: string, type: AlertColor, data?: unknown) => void,
     setCurrent: (value: React.SetStateAction<number | undefined>) => void,
     setTotal: (value: React.SetStateAction<number | undefined>) => void,
-    unpackagedRows: FlowFileResult[],
-    setUnpackagedRows: React.Dispatch<React.SetStateAction<FlowFileResult[]>>,
+    flowFileResults: FlowFileResults,
+    setFlowFileResults: React.Dispatch<React.SetStateAction<FlowFileResults>>,
     unpackagedFiles: UnpackagedFile[], 
     setUnpackagedFiles: React.Dispatch<React.SetStateAction<UnpackagedFile[]>>,
 }
@@ -38,7 +38,7 @@ function generateId(file: File): string {
 
 export type ParseFilesParameters = {
     unpackagedFiles: UnpackagedFile[], 
-    unpackagedRows: FlowFileResult[],
+    unpackagedRows: FlowFileResults,
     files: FileList,
 }
 
@@ -47,7 +47,7 @@ export type ParseFilesParameters = {
  * @see https://codesandbox.io/p/sandbox/crazy-butterfly-4c2ehe
  * @see https://github.com/mui/material-ui/issues/33898
  */
-export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, setCurrent, setTotal, setUnpackagedRows, unpackagedRows, unpackagedFiles, setUnpackagedFiles}: UseUnpackageOnUploadParams): UseUnpackageOnUploadResults {
+export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, setCurrent, setTotal, setFlowFileResults, flowFileResults: unpackagedRows, unpackagedFiles, setUnpackagedFiles}: UseUnpackageOnUploadParams): UseUnpackageOnUploadResults {
     const parseFiles = useCallback(async ({files, unpackagedFiles, unpackagedRows}: ParseFilesParameters) => {
         try {
             resetProgress();
@@ -59,7 +59,7 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
             setCurrent(0);
             setTotal(files.length);
 
-            const newRows: FlowFileResult[] = [];
+            const newRows: FlowFileResults = { errors: [], success: [], };
             const newUnpackagedFiles: UnpackagedFile[] = [];
             console.log(`Starting to process ${files.length} file(s).`)
 
@@ -82,16 +82,17 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
 
                     try {
                         const result = unpackageFlowFileStream(await file.arrayBuffer(), id);
-                        result.forEach(x => {
-                            newRows.push(x);
+                        result.success.forEach(x => {
+                            newRows.success.push(x);
                         })
                     } catch (error) {
-                        newRows.push({
-                            status: "error",
+                        newRows.errors.push({
                             parentId: id,
                             error: error,
                         });
                     }
+
+                    setFlowFileResults({...newRows});
                 }
 
                 if (file.name.endsWith(".tar.gz")) {
@@ -129,19 +130,22 @@ export function useUnpackageOnUpload({ resetProgress, submitSnackbarMessage, set
 
             setCurrent(files.length);
             setTotal(files.length);
-            setUnpackagedRows([...unpackagedRows, ...newRows]);
+            setFlowFileResults({
+                success: [ ...unpackagedRows.success, ...newRows.success],
+                errors: [ ...unpackagedRows.errors, ...newRows.errors],
+            });
             setUnpackagedFiles([...unpackagedFiles, ...newUnpackagedFiles]);
-            submitSnackbarMessage(`Unpackaged ${newUnpackagedFiles.length} file(s) into ${newRows.filter(x => x.status === "success").length} FlowFile(s).`, "success", {
+            submitSnackbarMessage(`Unpackaged ${newUnpackagedFiles.length} file(s) into ${newRows.success.length} FlowFile(s).`, "success", {
                 "files.length": files.length,
-                "newRows.length": newRows.length,
-                "unpackagedRows.length": unpackagedRows.length,
+                "newRows.length": newRows.success.length + newRows.errors.length,
+                "unpackagedRows.length": unpackagedRows.success.length + unpackagedRows.errors.length,
                 "newUnpackagedFiles.length": newUnpackagedFiles.length,
                 "unpackagedFiles.length": unpackagedFiles.length,
             });
         } catch (error) {
             submitSnackbarMessage("Unknown error.", "error", error);
         }
-    }, [resetProgress, setCurrent, setTotal, setUnpackagedRows, submitSnackbarMessage, setUnpackagedFiles]);
+    }, [resetProgress, setCurrent, setTotal, setFlowFileResults, submitSnackbarMessage, setUnpackagedFiles]);
 
     const onUpload = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;

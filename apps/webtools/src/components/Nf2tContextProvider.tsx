@@ -3,7 +3,7 @@ import useNarQuery from "../hooks/useQueryAllNf2tDB";
 import { useNarDeleteAll } from "../hooks/useClear";
 import useNarParse from "../hooks/useNarsParse";
 import { ColorMode, Nf2tContext, Nf2tContextType } from "../hooks/useNf2tContext";
-import { FlowFileResult } from "@nf2t/flowfiletools-js";
+import { FlowFileResults } from "@nf2t/flowfiletools-js";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, PaletteMode } from "@mui/material";
 import { useBrowserIsDarkMode } from "../hooks/useBrowserIsDarkMode";
@@ -21,7 +21,7 @@ export default function Nf2tContextProvider({children}: React.PropsWithChildren)
     const narsParse = useNarParse();
     const [reactRouterDebug, setReactRouterDebug] = useState<boolean>(false);
     // TODO: Change to unpackagedFlowFiles
-    const [unpackagedRows, setUnpackagedRows] = useState<FlowFileResult[]>([]);
+    const [unpackagedRows, setUnpackagedRows] = useState<FlowFileResults>({ errors: [], success: []});
     const [unpackagedFiles, setUnpackagedFiles] = useState<UnpackagedFile[]>([]);
     const [colorMode, setColorMode] = useState<ColorMode>("system");
     const browserIsDarkMode = useBrowserIsDarkMode();
@@ -48,8 +48,8 @@ export default function Nf2tContextProvider({children}: React.PropsWithChildren)
         setReactRouterDebug, 
         colorMode, 
         setColorMode,
-        unpackagedRows,
-        setUnpackagedRows,
+        flowFileResults: unpackagedRows,
+        setFlowFileResults: setUnpackagedRows,
         unpackagedFiles, 
         setUnpackagedFiles,
     };

@@ -11,11 +11,11 @@ import { BodyRowComponentProps, Nf2tTableColumnSpec, useNf2tTable } from '../hoo
 import Nf2tTable from './Nf2tTable';
 import { convertBytes } from '../utils/convertBytes';
 import ExternalLink from './ExternalLink';
-import { FlowFile, FlowFileResult } from '@nf2t/flowfiletools-js';
+import { FlowFile } from '@nf2t/flowfiletools-js';
 import { Link as MuiLink } from "@mui/material";
 
 export interface AttributesTableProps extends Nf2tSnackbarProps {
-    flowFile: FlowFileResult,
+    flowFile: FlowFile,
     setFlowFile: (newFlowFile: FlowFile) => void,
     canEdit: boolean,
 }
@@ -23,7 +23,7 @@ export interface AttributesTableProps extends Nf2tSnackbarProps {
 type AttributesTableChildProps = {
     editIndex: number,
     setEditIndex: React.Dispatch<React.SetStateAction<number>>,
-    flowFile: FlowFileResult,
+    flowFile: FlowFile,
     setFlowFile: (newValue: FlowFile) => void,
     deleteRow: (index: number) => void,
     submitSnackbarMessage: (message: string, type: AlertColor, data?: unknown) => void,
@@ -56,14 +56,9 @@ function AttributeValueRow({childProps, row, rowIndex, filteredRowIndex, childPr
             submitSnackbarMessage("No FlowFile provided", "error");
             return;
         }
-        if(flowFile.status !== "success") {
-            submitSnackbarMessage("No FlowFile provided", "error");
-            return;
-        }
 
         flowFile.attributes[rowIndex][1] = event.target.value;
         setFlowFile({
-            status: "success",
             parentId: flowFile.parentId,
             content: flowFile.content,
             attributes: [...flowFile.attributes],
@@ -106,15 +101,10 @@ export function AttributesTable({flowFile, setFlowFile, submitSnackbarMessage, c
             submitSnackbarMessage("No FlowFile", "error");
             return;
         }
-        if(flowFile.status !== "success") {
-            submitSnackbarMessage("No FlowFile", "error");
-            return;
-        }
 
         const deletedRows = flowFile.attributes.splice(index, 1);
 
         setFlowFile({
-            status: "success",
             parentId: flowFile.parentId,
             content: flowFile.content,
             attributes: flowFile.attributes,
@@ -168,7 +158,7 @@ export function AttributesTable({flowFile, setFlowFile, submitSnackbarMessage, c
         snackbarProps: snackbarProps,
         canEditColumn: false,
         columns: columns,
-        rows: flowFile?.status === "success" ? (flowFile?.attributes || []): [],
+        rows: flowFile?.attributes || [],
     });
 
     return (

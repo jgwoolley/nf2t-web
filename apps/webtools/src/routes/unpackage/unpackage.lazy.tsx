@@ -23,7 +23,7 @@ function Component() {
     const linearProgressProps = useNf2tLinearProgress();
 
     const snackbarProps = useNf2tSnackbar();
-    const { unpackagedRows, setUnpackagedRows, unpackagedFiles, setUnpackagedFiles } = useNf2tContext();
+    const { flowFileResults: unpackagedRows, setFlowFileResults: setUnpackagedRows, unpackagedFiles, setUnpackagedFiles } = useNf2tContext();
 
     const rootUnpackagedFiles = useMemo(() => {
         return unpackagedFiles.filter( x => x.parentId == undefined);
@@ -89,8 +89,8 @@ function Component() {
         submitSnackbarMessage: snackbarProps.submitSnackbarMessage,
         setCurrent: linearProgressProps.setCurrentProgress,
         setTotal: linearProgressProps.setTotalProgress,
-        setUnpackagedRows: setUnpackagedRows,
-        unpackagedRows: unpackagedRows,
+        setFlowFileResults: setUnpackagedRows,
+        flowFileResults: unpackagedRows,
         unpackagedFiles: unpackagedFiles,
         setUnpackagedFiles: setUnpackagedFiles,
     });

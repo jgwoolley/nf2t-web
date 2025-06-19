@@ -5,12 +5,12 @@ import AttributeDownload from '../../components/AttributeDownload';
 import Nf2tHeader from '../../components/Nf2tHeader';
 import Nf2tSnackbar from "../../components/Nf2tSnackbar";
 import { Nf2tSnackbarProps, useNf2tSnackbar } from "../../hooks/useNf2tSnackbar";
-import { Download, SyncProblem } from '@mui/icons-material';
+import { Download } from '@mui/icons-material';
 import { Link, createLazyRoute, getRouteApi } from '@tanstack/react-router';
 import Nf2tTable from '../../components/Nf2tTable';
 import { useNf2tTable } from '../../hooks/useNf2tTable';
 import { useNf2tContext } from '../../hooks/useNf2tContext';
-import { findCoreAttributes, FlowFileResult } from '@nf2t/flowfiletools-js';
+import { findCoreAttributes, FlowFile } from '@nf2t/flowfiletools-js';
 import { downloadFile } from '../../utils/downloadFile';
 import useArrayElements from '../../hooks/useArrayElement';
 import { Link as MuiLink } from "@mui/material";
@@ -21,15 +21,11 @@ export const Route = createLazyRoute("/unpackageFlowFileLookup")({
 })
 
 interface ContentDownloadButtonProps extends Nf2tSnackbarProps {
-    flowFile: FlowFileResult,
+    flowFile: FlowFile,
 }
 
 function ContentDownloadButton({ flowFile, submitSnackbarMessage }: ContentDownloadButtonProps) {
     const onClick = useCallback(() => {
-        if (flowFile?.status !== "success") {
-            submitSnackbarMessage("No content to download.", "error");
-            return;
-        }
         if (flowFile?.content == undefined) {
             submitSnackbarMessage("No content to download.", "error");
             return;
@@ -41,7 +37,7 @@ function ContentDownloadButton({ flowFile, submitSnackbarMessage }: ContentDownl
     }, [flowFile, submitSnackbarMessage]);
 
     return (
-        <Button startIcon={flowFile.status === "success" ? <Download /> : <SyncProblem />} variant="outlined" onClick={onClick}>Download Content</Button>
+        <Button startIcon={<Download />} variant="outlined" onClick={onClick}>Download Content</Button>
     )
 }
 
@@ -53,13 +49,23 @@ export default function UnpackageFlowFile() {
 
     const searchParams = route.useSearch();
 
-    const { queryResults, unpackagedRows, setUnpackagedRows } = useNf2tContext();
+    const { queryResults, flowFileResults, setFlowFileResults } = useNf2tContext();
 
-    const { value: flowFile, setValue: setFlowFile } = useArrayElements<FlowFileResult>({
-        defaultValue: { status: "error", parentId: "none", error: "No Value" },
+    const setFlowFileSuccess: React.Dispatch<React.SetStateAction<FlowFile[]>> = useCallback((newValue) => {       
+        setFlowFileResults(currentState => {
+            const successValue = newValue instanceof Function ? newValue(currentState.success) : newValue;
+            return {
+                ...currentState,
+                success: successValue,
+            }
+        });
+    }, [setFlowFileResults]);
+
+    const { value: flowFile, setValue: setFlowFile } = useArrayElements<FlowFile>({
+        defaultValue: { parentId: "none", attributes: [], content: new Blob() },
         index: searchParams.index,
-        values: unpackagedRows,
-        setValues: setUnpackagedRows,
+        values: flowFileResults.success,
+        setValues: setFlowFileSuccess,
     });
 
     const evaluatedProcessors = useMemo(() => {
@@ -68,7 +74,6 @@ export default function UnpackageFlowFile() {
         }
 
         const flowFileAttributes = new Set<string>();
-        if (flowFile.status !== "success") return [];
         for (const row of flowFile.attributes) {
             flowFileAttributes.add(row[0]);
         }
@@ -130,31 +135,27 @@ export default function UnpackageFlowFile() {
 
             <p><UnpackageLink /></p>
 
-            {flowFile.status === "success" ? (
-                <>
-                    <h5>1. Packaged FlowFile</h5>
-                    <h5>2. Unpackaged FlowFile Attributes</h5>
-                    <p>Download FlowFile Attributes.</p>
-                    <AttributesTable
-                        {...snackbarResults}
-                        flowFile={flowFile}
-                        setFlowFile={setFlowFile}
-                        canEdit={false}
-                    />
-                    
-                    <ButtonGroup>
-                        <AttributeDownload
-                            {...snackbarResults}
-                            flowFile={flowFile}
-                        />
-                        <ContentDownloadButton {...snackbarResults} flowFile={flowFile} />
-                    </ButtonGroup>
+            <h5>1. Packaged FlowFile</h5>
+            <h5>2. Unpackaged FlowFile Attributes</h5>
+            <p>Download FlowFile Attributes.</p>
+            <AttributesTable
+                {...snackbarResults}
+                flowFile={flowFile}
+                setFlowFile={setFlowFile}
+                canEdit={false}
+            />
 
-                    <h5>3. Possible Processors</h5>
-                    <p>These are processors which might have updated this FlowFile.</p>
-                    <Nf2tTable {...tableProps} />
-                </>
-            ) : <p>No content found.</p>}
+            <ButtonGroup>
+                <AttributeDownload
+                    {...snackbarResults}
+                    flowFile={flowFile}
+                />
+                <ContentDownloadButton {...snackbarResults} flowFile={flowFile} />
+            </ButtonGroup>
+
+            <h5>3. Possible Processors</h5>
+            <p>These are processors which might have updated this FlowFile.</p>
+            <Nf2tTable {...tableProps} />
 
             <Nf2tSnackbar {...snackbarResults} />
         </>
