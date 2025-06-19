@@ -39,23 +39,12 @@ jobs:
         with:
           node-version: "20.5.0"
           cache: 'pnpm'
-      - name: Install dependencies
+      - name: "ViteJS Project: Install dependencies"
         run: pnpm install
-      - name: Test flowfiletools-js
+      - name: "ViteJS Project: Test"
         run: pnpm run test
-      - name: Build Project
+      - name: "ViteJS Project: Build"
         run: pnpm run build 
-      # Experimental NextJS Version
-      - name: Install NextJS version
-        run: npm install
-        working-directory: ./apps/nf2t-webtools
-      - name: Build NextJS version
-        run: npm run build
-        working-directory: ./apps/nf2t-webtools
-      - name: Make NextJS dist directory
-        run: mkdir --parents ./apps/webtools/dist/nextjs
-      - name: Copy NextJS to dist directory
-        run: cp -r ./apps/nf2t-webtools/out/* ./apps/webtools/dist/nextjs
       # Deploy GitHub Pages            
       - name: Setup Pages
         uses: actions/configure-pages@v5
