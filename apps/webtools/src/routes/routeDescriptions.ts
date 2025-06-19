@@ -23,6 +23,7 @@ import { downloadMavenRoute } from "./mavenCoordinate/mavenCoordinate";
 import { mavenCoordinateListRoute } from "./mavenCoordinate/mavenCoordinateList";
 import { mavenCoordinateResolverRoute } from "./mavenCoordinate/mavenCoordinateResolver";
 import { PdfCombinerRoute } from "./pdfcombiner/PdfCombinerRoute";
+import {flowDefinitionRoute} from "./flowDefinition/flowDefinitionRoute";
 
 export const routeChildren = [
   buildInfo,
@@ -50,6 +51,7 @@ export const routeChildren = [
   mavenCoordinateListRoute,
   mavenCoordinateResolverRoute,
   PdfCombinerRoute,
+  flowDefinitionRoute,
 ]
 
 export const routePaths = routeChildren.map(x => x.path);
@@ -236,4 +238,9 @@ export const routeDescriptions: Record<RoutePathType, RouteDescription> = {
     name: "PDF Combiner",
     shortDescription: "Combines multiple PDFs into a single document.",
   },
+  "/flowDefinition": {
+    to: "/flowDefinition",
+    name: "Flow Definition Parser",
+    shortDescription: "",
+  }
 }
