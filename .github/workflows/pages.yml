@@ -44,7 +44,19 @@ jobs:
       - name: Test flowfiletools-js
         run: pnpm run test
       - name: Build Project
-        run: pnpm run build       
+        run: pnpm run build 
+      # Experimental NextJS Version
+      - name: Install NextJS version
+        run: npm install
+        working-directory: ./apps/nf2t-webtools
+      - name: Build NextJS version
+        run: npm build
+        working-directory: ./apps/nf2t-webtools
+      - name: Make NextJS dist directory
+        run: mkdir --parents ./apps/webtools/dist/nextjs
+      - name: Copy NextJS to dist directory
+        run: cp -r ./apps/nf2t-webtools/out/* ./apps/webtools/dist/nextjs
+      # Deploy GitHub Pages            
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
