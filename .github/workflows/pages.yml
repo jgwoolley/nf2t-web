@@ -50,7 +50,7 @@ jobs:
         run: npm install
         working-directory: ./apps/nf2t-webtools
       - name: Build NextJS version
-        run: npm build
+        run: npm run build
         working-directory: ./apps/nf2t-webtools
       - name: Make NextJS dist directory
         run: mkdir --parents ./apps/webtools/dist/nextjs
