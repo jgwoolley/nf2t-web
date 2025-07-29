@@ -140,11 +140,13 @@ async function mergeRow(mergedPdf: PDFDocument, file: File) {
 function PdfCombinerComponent() {
     const [files, setFiles] = useState<PdfCombinerRow[]>([]);
     const snackbarProps = useNf2tSnackbar();
+    const [ loading, setLoading ] = useState(false);
 
     const onInputChange = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files == undefined) {
             return;
         }
+        setLoading(true);
         const files: PdfCombinerRow[] = [];
         let errors: unknown[] = [];
         for (const file of e.target.files) {
@@ -154,17 +156,19 @@ function PdfCombinerComponent() {
         }
 
         setFiles(files);
+        setLoading(false);
         if (errors.length === 0) {
             snackbarProps.submitSnackbarMessage(`Processed ${files.length} PDF(s) successfully.`, "success");
         } else {
             snackbarProps.submitSnackbarMessage(`Processed ${files.length} PDF(s) successfully, with ${errors.length} failure(s).`, "warning", errors);
         }
-    }, [snackbarProps, setFiles]);
+    }, [snackbarProps, setFiles, setLoading ]);
 
     const onClick = useCallback(async () => {
         if (files.length <= 0) {
             return;
         }
+        setLoading(true);
         const mergedPdf = await PDFDocument.create();
         let filename = "merged.pdf";
 
@@ -181,12 +185,13 @@ function PdfCombinerComponent() {
         const mergedPdfBytes = await mergedPdf.save();
         const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
         downloadFile(new File([blob], filename));
+        setLoading(false);
         if (errors.length === 0) {
             snackbarProps.submitSnackbarMessage(`Generated PDF successfully, with ${mergedPdf.getPageCount()} page(s).`, "success");
         } else {
             snackbarProps.submitSnackbarMessage(`Generated PDF successfully, with ${errors.length} failure(s).`, "warning", errors);
         }
-    }, [files, snackbarProps]);
+    }, [files, snackbarProps, setLoading ]);
 
     return (
         <>
@@ -263,7 +268,7 @@ function PdfCombinerComponent() {
                         </Table>
                     </TableContainer>
                     <h3>Merge PDF File(s)</h3>
-                    <ButtonGroup>
+                    <ButtonGroup disabled={loading}>
                         <Button 
                             variant="outlined" 
                             onClick={onClick}
