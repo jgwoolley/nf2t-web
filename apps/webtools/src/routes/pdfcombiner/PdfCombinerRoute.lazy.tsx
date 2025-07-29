@@ -20,6 +20,8 @@ type PdfCombinerRow = {
     // TODO: Rethink this to take raw file? So it can be rendered in iframe?
     file: File,
     pageCount: number,
+    errors: any[],
+    parserType: 'pdf' | 'image' | 'invalid',
 }
 
 async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
@@ -29,6 +31,110 @@ async function readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
         reader.onerror = () => reject(reader.error);
         reader.readAsArrayBuffer(file);
     });
+}
+
+async function indentifyRowPdf(file: File): Promise<PdfCombinerRow> {
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        return {
+            file: file,
+            pageCount: pdfDoc.getPageCount(),
+            errors: [],
+            parserType: 'pdf',
+        }
+    } catch (e) {
+        return {
+            file: file,
+            pageCount: 0,
+            errors: [e],
+            parserType: 'pdf',
+        }
+    }
+}
+
+async function indentifyRowImage(file: File): Promise<PdfCombinerRow> {
+    return {
+        file: file,
+        pageCount: 1,
+        errors: [],
+        parserType: 'image',
+    }
+}
+
+
+const indentifyRowLut: ReadonlyMap<string, (file: File) => Promise<PdfCombinerRow> > = new Map([
+    ['application/pdf', indentifyRowPdf],
+    ['image/jpeg', indentifyRowImage],
+    ['image/png', indentifyRowImage],
+]);
+
+async function indentifyRow(file: File): Promise<PdfCombinerRow> {
+    const parseFunction = indentifyRowLut.get(file.type);
+    if(parseFunction) {
+        return await parseFunction(file);
+    }
+
+    return {
+        file: file,
+        pageCount: 0,
+        errors: [ "Invalid file type." ],
+        parserType: 'invalid',
+    }
+}
+
+function mergeAddImage(mergedPdf: PDFDocument, image: PDFImage) {
+    if (image) {
+        const page = mergedPdf.addPage(PageSizes.A4);
+        const { width, height } = page.getSize();
+        const imageDims = image.scaleToFit(width - 50, height - 50);
+
+        page.drawImage(image, {
+            x: (width - imageDims.width) / 2,
+            y: (height - imageDims.height) / 2,
+            width: imageDims.width,
+            height: imageDims.height,
+        });
+        console.log(page);
+    } else {
+        console.error(`Image failed to save: ${image}`);
+    }
+}
+
+async function mergeRowPdf(mergedPdf: PDFDocument, file: File): Promise<void> {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
+    console.log(copiedPages);
+    copiedPages.forEach((page) => mergedPdf.addPage(page));
+}
+
+async function mergeRowJPEG(mergedPdf: PDFDocument, file: File): Promise<void> {
+    const imageBytes = await readFileAsArrayBuffer(file);
+    const image = await mergedPdf.embedJpg(imageBytes);
+    mergeAddImage(mergedPdf, image);
+}
+
+async function mergeRowPNG(mergedPdf: PDFDocument, file: File): Promise<void> {
+    const imageBytes = await readFileAsArrayBuffer(file);
+    const image = await mergedPdf.embedPng(imageBytes);
+    mergeAddImage(mergedPdf, image);
+}
+
+const mergeRowLut: ReadonlyMap<string, (mergedPdf: PDFDocument, file: File) => Promise<void>> = new Map([
+    ['application/pdf', mergeRowPdf],
+    ['image/jpeg', mergeRowJPEG],
+    ['image/png', mergeRowPNG],
+]);
+
+async function mergeRow(mergedPdf: PDFDocument, file: File) {
+    const luv = mergeRowLut.get(file.type);
+    if(luv) {
+        await luv(mergedPdf, file);
+        console.log(`Parsed ${file.name} (${file.type}).`);
+    } else {
+        console.error(`Failed to parse ${file.name} (${file.type}).`);
+    }
 }
 
 function PdfCombinerComponent() {
@@ -42,52 +148,9 @@ function PdfCombinerComponent() {
         const files: PdfCombinerRow[] = [];
         let errors: unknown[] = [];
         for (const file of e.target.files) {
-            if (file.type === "application/pdf") {
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdfDoc = await PDFDocument.load(arrayBuffer);
-                    files.push({
-                        file: file,
-                        pageCount: pdfDoc.getPageCount(),
-                    });
-                } catch (e) {
-                    errors.push(e);
-                }
-            }
-            else if (file.type === 'image/jpeg' || file.type === 'image/png') {
-                try {
-                    const imageBytes = await readFileAsArrayBuffer(file);
-                    const pdfDoc = await PDFDocument.create(); // Create a new PDF for each image
-                    let image: PDFImage | undefined;
-                    if (file.type === 'image/jpeg') {
-                        image = await pdfDoc.embedJpg(imageBytes);
-                    } else if (file.type === 'image/png') {
-                        image = await pdfDoc.embedPng(imageBytes);
-                    }
-                    if (image) {
-                        const page = pdfDoc.addPage(PageSizes.A4);
-                        const { width, height } = page.getSize();
-                        const imageDims = image.scaleToFit(width - 50, height - 50);
-
-                        page.drawImage(image, {
-                            x: (width - imageDims.width) / 2,
-                            y: (height - imageDims.height) / 2,
-                            width: imageDims.width,
-                            height: imageDims.height,
-                        });
-
-                        const pdfBytes = await pdfDoc.save();
-                        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-                        files.push({
-                            // Use the original file name or a more descriptive one
-                            file: new File([blob], `${file.name}.pdf`, { type: 'application/pdf' }),
-                            pageCount: pdfDoc.getPageCount(),
-                        });
-                    }
-                } catch (err) {
-                    errors.push(err);
-                }
-            }
+            const row = await indentifyRow(file);
+            files.push(row);
+            errors.push(...row.errors);
         }
 
         setFiles(files);
@@ -109,10 +172,7 @@ function PdfCombinerComponent() {
 
         for (const file of files) {
             try {
-                const arrayBuffer = await file.file.arrayBuffer();
-                const pdfDoc = await PDFDocument.load(arrayBuffer);
-                const copiedPages = await mergedPdf.copyPages(pdfDoc, pdfDoc.getPageIndices());
-                copiedPages.forEach((page) => mergedPdf.addPage(page));
+                await mergeRow(mergedPdf, file.file);
             } catch (e) {
                 snackbarProps.submitSnackbarMessage("Could not read given PDF.", "error", e);
             }
@@ -122,7 +182,7 @@ function PdfCombinerComponent() {
         const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
         downloadFile(new File([blob], filename));
         if (errors.length === 0) {
-            snackbarProps.submitSnackbarMessage(`Generated PDF successfully.`, "success");
+            snackbarProps.submitSnackbarMessage(`Generated PDF successfully, with ${mergedPdf.getPageCount()} page(s).`, "success");
         } else {
             snackbarProps.submitSnackbarMessage(`Generated PDF successfully, with ${errors.length} failure(s).`, "warning", errors);
         }
@@ -203,10 +263,55 @@ function PdfCombinerComponent() {
                         </Table>
                     </TableContainer>
                     <h3>Merge PDF File(s)</h3>
-                    <Button 
-                        variant="outlined" 
-                        onClick={onClick}
-                    >Combine</Button>
+                    <ButtonGroup>
+                        <Button 
+                            variant="outlined" 
+                            onClick={onClick}
+                        >Combine</Button>
+                        <Button
+                            variant="outlined" 
+                            onClick={() => {setFiles([])}}
+                        >Delete All</Button>
+                        <Tooltip title="Sort Descending" style={{ cursor: "pointer" }} onClick={() => {
+                            setFiles([...files].sort((a, b) => {
+                                const nameA = a.file.name;
+                                const nameB = b.file.name;
+
+                                if (nameA < nameB) {
+                                    return 1; 
+                                }
+                                if (nameA > nameB) {
+                                    return -1;
+                                }
+                                return 0; 
+                            }));
+                        }}>
+                            <Button variant="outlined" >
+                                <span>Sort </span>
+                                <ArrowUpwardIcon />
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title="Sort Ascending" style={{ cursor: "pointer" }} onClick={() => {
+                            setFiles([...files].sort((a, b) => {
+                                const nameA = a.file.name;
+                                const nameB = b.file.name;
+
+                                if (nameA < nameB) {
+                                    return -1; 
+                                }
+                                if (nameA > nameB) {
+                                    return 1;
+                                }
+                                return 0; 
+                            }));
+                        }}>
+                            <Button variant="outlined" >
+                                <span>Sort </span>
+                                <ArrowDownwardIcon />
+                            </Button>
+                        </Tooltip>
+                    </ButtonGroup>
+                    
                 </>
             )}
             <Nf2tSnackbar {...snackbarProps} />
